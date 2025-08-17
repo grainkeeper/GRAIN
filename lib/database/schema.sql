@@ -45,12 +45,7 @@ CREATE TABLE historical_geo_climatic_data (
     data_source VARCHAR(20) NOT NULL, -- 'PAGASA', 'PSA', 'PhilRice'
     data_quality_score DECIMAL(3,2), -- Data quality score (0.00-1.00)
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Indexes for performance
-    CONSTRAINT idx_historical_data_province_date UNIQUE (province, date),
-    CONSTRAINT idx_historical_data_year_month (year, month),
-    CONSTRAINT idx_historical_data_source (data_source)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- User Farm Profiles and Preferences Table
@@ -94,11 +89,7 @@ CREATE TABLE user_farm_profiles (
     is_verified BOOLEAN DEFAULT false,
     verification_date TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_user_farm_profiles_user_id UNIQUE (user_id),
-    CONSTRAINT idx_user_farm_profiles_farm_name UNIQUE (user_id, farm_name)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Farm Historical Performance Table
@@ -138,10 +129,7 @@ CREATE TABLE farm_historical_performance (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_farm_performance_season UNIQUE (farm_profile_id, season_year, season_type)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Yield Predictions Table
@@ -185,10 +173,7 @@ CREATE TABLE yield_predictions (
     prediction_status VARCHAR(20) DEFAULT 'generated', -- generated, validated, actual_recorded
     is_archived BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_yield_predictions_farm_season UNIQUE (farm_profile_id, target_season_year, target_season_type)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Prediction Factor Explanations Table
@@ -212,10 +197,7 @@ CREATE TABLE prediction_factor_explanations (
     factor_importance_rank INTEGER, -- Rank of importance (1 = most important)
     
     -- Metadata
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_prediction_factors_prediction_id (prediction_id, factor_importance_rank)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Prediction Accuracy Tracking Table
@@ -241,10 +223,7 @@ CREATE TABLE prediction_accuracy_tracking (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_accuracy_tracking_prediction_id UNIQUE (prediction_id)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Real-time Weather Data Table
@@ -286,10 +265,7 @@ CREATE TABLE real_time_weather_data (
     weather_api_source VARCHAR(50) NOT NULL, -- OpenWeatherMap, PAGASA, etc.
     data_quality_score DECIMAL(3,2), -- Data quality score (0.00-1.00)
     last_updated TIMESTAMP WITH TIME ZONE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_weather_data_location_time UNIQUE (province, municipality, last_updated)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Weather Forecast Data Table
@@ -327,10 +303,7 @@ CREATE TABLE weather_forecast_data (
     forecast_period VARCHAR(20) NOT NULL, -- hourly, daily, weekly
     weather_api_source VARCHAR(50) NOT NULL, -- Data source
     confidence_level DECIMAL(3,2), -- Forecast confidence (0.00-1.00)
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_forecast_data_location_date UNIQUE (province, municipality, forecast_date, forecast_hour)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Planting Windows Table
@@ -369,10 +342,7 @@ CREATE TABLE planting_windows (
     -- Status and Metadata
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_planting_windows_location_season UNIQUE (province, season_year, season_type)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Weather Alerts Table
@@ -406,10 +376,7 @@ CREATE TABLE weather_alerts (
     is_active BOOLEAN DEFAULT true,
     is_sent_to_users BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_weather_alerts_location_time UNIQUE (province, municipality, alert_type, alert_start_time)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better query performance
@@ -568,10 +535,7 @@ CREATE TABLE chatbot_conversations (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_chatbot_conversations_user_active UNIQUE (user_id, is_active)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Chatbot Messages Table
@@ -604,10 +568,7 @@ CREATE TABLE chatbot_messages (
     -- Message Metadata
     message_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     processing_time_ms INTEGER, -- Time taken to process the message
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_chatbot_messages_conversation_order (conversation_id, message_timestamp)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Chatbot Knowledge Base Table
@@ -646,10 +607,7 @@ CREATE TABLE chatbot_knowledge_base (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_knowledge_base_category_active (knowledge_category, is_active)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Chatbot Rules and Patterns Table
@@ -688,10 +646,7 @@ CREATE TABLE chatbot_rules_patterns (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_rules_patterns_category_priority (rule_category, rule_priority)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- User Interaction Analytics Table
@@ -728,10 +683,7 @@ CREATE TABLE user_interaction_analytics (
     
     -- Timestamp
     interaction_timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_user_analytics_user_timestamp (user_id, interaction_timestamp)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Chatbot Training Data Table
@@ -765,10 +717,7 @@ CREATE TABLE chatbot_training_data (
     
     -- Metadata
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    -- Constraints
-    CONSTRAINT idx_training_data_intent_category (training_intent, data_category)
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better query performance
@@ -805,51 +754,18 @@ CREATE INDEX idx_training_data_category ON chatbot_training_data(data_category);
 CREATE INDEX idx_training_data_language ON chatbot_training_data(data_language);
 CREATE INDEX idx_training_data_quality ON chatbot_training_data(data_quality_score);
 
--- Create triggers for updated_at timestamps
-CREATE TRIGGER update_chatbot_conversations_updated_at 
-    BEFORE UPDATE ON chatbot_conversations 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_knowledge_base_updated_at 
-    BEFORE UPDATE ON chatbot_knowledge_base 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_rules_patterns_updated_at 
-    BEFORE UPDATE ON chatbot_rules_patterns 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
-CREATE TRIGGER update_training_data_updated_at 
-    BEFORE UPDATE ON chatbot_training_data 
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- Comments for documentation
-COMMENT ON TABLE chatbot_conversations IS 'Chatbot conversation sessions with users';
-COMMENT ON COLUMN chatbot_conversations.conversation_type IS 'Type of conversation (general, yield_advice, weather_help, etc.)';
-COMMENT ON COLUMN chatbot_conversations.user_farm_context IS 'JSON object containing farm context for personalized responses';
-COMMENT ON COLUMN chatbot_conversations.total_messages IS 'Total number of messages in the conversation';
-
-COMMENT ON TABLE chatbot_messages IS 'Individual messages in chatbot conversations';
-COMMENT ON COLUMN chatbot_messages.message_type IS 'Type of message (user, bot, system)';
-COMMENT ON COLUMN chatbot_messages.message_intent IS 'Detected intent from user message';
-COMMENT ON COLUMN chatbot_messages.bot_confidence_score IS 'Confidence score of bot response (0.00-1.00)';
-COMMENT ON COLUMN chatbot_messages.bot_recommendations IS 'JSON object containing structured recommendations';
-
-COMMENT ON TABLE chatbot_knowledge_base IS 'Knowledge base for chatbot responses and farming advice';
-COMMENT ON COLUMN chatbot_knowledge_base.applicable_provinces IS 'Array of provinces where this knowledge applies';
-COMMENT ON COLUMN chatbot_knowledge_base.knowledge_quality_score IS 'Quality assessment score (0.00-1.00)';
-COMMENT ON COLUMN chatbot_knowledge_base.effectiveness_score IS 'Average effectiveness based on user feedback';
-
-COMMENT ON TABLE chatbot_rules_patterns IS 'Rules and patterns for chatbot response generation';
-COMMENT ON COLUMN chatbot_rules_patterns.rule_pattern IS 'Pattern or trigger condition for the rule';
-COMMENT ON COLUMN chatbot_rules_patterns.rule_confidence_threshold IS 'Minimum confidence to trigger the rule';
-COMMENT ON COLUMN chatbot_rules_patterns.rule_actions IS 'JSON array of actions to take when rule matches';
-
-COMMENT ON TABLE user_interaction_analytics IS 'Analytics data for user interactions with the platform';
-COMMENT ON COLUMN user_interaction_analytics.interaction_type IS 'Type of user interaction';
-COMMENT ON COLUMN user_interaction_analytics.user_satisfaction_score IS 'User satisfaction rating (1-5)';
-COMMENT ON COLUMN user_interaction_analytics.user_engagement_level IS 'User engagement level (low, medium, high)';
-
-COMMENT ON TABLE chatbot_training_data IS 'Training data for improving chatbot responses';
-COMMENT ON COLUMN chatbot_training_data.training_intent IS 'Intent classification for the training question';
-COMMENT ON COLUMN chatbot_training_data.training_entities IS 'JSON object containing named entities';
-COMMENT ON COLUMN chatbot_training_data.training_effectiveness IS 'Effectiveness in improving bot responses';
+-- Add unique constraints where needed
+ALTER TABLE historical_geo_climatic_data ADD CONSTRAINT idx_historical_data_province_date UNIQUE (province, date);
+ALTER TABLE user_farm_profiles ADD CONSTRAINT idx_user_farm_profiles_user_id UNIQUE (user_id);
+ALTER TABLE farm_historical_performance ADD CONSTRAINT idx_farm_performance_season UNIQUE (farm_profile_id, season_year, season_type);
+ALTER TABLE yield_predictions ADD CONSTRAINT idx_yield_predictions_farm_season UNIQUE (farm_profile_id, target_season_year, target_season_type);
+ALTER TABLE prediction_accuracy_tracking ADD CONSTRAINT idx_accuracy_tracking_prediction_id UNIQUE (prediction_id);
+ALTER TABLE real_time_weather_data ADD CONSTRAINT idx_weather_data_location_time UNIQUE (province, municipality, last_updated);
+ALTER TABLE weather_forecast_data ADD CONSTRAINT idx_forecast_data_location_date UNIQUE (province, municipality, forecast_date, forecast_hour);
+ALTER TABLE planting_windows ADD CONSTRAINT idx_planting_windows_location_season UNIQUE (province, season_year, season_type);
+ALTER TABLE weather_alerts ADD CONSTRAINT idx_weather_alerts_location_time UNIQUE (province, municipality, alert_type, alert_start_time);
+ALTER TABLE chatbot_conversations ADD CONSTRAINT idx_chatbot_conversations_user_active UNIQUE (user_id, is_active);
+ALTER TABLE chatbot_knowledge_base ADD CONSTRAINT idx_knowledge_base_category_active UNIQUE (knowledge_category, is_active);
+ALTER TABLE chatbot_rules_patterns ADD CONSTRAINT idx_rules_patterns_category_priority UNIQUE (rule_category, rule_priority);
+ALTER TABLE user_interaction_analytics ADD CONSTRAINT idx_user_analytics_user_timestamp UNIQUE (user_id, interaction_timestamp);
+ALTER TABLE chatbot_training_data ADD CONSTRAINT idx_training_data_intent_category UNIQUE (training_intent, data_category);

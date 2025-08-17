@@ -40,9 +40,9 @@ Based on the PRD analysis, here are the high-level tasks required to implement t
   - [x] 1.3 Create database schema for yield predictions and results
   - [x] 1.4 Create database schema for weather data and planting windows
   - [x] 1.5 Create database schema for chatbot conversations and user interactions
-  - [ ] 1.6 Set up database migrations and version control
-  - [ ] 1.7 Create TypeScript types for all database entities
-  - [ ] 1.8 Set up data import/export utilities for CSV/Excel files 
+  - [x] 1.6 Set up database migrations and version control
+  - [x] 1.7 Create TypeScript types for all database entities
+  - [x] 1.8 Set up data import/export utilities for CSV/Excel files 
 
 - [ ] 2.0 Yield Prediction System Implementation
   - [ ] 2.1 Create yield prediction form component with farm detail inputs
