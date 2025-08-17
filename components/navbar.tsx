@@ -19,16 +19,6 @@ const navItems = [
     icon: Wheat
   },
   {
-    title: 'Weather',
-    href: '/weather',
-    icon: BarChart3
-  },
-  {
-    title: 'Chatbot',
-    href: '/chatbot',
-    icon: MessageSquare
-  },
-  {
     title: 'Map',
     href: '/map',
     icon: MapPin
@@ -37,15 +27,21 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname()
+  const isHomePage = pathname === '/'
 
   return (
-    <nav className="border-b bg-white dark:bg-gray-950">
+    <nav className={cn(
+      "transition-all duration-300",
+      isHomePage 
+        ? "bg-transparent border-transparent absolute top-0 left-0 right-0 z-50" 
+        : "border-b bg-white/95 backdrop-blur-sm dark:bg-gray-950/95"
+    )}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-2">
-              <Wheat className="h-6 w-6" />
-              <span className="text-xl font-bold">GrainKeeper</span>
+              <Wheat className={cn("h-6 w-6", isHomePage ? "text-white" : "")} />
+              <span className={cn("text-xl font-bold", isHomePage ? "text-white" : "")}>GrainKeeper</span>
             </Link>
             
             <div className="hidden md:flex items-center space-x-6">
@@ -57,9 +53,13 @@ export function Navbar() {
                     href={item.href}
                     className={cn(
                       "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary",
-                      pathname === item.href
-                        ? "text-black dark:text-white"
-                        : "text-muted-foreground"
+                      isHomePage 
+                        ? pathname === item.href
+                          ? "text-white"
+                          : "text-white/80 hover:text-white"
+                        : pathname === item.href
+                          ? "text-black dark:text-white"
+                          : "text-muted-foreground"
                     )}
                   >
                     <Icon className="h-4 w-4" />

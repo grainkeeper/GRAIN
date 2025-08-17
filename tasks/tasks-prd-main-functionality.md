@@ -7,24 +7,25 @@ Based on the PRD analysis, here are the high-level tasks required to implement t
 - `lib/database/schema.sql` - Database schema for historical geo-climatic data, user farms, and predictions.
 - `lib/database/migrations/` - Database migration files for version control.
 - `lib/services/weather-api.ts` - Weather API integration service for real-time data fetching.
-- `lib/services/prediction-model.ts` - ML model service for yield predictions.
+- `lib/services/prediction-model.ts` - ML model service for yield predictions with 7-day planting window finder.
 - `lib/services/chatbot-service.ts` - AI chatbot service for farming advice.
 - `lib/utils/data-processors.ts` - Utility functions for data processing and calculations.
-- `components/predictions/yield-form.tsx` - Main yield prediction form component.
+- `components/predictions/yield-form.tsx` - Main yield prediction form component with simple UI/UX.
 - `components/predictions/yield-form.test.tsx` - Unit tests for yield prediction form.
 - `components/weather/weather-display.tsx` - Weather information display component.
 - `components/weather/weather-display.test.tsx` - Unit tests for weather display.
-- `components/chatbot/chatbot-interface.tsx` - Chatbot UI component.
-- `components/chatbot/chatbot-interface.test.tsx` - Unit tests for chatbot interface.
+- `components/chatbot/chatbot-widget.tsx` - Floating chatbot widget component.
+- `components/chatbot/chatbot-widget.test.tsx` - Unit tests for chatbot widget.
 - `components/map/philippine-map.tsx` - Interactive Philippine map component.
 - `components/map/philippine-map.test.tsx` - Unit tests for map component.
-- `app/api/predictions/route.ts` - API route for yield prediction calculations.
+- `app/api/predictions/planting-window/route.ts` - API route for 7-day planting window predictions.
 - `app/api/weather/route.ts` - API route for weather data fetching.
 - `app/api/chatbot/route.ts` - API route for chatbot interactions.
 - `app/api/data-import/route.ts` - API route for data import functionality.
 - `lib/types/database.ts` - TypeScript types for database entities.
 - `lib/types/api.ts` - TypeScript types for API requests/responses.
-- `lib/constants/provinces.ts` - Philippine provinces data and coordinates.
+- `lib/services/philippine-geo-api.ts` - Philippine geographic data service with external API integration.
+- `app/api/philippine-provinces/route.ts` - API route for Philippine provinces data.
 - `lib/constants/rice-varieties.ts` - Rice variety data and characteristics.
 
 ### Notes
@@ -44,17 +45,17 @@ Based on the PRD analysis, here are the high-level tasks required to implement t
   - [x] 1.7 Create TypeScript types for all database entities
   - [x] 1.8 Set up data import/export utilities for CSV/Excel files 
 
-- [ ] 2.0 Yield Prediction System Implementation
-  - [ ] 2.1 Create yield prediction form component with farm detail inputs
-  - [ ] 2.2 Implement ML model service for yield calculations
-  - [ ] 2.3 Integrate historical geo-climatic data from PAGASA, PSA, and PhilRice
-  - [ ] 2.4 Create API route for yield prediction calculations
-  - [ ] 2.5 Implement prediction result display with confidence intervals
-  - [ ] 2.6 Add prediction factor explanations and breakdown
-  - [ ] 2.7 Create historical performance tracking for user farms
-  - [ ] 2.8 Implement rice variety comparison functionality
-  - [ ] 2.9 Add form validation and error handling
-  - [ ] 2.10 Create unit tests for prediction system components
+- [x] 2.0 Yield Prediction System Implementation
+  - [x] 2.1 Create yield prediction form component with farm detail inputs
+  - [x] 2.2 Implement ML model service for yield calculations
+  - [x] 2.3 Integrate historical geo-climatic data from PAGASA, PSA, and PhilRice
+  - [x] 2.4 Create API route for yield prediction calculations
+  - [x] 2.5 Implement prediction result display with confidence intervals
+  - [x] 2.6 Add prediction factor explanations and breakdown
+  - [x] 2.7 Create historical performance tracking for user farms
+  - [x] 2.8 Implement rice variety comparison functionality
+  - [x] 2.9 Add form validation and error handling
+  - [x] 2.10 Create unit tests for prediction system components
 
 - [ ] 3.0 Weather Integration & Planting Windows
   - [ ] 3.1 Set up weather API integration service (OpenWeatherMap or similar)
@@ -68,17 +69,22 @@ Based on the PRD analysis, here are the high-level tasks required to implement t
   - [ ] 3.9 Create API route for weather data
   - [ ] 3.10 Add unit tests for weather integration components
 
-- [ ] 4.0 GRAINKEEPER Chatbot Development
-  - [ ] 4.1 Create chatbot interface component with conversation UI
-  - [ ] 4.2 Implement chatbot service with AI-powered responses
-  - [ ] 4.3 Add conversation history storage and retrieval
-  - [ ] 4.4 Implement personalized recommendations based on user location
-  - [ ] 4.5 Create knowledge base for rice farming advice
-  - [ ] 4.6 Add support for multiple crop types and soil conditions
-  - [ ] 4.7 Implement real-time chat functionality
-  - [ ] 4.8 Create API route for chatbot interactions
-  - [ ] 4.9 Add typing indicators and loading states
-  - [ ] 4.10 Create unit tests for chatbot components
+- [x] 4.0 GRAINKEEPER Chatbot Development
+  - [x] 4.1 Create floating chatbot widget component (bottom-right corner)
+  - [x] 4.2 Implement data collection flow (location, crop type, soil conditions)
+  - [x] 4.3 Create chatbot service with AI-powered responses
+  - [x] 4.4 Implement conversation history storage and retrieval
+  - [x] 4.5 Add personalized recommendations based on user farming data
+  - [ ] 4.6 Create knowledge base for rice farming advice (Region 12 focus)
+  - [ ] 4.7 Implement weather-based recommendations and alerts
+  - [x] 4.8 Create API route for chatbot interactions
+  - [x] 4.9 Add typing indicators and loading states
+  - [ ] 4.10 Implement multi-language support (English/Filipino)
+  - [ ] 4.11 Add fertilizer and pest management recommendations
+  - [ ] 4.12 Create emergency weather alert system
+  - [ ] 4.13 Implement user session management and context retention
+  - [ ] 4.14 Add conversation export and sharing functionality
+  - [ ] 4.15 Create unit tests for chatbot components
 
 - [ ] 5.0 Interactive Map System
   - [ ] 5.1 Create Philippine map component with province boundaries
