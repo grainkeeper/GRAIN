@@ -75,16 +75,16 @@ Based on the PRD analysis, here are the high-level tasks required to implement t
   - [x] 4.3 Create chatbot service with AI-powered responses
   - [x] 4.4 Implement conversation history storage and retrieval
   - [x] 4.5 Add personalized recommendations based on user farming data
-  - [ ] 4.6 Create knowledge base for rice farming advice (Region 12 focus)
-  - [ ] 4.7 Implement weather-based recommendations and alerts
+  - [x] 4.6 Create knowledge base for rice farming advice (Region 12 focus)
+  - [x] 4.7 Implement weather-based recommendations and alerts
   - [x] 4.8 Create API route for chatbot interactions
   - [x] 4.9 Add typing indicators and loading states
-  - [ ] 4.10 Implement multi-language support (English/Filipino)
-  - [ ] 4.11 Add fertilizer and pest management recommendations
-  - [ ] 4.12 Create emergency weather alert system
-  - [ ] 4.13 Implement user session management and context retention
-  - [ ] 4.14 Add conversation export and sharing functionality
-  - [ ] 4.15 Create unit tests for chatbot components
+  - [x] 4.10 Implement multi-language support (English/Filipino)
+  - [x] 4.11 Add fertilizer and pest management recommendations
+  - [x] 4.12 Create emergency weather alert system
+  - [x] 4.13 Implement user session management and context retention
+  - [x] 4.14 Add conversation export and sharing functionality
+  - [x] 4.15 Create unit tests for chatbot components
 
 - [ ] 5.0 Interactive Map System
   - [ ] 5.1 Create Philippine map component with province boundaries
