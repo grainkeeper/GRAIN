@@ -1,19 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapPin, Wheat, Droplets, Thermometer, Calendar } from 'lucide-react'
-import { PHILIPPINE_PROVINCES } from '@/lib/constants/provinces'
 import { RICE_VARIETIES } from '@/lib/constants/rice-varieties'
+import { psgcService, PSGCProvince, PSGCCity, PSGCBarangay } from '@/lib/services/psgc-api'
 
 interface FarmingData {
   location: {
-    province: string
-    city: string
-    barangay?: string
+    province: PSGCProvince | null
+    city: PSGCCity | null
+    barangay: PSGCBarangay | null
   }
   crop: {
     variety: string
@@ -34,6 +34,7 @@ interface FarmingData {
 interface DataCollectionFlowProps {
   onComplete: (data: FarmingData) => void
   onCancel: () => void
+  existingData?: FarmingData
 }
 
 const soilTypes = [
@@ -74,13 +75,13 @@ const weatherConditions = [
   'Overcast'
 ]
 
-export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowProps) {
+export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataCollectionFlowProps) {
   const [step, setStep] = useState(1)
-  const [data, setData] = useState<FarmingData>({
+  const [data, setData] = useState<FarmingData>(existingData || {
     location: {
-      province: '',
-      city: '',
-      barangay: ''
+      province: null,
+      city: null,
+      barangay: null
     },
     crop: {
       variety: '',
@@ -98,7 +99,82 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
     }
   })
 
-  const updateData = (section: keyof FarmingData, field: string, value: string) => {
+  // PSGC Data states
+  const [provinces, setProvinces] = useState<PSGCProvince[]>([])
+  const [cities, setCities] = useState<PSGCCity[]>([])
+  const [barangays, setBarangays] = useState<PSGCBarangay[]>([])
+  const [loadingProvinces, setLoadingProvinces] = useState(false)
+  const [loadingCities, setLoadingCities] = useState(false)
+  const [loadingBarangays, setLoadingBarangays] = useState(false)
+
+  // Load provinces on mount
+  useEffect(() => {
+    loadProvinces()
+  }, [])
+
+  // Load cities when province changes
+  useEffect(() => {
+    if (data.location.province) {
+      loadCities(data.location.province.code)
+    } else {
+      setCities([])
+      setData(prev => ({
+        ...prev,
+        location: { ...prev.location, city: null, barangay: null }
+      }))
+    }
+  }, [data.location.province])
+
+  // Load barangays when city changes
+  useEffect(() => {
+    if (data.location.city) {
+      loadBarangays(data.location.city.code)
+    } else {
+      setBarangays([])
+      setData(prev => ({
+        ...prev,
+        location: { ...prev.location, barangay: null }
+      }))
+    }
+  }, [data.location.city])
+
+  const loadProvinces = async () => {
+    setLoadingProvinces(true)
+    try {
+      const provincesData = await psgcService.getProvincesCached()
+      setProvinces(provincesData)
+    } catch (error) {
+      console.error('Error loading provinces:', error)
+    } finally {
+      setLoadingProvinces(false)
+    }
+  }
+
+  const loadCities = async (provinceCode: string) => {
+    setLoadingCities(true)
+    try {
+      const citiesData = await psgcService.getCitiesAndMunicipalitiesCached(provinceCode)
+      setCities(citiesData)
+    } catch (error) {
+      console.error('Error loading cities:', error)
+    } finally {
+      setLoadingCities(false)
+    }
+  }
+
+  const loadBarangays = async (cityCode: string) => {
+    setLoadingBarangays(true)
+    try {
+      const barangaysData = await psgcService.getBarangaysCached(cityCode)
+      setBarangays(barangaysData)
+    } catch (error) {
+      console.error('Error loading barangays:', error)
+    } finally {
+      setLoadingBarangays(false)
+    }
+  }
+
+  const updateData = (section: keyof FarmingData, field: string, value: any) => {
     setData(prev => ({
       ...prev,
       [section]: {
@@ -109,14 +185,17 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
   }
 
   const nextStep = () => {
+    console.log('Next step clicked, current step:', step, 'isValid:', isStepValid())
     if (step < 4) {
       setStep(step + 1)
     } else {
+      console.log('Completing profile setup with data:', data)
       onComplete(data)
     }
   }
 
   const prevStep = () => {
+    console.log('Previous step clicked, current step:', step)
     if (step > 1) {
       setStep(step - 1)
     }
@@ -143,23 +222,29 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
         return (
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-green-600">
-              <MapPin className="h-5 w-5" />
-              <h3 className="font-semibold">Location Information</h3>
+              <MapPin className="h-4 w-4" />
+              <h3 className="font-semibold text-base">Location Information</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600 leading-relaxed">
               Tell us about your farming location for personalized recommendations.
             </p>
             
             <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Province *</label>
-                <Select value={data.location.province} onValueChange={(value) => updateData('location', 'province', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your province" />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Province *</label>
+                <Select 
+                  value={data.location.province?.code || ''} 
+                  onValueChange={(provinceCode) => {
+                    const province = provinces.find(p => p.code === provinceCode)
+                    updateData('location', 'province', province)
+                  }}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder={loadingProvinces ? "Loading provinces..." : "Select your province"} />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(PHILIPPINE_PROVINCES).map((province) => (
-                      <SelectItem key={province.name} value={province.name}>
+                    {provinces.map((province) => (
+                      <SelectItem key={province.code} value={province.code}>
                         {province.name}
                       </SelectItem>
                     ))}
@@ -167,22 +252,58 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                 </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">City/Municipality *</label>
-                <Input
-                  value={data.location.city}
-                  onChange={(e) => updateData('location', 'city', e.target.value)}
-                  placeholder="Enter your city or municipality"
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">City/Municipality *</label>
+                <Select 
+                  value={data.location.city?.code || ''} 
+                  onValueChange={(cityCode) => {
+                    const city = cities.find(c => c.code === cityCode)
+                    updateData('location', 'city', city)
+                  }}
+                  disabled={!data.location.province || loadingCities}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder={
+                      !data.location.province ? "Select province first" : 
+                      loadingCities ? "Loading cities..." : 
+                      "Select your city or municipality"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {cities.map((city) => (
+                      <SelectItem key={city.code} value={city.code}>
+                        {city.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Barangay (Optional)</label>
-                <Input
-                  value={data.location.barangay}
-                  onChange={(e) => updateData('location', 'barangay', e.target.value)}
-                  placeholder="Enter your barangay"
-                />
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Barangay (Optional)</label>
+                <Select 
+                  value={data.location.barangay?.code || ''} 
+                  onValueChange={(barangayCode) => {
+                    const barangay = barangays.find(b => b.code === barangayCode)
+                    updateData('location', 'barangay', barangay)
+                  }}
+                  disabled={!data.location.city || loadingBarangays}
+                >
+                  <SelectTrigger className="h-9 text-sm">
+                    <SelectValue placeholder={
+                      !data.location.city ? "Select city first" : 
+                      loadingBarangays ? "Loading barangays..." : 
+                      "Select your barangay"
+                    } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {barangays.map((barangay) => (
+                      <SelectItem key={barangay.code} value={barangay.code}>
+                        {barangay.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
@@ -192,18 +313,18 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
         return (
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-green-600">
-              <Wheat className="h-5 w-5" />
-              <h3 className="font-semibold">Crop Information</h3>
+              <Wheat className="h-4 w-4" />
+              <h3 className="font-semibold text-base">Crop Information</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600 leading-relaxed">
               Provide details about your rice crop for accurate recommendations.
             </p>
             
             <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Rice Variety *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Rice Variety *</label>
                 <Select value={data.crop.variety} onValueChange={(value) => updateData('crop', 'variety', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select rice variety" />
                   </SelectTrigger>
                   <SelectContent>
@@ -216,19 +337,21 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                 </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Planting Date *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Planting Date *</label>
                 <Input
-                  type="date"
                   value={data.crop.plantingDate}
                   onChange={(e) => updateData('crop', 'plantingDate', e.target.value)}
+                  placeholder="YYYY-MM-DD"
+                  type="date"
+                  className="h-9 text-sm"
                 />
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Current Growth Stage *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Current Growth Stage *</label>
                 <Select value={data.crop.growthStage} onValueChange={(value) => updateData('crop', 'growthStage', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select growth stage" />
                   </SelectTrigger>
                   <SelectContent>
@@ -248,18 +371,18 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
         return (
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-green-600">
-              <Droplets className="h-5 w-5" />
-              <h3 className="font-semibold">Soil Conditions</h3>
+              <Droplets className="h-4 w-4" />
+              <h3 className="font-semibold text-base">Soil Information</h3>
             </div>
-            <p className="text-sm text-gray-600">
-              Help us understand your soil conditions for better recommendations.
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Soil conditions affect crop growth and fertilizer recommendations.
             </p>
             
             <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Soil Type *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Soil Type *</label>
                 <Select value={data.soil.type} onValueChange={(value) => updateData('soil', 'type', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select soil type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -272,10 +395,10 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                 </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Soil Moisture *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Soil Moisture *</label>
                 <Select value={data.soil.moisture} onValueChange={(value) => updateData('soil', 'moisture', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select moisture level" />
                   </SelectTrigger>
                   <SelectContent>
@@ -288,8 +411,8 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                 </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Soil pH (Optional)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Soil pH (Optional)</label>
                 <Input
                   value={data.soil.ph}
                   onChange={(e) => updateData('soil', 'ph', e.target.value)}
@@ -298,6 +421,7 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                   step="0.1"
                   min="0"
                   max="14"
+                  className="h-9 text-sm"
                 />
               </div>
             </div>
@@ -308,18 +432,18 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
         return (
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-green-600">
-              <Thermometer className="h-5 w-5" />
-              <h3 className="font-semibold">Weather Conditions</h3>
+              <Thermometer className="h-4 w-4" />
+              <h3 className="font-semibold text-base">Weather Conditions</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600 leading-relaxed">
               Current weather information helps provide timely advice.
             </p>
             
             <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium">Current Weather *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Current Weather *</label>
                 <Select value={data.weather.currentConditions} onValueChange={(value) => updateData('weather', 'currentConditions', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select current weather" />
                   </SelectTrigger>
                   <SelectContent>
@@ -332,12 +456,13 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
                 </Select>
               </div>
               
-              <div>
-                <label className="text-sm font-medium">Recent Rainfall (Optional)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-gray-700">Recent Rainfall (Optional)</label>
                 <Input
                   value={data.weather.rainfall}
                   onChange={(e) => updateData('weather', 'rainfall', e.target.value)}
                   placeholder="e.g., 25mm in last 24h"
+                  className="h-9 text-sm"
                 />
               </div>
             </div>
@@ -350,14 +475,14 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Farming Profile Setup</CardTitle>
+    <Card className="w-full max-w-md mx-auto h-full flex flex-col">
+      <CardHeader className="pb-3 px-4 pt-4 flex-shrink-0">
+        <CardTitle className="text-base mb-3">Farming Profile Setup</CardTitle>
         <div className="flex space-x-1">
           {[1, 2, 3, 4].map((stepNumber) => (
             <div
               key={stepNumber}
-              className={`h-2 flex-1 rounded-full ${
+              className={`h-1.5 flex-1 rounded-full ${
                 stepNumber <= step ? 'bg-green-600' : 'bg-gray-200'
               }`}
             />
@@ -365,21 +490,25 @@ export function DataCollectionFlow({ onComplete, onCancel }: DataCollectionFlowP
         </div>
       </CardHeader>
       
-      <CardContent className="space-y-6">
-        {renderStep()}
+      <CardContent className="flex-1 flex flex-col px-4 pb-4">
+        <div className="flex-1">
+          <div className="space-y-4">
+            {renderStep()}
+          </div>
+        </div>
         
-        <div className="flex justify-between pt-4">
+        <div className="flex justify-between pt-4 border-t border-gray-100 flex-shrink-0">
           <Button
             variant="outline"
             onClick={step === 1 ? onCancel : prevStep}
-            className="flex-1 mr-2"
+            className="flex-1 mr-2 h-8 text-sm"
           >
             {step === 1 ? 'Cancel' : 'Back'}
           </Button>
           <Button
             onClick={nextStep}
             disabled={!isStepValid()}
-            className="flex-1 ml-2 bg-green-600 hover:bg-green-700"
+            className="flex-1 ml-2 bg-green-600 hover:bg-green-700 h-8 text-sm"
           >
             {step === 4 ? 'Complete' : 'Next'}
           </Button>

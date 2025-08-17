@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, X, Send, Bot, User, Sparkles, MapPin, Droplets, Sun, AlertTriangle } from 'lucide-react'
+import { MessageSquare, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
 
@@ -13,14 +13,27 @@ interface Message {
   text: string
   sender: 'user' | 'bot'
   timestamp: Date
-  type?: 'text' | 'quick_action' | 'weather' | 'recommendation' | 'data_collection'
+  type?: 'text' | 'recommendation' | 'data_collection'
 }
 
 interface FarmingData {
   location: {
-    province: string
-    city: string
-    barangay?: string
+    province: {
+      code: string
+      name: string
+      region_code: string
+    } | null
+    city: {
+      code: string
+      name: string
+      province_code: string
+      city_class: string
+    } | null
+    barangay: {
+      code: string
+      name: string
+      city_code: string
+    } | null
   }
   crop: {
     variety: string
@@ -38,70 +51,69 @@ interface FarmingData {
   }
 }
 
-interface QuickAction {
-  id: string
-  text: string
-  icon: React.ReactNode
-  action: string
-}
-
 export function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false)
   const [showDataCollection, setShowDataCollection] = useState(false)
   const [userFarmingData, setUserFarmingData] = useState<FarmingData | null>(null)
   const [sessionId, setSessionId] = useState<string>('')
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      text: 'Hello! I\'m GRAINKEEPER, your AI farming assistant. I can help you with rice farming advice, weather recommendations, and yield optimization. What would you like to know?',
-      sender: 'bot',
-      timestamp: new Date(),
-      type: 'text'
-    }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Generate session ID on component mount
   useEffect(() => {
-    if (!sessionId) {
-      setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
+    // Try to get existing session ID from localStorage
+    const existingSessionId = localStorage.getItem('grainkeeper_session_id')
+    if (existingSessionId) {
+      setSessionId(existingSessionId)
+    } else {
+      // Generate new session ID and store it
+      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+      setSessionId(newSessionId)
+      localStorage.setItem('grainkeeper_session_id', newSessionId)
     }
-  }, [sessionId])
+  }, [])
 
-  const quickActions: QuickAction[] = [
-    {
-      id: 'weather',
-      text: 'Weather Forecast',
-      icon: <Sun className="h-4 w-4" />,
-      action: 'weather'
-    },
-    {
-      id: 'location',
-      text: 'Set Location',
-      icon: <MapPin className="h-4 w-4" />,
-      action: 'location'
-    },
-    {
-      id: 'irrigation',
-      text: 'Irrigation Advice',
-      icon: <Droplets className="h-4 w-4" />,
-      action: 'irrigation'
-    },
-    {
-      id: 'yield',
-      text: 'Yield Prediction',
-      icon: <Sparkles className="h-4 w-4" />,
-      action: 'yield'
-    },
-    {
-      id: 'profile',
-      text: 'Setup Profile',
-      icon: <User className="h-4 w-4" />,
-      action: 'profile'
+  // Store farming data in localStorage for persistence
+  useEffect(() => {
+    if (userFarmingData) {
+      localStorage.setItem('grainkeeper_farming_data', JSON.stringify(userFarmingData))
     }
-  ]
+  }, [userFarmingData])
+
+  // Load farming data from localStorage on mount
+  useEffect(() => {
+    const savedFarmingData = localStorage.getItem('grainkeeper_farming_data')
+    if (savedFarmingData) {
+      try {
+        setUserFarmingData(JSON.parse(savedFarmingData))
+        // If user has farming data, show welcome message
+        if (messages.length === 0) {
+          setMessages([{
+            id: '1',
+            text: 'Welcome back! How can I help with your rice farming today?',
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text'
+          }])
+        }
+      } catch (error) {
+        console.error('Error loading farming data:', error)
+      }
+    } else {
+      // If no farming data, show setup profile message
+      if (messages.length === 0) {
+        setMessages([{
+          id: '1',
+          text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+          sender: 'bot',
+          timestamp: new Date(),
+          type: 'text'
+        }])
+      }
+    }
+  }, [messages.length])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -110,67 +122,6 @@ export function ChatbotWidget() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
-
-  const handleQuickAction = async (action: QuickAction) => {
-    if (action.action === 'profile') {
-      setShowDataCollection(true)
-      return
-    }
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: `I need help with ${action.text.toLowerCase()}`,
-      sender: 'user',
-      timestamp: new Date(),
-      type: 'quick_action'
-    }
-
-    setMessages(prev => [...prev, userMessage])
-    setIsTyping(true)
-
-    try {
-      const response = await fetch('/api/chatbot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: action.action,
-          farmingData: userFarmingData,
-          conversationHistory: messages,
-          sessionId,
-          userId: null // TODO: Add user authentication
-        }),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        const botMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          text: data.response.text,
-          sender: 'bot',
-          timestamp: new Date(),
-          type: 'recommendation'
-        }
-        setMessages(prev => [...prev, botMessage])
-      } else {
-        throw new Error(data.error || 'Failed to get response')
-      }
-    } catch (error) {
-      console.error('Error getting chatbot response:', error)
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        text: 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.',
-        sender: 'bot',
-        timestamp: new Date(),
-        type: 'text'
-      }
-      setMessages(prev => [...prev, botMessage])
-    } finally {
-      setIsTyping(false)
-    }
-  }
 
   const handleDataCollectionComplete = (farmingData: FarmingData) => {
     setUserFarmingData(farmingData)
@@ -186,7 +137,7 @@ export function ChatbotWidget() {
 
     const botMessage: Message = {
       id: (Date.now() + 1).toString(),
-      text: `Perfect! I now have your farming profile. You're located in ${farmingData.location.city}, ${farmingData.location.province} growing ${farmingData.crop.variety} rice. I can now provide personalized recommendations based on your specific conditions. What would you like to know about?`,
+      text: `Profile updated! I can now provide personalized advice for your ${farmingData.crop.variety} rice in ${farmingData.location.city?.name || 'your location'}. What would you like to know?`,
       sender: 'bot',
       timestamp: new Date(),
       type: 'text'
@@ -201,6 +152,36 @@ export function ChatbotWidget() {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
+
+    // Handle profile edit commands
+    if (inputValue.toLowerCase().includes('/profile') || inputValue.toLowerCase().includes('/edit')) {
+      setShowDataCollection(true)
+      setInputValue('')
+      return
+    }
+
+    // Check if user has farming data, if not, guide them to setup profile
+    if (!userFarmingData) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        text: inputValue,
+        sender: 'user',
+        timestamp: new Date(),
+        type: 'text'
+      }
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        text: 'I\'d love to help you with that! But first, I need to know about your farm to provide personalized advice. Please set up your farming profile so I can give you the best recommendations.',
+        sender: 'bot',
+        timestamp: new Date(),
+        type: 'text'
+      }
+
+      setMessages(prev => [...prev, userMessage, botMessage])
+      setInputValue('')
+      return
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -286,10 +267,11 @@ export function ChatbotWidget() {
               <DataCollectionFlow
                 onComplete={handleDataCollectionComplete}
                 onCancel={handleDataCollectionCancel}
+                existingData={userFarmingData || undefined}
               />
             </div>
           )}
-          <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white pb-3">
+          <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-t-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
@@ -300,14 +282,27 @@ export function ChatbotWidget() {
                   <div className="text-xs text-green-100">AI Farming Assistant</div>
                 </div>
               </div>
-              <Button
-                onClick={() => setIsOpen(false)}
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 text-white hover:bg-white/20"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center space-x-2">
+                {userFarmingData && (
+                  <Button
+                    onClick={() => setShowDataCollection(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                    title="Edit Profile"
+                  >
+                    <User className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => setIsOpen(false)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </CardHeader>
           
@@ -368,23 +363,38 @@ export function ChatbotWidget() {
                 </div>
               )}
 
-              {/* Quick Actions */}
-              {messages.length === 1 && !isTyping && (
-                <div className="space-y-2">
-                  <div className="text-xs text-gray-500 text-center">Quick Actions</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickActions.map((action) => (
+              {/* Profile Summary */}
+              {userFarmingData && messages.length === 1 && !isTyping && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                  <div className="text-xs font-medium text-blue-800 mb-2">Your Farming Profile</div>
+                  <div className="text-xs text-blue-600 space-y-1">
+                    <div>📍 {userFarmingData.location.city?.name || 'N/A'}, {userFarmingData.location.province?.name || 'N/A'}</div>
+                    <div>🌾 {userFarmingData.crop.variety} - {userFarmingData.crop.growthStage}</div>
+                    <div>🌱 {userFarmingData.soil.type} soil</div>
+                  </div>
+                </div>
+              )}
+
+              {/* Setup Profile Prompt */}
+              {!userFarmingData && messages.length === 1 && !isTyping && (
+                <div className="space-y-4">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="text-center">
+                      <div className="text-sm font-medium text-green-800 mb-2">
+                        Set Up Your Farming Profile
+                      </div>
+                      <div className="text-xs text-green-600 mb-3">
+                        Help me provide personalized rice farming advice by sharing your farm details
+                      </div>
                       <Button
-                        key={action.id}
-                        onClick={() => handleQuickAction(action)}
-                        variant="outline"
+                        onClick={() => setShowDataCollection(true)}
+                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2"
                         size="sm"
-                        className="h-auto p-2 text-xs justify-start space-x-2 hover:bg-green-50 hover:border-green-200"
                       >
-                        {action.icon}
-                        <span>{action.text}</span>
+                        <User className="h-4 w-4 mr-2" />
+                        Setup Profile
                       </Button>
-                    ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -399,7 +409,7 @@ export function ChatbotWidget() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Type your message..."
+                  placeholder={userFarmingData ? "Type your message... (or /profile to edit)" : "Set up your profile first to start chatting..."}
                   className="flex-1 border-gray-200 focus:border-green-500 focus:ring-green-500"
                   disabled={isTyping}
                 />

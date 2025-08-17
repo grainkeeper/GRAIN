@@ -1,120 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
-import { RICE_FARMING_KNOWLEDGE_BASE, searchAdvice, getAdviceByCategory } from '@/lib/data/rice-farming-knowledge-base'
-import { getWeatherAlerts, getWeatherRecommendations, WeatherCondition } from '@/lib/services/weather-alerts'
-import { getSystemPrompt, Language } from '@/lib/translations/chatbot-translations'
-import { sessionManager, buildContextPrompt, updateContextFromResponse } from '@/lib/services/session-management'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, action, farmingData, language = 'en', sessionId } = body
+    const { message, farmingData, sessionId } = body
 
-    if (!message && !action) {
-      return NextResponse.json({ error: 'Message or action is required' }, { status: 400 })
+    if (!message) {
+      return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
-
-    // Handle session management
-    let currentSessionId = sessionId
-    if (!currentSessionId) {
-      const newSession = sessionManager.createSession()
-      currentSessionId = newSession.sessionId
-    } else {
-      const session = sessionManager.getSession(currentSessionId)
-      if (!session) {
-        const newSession = sessionManager.createSession()
-        currentSessionId = newSession.sessionId
-      }
-    }
-
-    // Update session with farming data and language preference
-    if (farmingData) {
-      sessionManager.updateFarmingData(currentSessionId, farmingData)
-    }
-    sessionManager.setUserPreferences(currentSessionId, { language })
 
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
-    let prompt: string
+    // Create a context-aware prompt
+    let prompt = `You are GRAINKEEPER, an AI farming assistant specialized in rice farming in the Philippines, with particular expertise in Region 12 (SOCCSKSARGEN).
 
-    if (action) {
-      // Handle quick actions
-      const actionPrompts: Record<string, string> = {
-        weather: 'Provide a weather forecast and planting window advice for rice farming in the Philippines.',
-        location: 'Ask for the farmer\'s location to provide personalized advice.',
-        irrigation: 'Provide irrigation advice for rice farming based on current conditions.',
-        yield: 'Provide yield prediction advice and optimization tips for rice farming.',
-        profile: 'Thank the farmer for completing their profile and offer personalized assistance.'
-      }
-      prompt = actionPrompts[action] || 'Provide general rice farming advice.'
-    } else {
-      // Handle regular messages
-      const systemPrompt = getSystemPrompt(language as Language)
-      
-      // Get session context for better responses
-      const session = sessionManager.getSession(currentSessionId)
-      if (session) {
-        sessionManager.addMessage(currentSessionId, message)
-        const contextPrompt = buildContextPrompt(session, message)
-        prompt = `${systemPrompt}\n\n${contextPrompt}`
-      } else {
-        prompt = `${systemPrompt}\n\nUser message: ${message}`
-      }
-    }
+CRITICAL BEHAVIOR RULES:
+- ALWAYS maintain conversation context and remember information the user has already provided
+- NEVER ask for information (location, crop details, soil type, etc.) that the user has already given
+- Be conversational, helpful, and specific in your recommendations
+- Reference previous context when answering follow-up questions
+- If the user asks about a problem, provide actionable solutions based on their specific situation
+- Keep responses DIRECT, ACCURATE, and CONCISE - avoid unnecessary explanations unless specifically requested
+- Focus on practical, actionable advice that farmers can implement immediately
+- Use bullet points or numbered lists for multiple recommendations
+- Be specific about timing, quantities, and methods when giving advice
 
-    // Add farming data context if available
+Key Knowledge Areas:
+- Planting seasons and timing for different regions
+- Irrigation management and water conservation  
+- Fertilizer application and soil management
+- Pest and disease control
+- Harvest and post-harvest practices
+- Weather adaptation strategies
+- Rice variety selection
+
+Provide helpful, practical advice based on scientific farming practices. Keep responses concise and encouraging.`
+
+    // Add farming profile context if available
     if (farmingData) {
-      prompt += `\n\nFarmer Profile:
-      - Location: ${farmingData.location.city}, ${farmingData.location.province}
-      - Rice Variety: ${farmingData.crop.variety}
-      - Growth Stage: ${farmingData.crop.growthStage}
-      - Soil Type: ${farmingData.soil.type}
-      - Current Weather: ${farmingData.weather.currentConditions}
-      
-      Use this information to provide personalized recommendations.`
-      
-      // Add Region 12 specific knowledge if applicable
-      if (farmingData.location.province.toLowerCase().includes('cotabato') || 
-          farmingData.location.province.toLowerCase().includes('sarangani') ||
-          farmingData.location.province.toLowerCase().includes('sultan kudarat') ||
-          farmingData.location.province.toLowerCase().includes('general santos')) {
-        
-        const region12Advice = searchAdvice(farmingData.crop.growthStage)
-        if (region12Advice.length > 0) {
-          prompt += `\n\nRegion 12 Specific Knowledge for ${farmingData.crop.growthStage} stage:
-          ${region12Advice.slice(0, 2).map(advice => 
-            `- ${advice.title}: ${advice.recommendations.slice(0, 2).join(', ')}`
-          ).join('\n')}`
-        }
-      }
-      
-      // Add weather-based recommendations
-      const weatherCondition: WeatherCondition = {
-        temperature: 30, // Default values - in real app, get from weather API
-        humidity: 70,
-        rainfall: 20,
-        windSpeed: 10,
-        forecast: farmingData.weather.currentConditions,
-        season: farmingData.weather.currentConditions.includes('rain') ? 'wet' : 'dry'
-      }
-      
-      const weatherRecommendations = getWeatherRecommendations(weatherCondition, farmingData.crop.growthStage)
-      if (weatherRecommendations.length > 0) {
-        prompt += `\n\nWeather-Based Recommendations for ${farmingData.crop.growthStage} stage:
-        ${weatherRecommendations.map(rec => `- ${rec}`).join('\n')}`
-      }
+      prompt += `\n\nFARMER PROFILE (USE THIS INFORMATION FOR PERSONALIZED ADVICE):
+- Location: ${farmingData.location.city?.name || 'N/A'}, ${farmingData.location.province?.name || 'N/A'}
+- Rice Variety: ${farmingData.crop.variety}
+- Growth Stage: ${farmingData.crop.growthStage}
+- Soil Type: ${farmingData.soil.type}
+- Current Weather: ${farmingData.weather.currentConditions}
+
+IMPORTANT: Always consider this farming profile when providing advice. Reference the specific location, rice variety, growth stage, and soil conditions in your recommendations.`
+    } else {
+      // If no farming data, guide user to setup profile
+      prompt += `\n\nIMPORTANT: The user has not set up their farming profile yet. If they ask for farming advice, politely remind them to set up their profile first to get personalized recommendations. You can provide general rice farming information, but emphasize the need for a profile for specific advice.`
     }
+
+    prompt += `\n\nUser message: ${message}
+Session ID: ${sessionId || 'new_session'}`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
     const text = response.text()
-
-    // Update session context with response
-    if (currentSessionId && message) {
-      updateContextFromResponse(currentSessionId, text)
-    }
 
     return NextResponse.json({
       success: true,
@@ -125,7 +70,7 @@ export async function POST(request: NextRequest) {
         weatherAlert: false,
         nextActions: []
       },
-      sessionId: currentSessionId
+      sessionId: sessionId || 'new_session_' + Date.now()
     })
 
   } catch (error) {

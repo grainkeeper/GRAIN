@@ -101,16 +101,43 @@ class SessionManager {
     return false
   }
 
-  addMessage(sessionId: string, message: string): boolean {
+  addMessage(sessionId: string, message: string, isUser: boolean = true): boolean {
     const session = this.sessions.get(sessionId)
     if (session) {
       session.messageCount++
       session.lastActive = new Date()
       
-      // Update recent questions (keep last 5)
-      session.conversationContext.recentQuestions.push(message)
-      if (session.conversationContext.recentQuestions.length > 5) {
-        session.conversationContext.recentQuestions.shift()
+      if (isUser) {
+        // Track user questions for context
+        const questionKeywords = ['what', 'how', 'when', 'where', 'why', 'which', 'can you', 'could you', 'please help']
+        const isQuestion = questionKeywords.some(keyword => 
+          message.toLowerCase().includes(keyword)
+        )
+        
+        if (isQuestion) {
+          session.conversationContext.recentQuestions.push(message)
+          // Keep only last 10 questions
+          if (session.conversationContext.recentQuestions.length > 10) {
+            session.conversationContext.recentQuestions = session.conversationContext.recentQuestions.slice(-10)
+          }
+        }
+        
+        // Update current topic based on message content
+        const topics = {
+          'weather': ['weather', 'rain', 'sunny', 'forecast', 'climate'],
+          'irrigation': ['irrigation', 'water', 'drought', 'flood'],
+          'fertilizer': ['fertilizer', 'nutrient', 'nitrogen', 'phosphorus', 'potassium'],
+          'pest': ['pest', 'insect', 'disease', 'fungus', 'virus'],
+          'harvest': ['harvest', 'yield', 'production', 'milling'],
+          'planting': ['planting', 'seed', 'germination', 'transplanting']
+        }
+        
+        for (const [topic, keywords] of Object.entries(topics)) {
+          if (keywords.some(keyword => message.toLowerCase().includes(keyword))) {
+            session.conversationContext.currentTopic = topic
+            break
+          }
+        }
       }
       
       return true
@@ -188,26 +215,39 @@ export const sessionManager = new SessionManager()
 // Helper functions for context retention
 export function buildContextPrompt(session: UserSession, currentMessage: string): string {
   const context = session.conversationContext
-  let prompt = `User Context:
+  let prompt = `CONVERSATION CONTEXT:
 - Language: ${context.preferences.language}
 - Region: ${context.preferences.region}
 - Expertise Level: ${context.preferences.expertiseLevel}
 - Current Farming Stage: ${context.farmingStage}
-- Current Topic: ${context.currentTopic}`
+- Current Topic: ${context.currentTopic}
+- Total Messages in Session: ${session.messageCount}`
 
   if (context.recentQuestions.length > 0) {
-    prompt += `\n- Recent Questions: ${context.recentQuestions.slice(-3).join(', ')}`
+    prompt += `\n- Recent Questions Asked: ${context.recentQuestions.slice(-5).join(', ')}`
   }
 
   if (context.lastRecommendations.length > 0) {
-    prompt += `\n- Previous Recommendations: ${context.lastRecommendations.slice(-2).join(', ')}`
+    prompt += `\n- Previous Recommendations Given: ${context.lastRecommendations.slice(-3).join(', ')}`
   }
 
   if (session.farmingData) {
-    prompt += `\n- Farming Data: ${JSON.stringify(session.farmingData, null, 2)}`
+    prompt += `\n\nFARMER PROFILE (DO NOT ASK FOR THIS INFORMATION AGAIN):
+- Location: ${session.farmingData.location?.city}, ${session.farmingData.location?.province}
+- Rice Variety: ${session.farmingData.crop?.variety}
+- Growth Stage: ${session.farmingData.crop?.growthStage}
+- Soil Type: ${session.farmingData.soil?.type}
+- Current Weather: ${session.farmingData.weather?.currentConditions}`
   }
 
-  prompt += `\n\nCurrent Message: ${currentMessage}`
+  prompt += `\n\nCURRENT USER MESSAGE: ${currentMessage}
+  
+RESPONSE GUIDELINES:
+- If the user has already provided their location, crop details, or other farming information, acknowledge this and provide specific advice based on that information
+- Do not ask for information they have already given
+- If they ask follow-up questions, reference the context from their profile
+- Be specific and actionable in your recommendations
+- If they mention a problem, ask clarifying questions only if the context doesn't provide enough information`
   
   return prompt
 }
@@ -221,7 +261,20 @@ export function updateContextFromResponse(sessionId: string, response: string, t
     
     // Extract key recommendations from response
     const recommendations = response.split('\n')
-      .filter(line => line.includes('•') || line.includes('-'))
+      .filter(line => {
+        const trimmed = line.trim()
+        return (trimmed.includes('•') || 
+                trimmed.includes('-') || 
+                trimmed.includes('*') ||
+                trimmed.includes('1.') ||
+                trimmed.includes('2.') ||
+                trimmed.includes('3.') ||
+                trimmed.includes('Recommendation:') ||
+                trimmed.includes('Advice:') ||
+                trimmed.includes('Tip:'))
+      })
+      .map(line => line.trim().replace(/^[•\-*]\s*/, '').replace(/^\d+\.\s*/, ''))
+      .filter(line => line.length > 10 && line.length < 200) // Filter out too short or too long lines
       .slice(0, 3)
     
     if (recommendations.length > 0) {
@@ -229,5 +282,8 @@ export function updateContextFromResponse(sessionId: string, response: string, t
         lastRecommendations: recommendations
       })
     }
+    
+    // Add bot response to session (not as a user message)
+    sessionManager.addMessage(sessionId, response, false)
   }
 }
