@@ -190,14 +190,14 @@ export default function CascadingDropdown({ onLocationChange }: CascadingDropdow
     disabled?: boolean;
   }) => (
     <div
-      className={`px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-blue-50 ${
-        isSelected ? 'bg-blue-100 text-blue-900' : 'text-gray-700'
+      className={`px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-green-50 ${
+        isSelected ? 'bg-green-100 text-green-900' : 'text-gray-700'
       } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       onClick={disabled ? undefined : onClick}
     >
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{item.name}</span>
-        {isSelected && <CheckIcon className="h-4 w-4 text-blue-600" />}
+        {isSelected && <CheckIcon className="h-4 w-4 text-green-600" />}
       </div>
     </div>
   );
@@ -222,8 +222,7 @@ export default function CascadingDropdown({ onLocationChange }: CascadingDropdow
     dropdownKey: string;
   }) => (
     <div className="relative">
-      <label className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-        <MapPinIcon className="h-4 w-4 text-gray-500" />
+      <label className="block text-sm font-semibold text-gray-700 mb-2">
         {title}
       </label>
       <div className="relative">
@@ -233,8 +232,8 @@ export default function CascadingDropdown({ onLocationChange }: CascadingDropdow
             disabled 
               ? 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed' 
               : openDropdown === dropdownKey
-              ? 'border-blue-500 ring-2 ring-blue-200'
-              : 'border-gray-300 hover:border-gray-400 focus:border-blue-500'
+              ? 'border-green-500 ring-2 ring-green-200'
+              : 'border-gray-300 hover:border-gray-400 focus:border-green-500'
           }`}
           onClick={() => !disabled && setOpenDropdown(openDropdown === dropdownKey ? null : dropdownKey)}
           disabled={disabled}
@@ -250,12 +249,11 @@ export default function CascadingDropdown({ onLocationChange }: CascadingDropdow
             />
           </div>
         </button>
-        
         {openDropdown === dropdownKey && !disabled && (
           <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
             {loading ? (
               <div className="px-4 py-3 text-sm text-gray-500 flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-green-500"></div>
                 Loading...
               </div>
             ) : items.length === 0 ? (
@@ -330,11 +328,8 @@ export default function CascadingDropdown({ onLocationChange }: CascadingDropdow
 
       {/* Selected Values Display */}
       {(selectedRegion || selectedProvince || selectedCity || selectedBarangay) && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-            <MapPinIcon className="h-4 w-4 text-blue-600" />
-            Selected Location
-          </h3>
+        <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">Selected Location</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             {selectedRegion && (
               <div className="bg-white rounded-lg p-3 shadow-sm">

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Wheat, Cloud, MessageSquare, MapPin, TrendingUp, Users } from 'lucide-react'
+import { Wheat, TrendingUp, Zap, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -27,18 +27,15 @@ export default function HomePage() {
         <div className="relative text-center space-y-8 h-full flex flex-col justify-center items-center px-8">
           <div className="space-y-6 max-w-4xl mx-auto">
             <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-xl">
-              Welcome to <span className="text-green-400 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">GrainKeeper</span>
+              Smart Rice Farming with <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">96.01% Accuracy</span>
             </h1>
             <p className="text-xl lg:text-2xl text-white/95 drop-shadow-lg font-medium leading-relaxed">
-              Increase your rice yield by up to <span className="text-green-400 font-bold">25%</span> with AI-powered predictions and expert farming guidance.
+            Revolutionize your rice farming with our ML-powered predictions. Get precise planting recommendations, weather insights, and yield forecasts tailored for the Philippines.
             </p>
           </div>
           <div className="flex gap-4 flex-wrap justify-center">
             <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 text-base shadow-md hover:shadow-lg transition-all duration-200">
               <Link href="/predictions">Get Yield Predictions</Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild className="border-white text-black bg-white hover:bg-gray-100 font-semibold px-6 py-3 text-base shadow-md hover:shadow-lg transition-all duration-200">
-              <Link href="/map">Explore Map</Link>
             </Button>
           </div>
           
@@ -55,175 +52,130 @@ export default function HomePage() {
       </div>
 
       {/* Content Sections */}
-      <div className="container mx-auto px-6 py-16 space-y-20">
-        {/* Features Section */}
-        <div className="space-y-8">
-          <div className="text-center space-y-4">
+      <div className="container mx-auto px-6 py-16 space-y-12">
+        {/* Steps Section */}
+        <section className="space-y-6">
+          <div className="text-center space-y-2">
             <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
-              Everything You Need for Better Harvests
+              Get Your Yield Predictions in 3 Easy Steps
             </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              Our comprehensive platform combines AI predictions, weather insights, and expert guidance to maximize your rice production.
+            <p className="text-lg lg:text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Our ML-powered system makes rice farming predictions simple and accurate
             </p>
           </div>
-          
-          {/* Features Grid */}
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                    <Wheat className="h-5 w-5 text-green-600" />
-                  </div>
-                  <span>Yield Predictions</span>
-                </CardTitle>
-                <CardDescription>
-                  Get accurate rice yield forecasts using our advanced ML model
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Our Multiple Linear Regression model analyzes weather patterns, soil conditions, 
-                  and historical data to predict your rice yield with high accuracy.
-                </p>
-                <Button asChild size="sm" className="w-full bg-green-600 hover:bg-green-700">
-                  <Link href="/predictions">Try Predictions</Link>
-                </Button>
-              </CardContent>
-            </Card>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                    <Cloud className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <span>Weather Integration</span>
-                </CardTitle>
-                <CardDescription>
-                  Real-time weather forecasts and optimal planting windows
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Access 7-day weather forecasts and discover the best planting periods 
-                  for maximum yield potential in your region.
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/predictions">Get Predictions</Link>
-                </Button>
-              </CardContent>
-            </Card>
+          <div className="grid gap-8 md:grid-cols-3">
+            {/* Step 1 */}
+            <div className="text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-2xl font-extrabold">
+                1
+              </div>
+              <h3 className="text-xl font-semibold">Enter Location</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                Select your farm location anywhere in the Philippines for precise regional data
+              </p>
+            </div>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                    <MessageSquare className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <span>GRAINKEEPER Chatbot</span>
-                </CardTitle>
-                <CardDescription>
-                  AI-powered farming advice and recommendations
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Get personalized farming advice based on your crop type, soil conditions, 
-                  and location from our intelligent assistant.
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <span className="text-sm text-muted-foreground">Available as floating widget</span>
-                </Button>
-              </CardContent>
-            </Card>
+            {/* Step 2 */}
+            <div className="text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-2xl font-extrabold">
+                2
+              </div>
+              <h3 className="text-xl font-semibold">Choose Year & Quarter</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                Specify the year and planting quarter (Q1, Q2, Q3, or Q4) for your crop cycle
+              </p>
+            </div>
 
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
-                    <MapPin className="h-5 w-5 text-red-600" />
-                  </div>
-                  <span>Province Map</span>
-                </CardTitle>
-                <CardDescription>
-                  Interactive map with province-specific data
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Explore rice yield data across all 81 Philippine provinces with our 
-                  interactive geospatial visualization.
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/map">Explore Map</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
-                    <TrendingUp className="h-5 w-5 text-orange-600" />
-                  </div>
-                  <span>Analytics</span>
-                </CardTitle>
-                <CardDescription>
-                  Comprehensive insights and performance metrics
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Track your farming performance with detailed analytics, charts, 
-                  and historical yield comparisons.
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/admin/analytics">View Analytics</Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <div className="p-2 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
-                    <Users className="h-5 w-5 text-indigo-600" />
-                  </div>
-                  <span>Farmer Community</span>
-                </CardTitle>
-                <CardDescription>
-                  Connect with fellow farmers and share experiences
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Join our growing community of rice farmers and access shared knowledge, 
-                  best practices, and success stories.
-                </p>
-                <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/admin/farmers">Join Community</Link>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="text-center space-y-6">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Ready to Get Started?</h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Choose your path to better rice farming. Start with predictions or explore our interactive tools.
-            </p>
-            <div className="flex gap-4 justify-center flex-wrap">
-              <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-3">
-                <Link href="/predictions">Start Predicting</Link>
-              </Button>
-              <Button variant="outline" asChild size="lg" className="border-green-600 text-green-600 hover:bg-green-50 font-semibold px-8 py-3">
-                <Link href="/map">Explore Data</Link>
-              </Button>
+            {/* Step 3 */}
+            <div className="text-center space-y-4">
+              <div className="mx-auto h-16 w-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-2xl font-extrabold">
+                3
+              </div>
+              <h3 className="text-xl font-semibold">Get Predictions</h3>
+              <p className="text-sm text-muted-foreground max-w-xs mx-auto">
+                Receive top 3 optimal 7-day planting windows with 96.01% accuracy
+              </p>
             </div>
           </div>
-        </div>
+
+          <div className="text-center mt-2">
+            <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-8 py-5">
+              <Link href="/predictions">Start Your Prediction</Link>
+            </Button>
+          </div>
+        </section>
+
+        {/* Precision Feature Cards */}
+        <section className="space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+              Precision Agriculture for Filipino Farmers
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-4xl mx-auto">
+              Our advanced MLR formula delivers unmatched accuracy to optimize your rice production
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {/* Yield Predictions */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pt-5 pb-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <TrendingUp className="h-6 w-6 text-green-700" />
+                </div>
+                <CardTitle className="text-center">Yield Predictions</CardTitle>
+                <CardDescription className="text-center">
+                  96.01% accurate ML predictions for optimal planting times
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2 pt-0">
+                <p>• Location-based recommendations</p>
+                <p>• Quarterly planting schedules</p>
+                <p>• Top 3 optimal 7-day windows</p>
+                <p>• Rice variety considerations</p>
+              </CardContent>
+            </Card>
+
+            {/* Smart Analytics */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pt-5 pb-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-green-700" />
+                </div>
+                <CardTitle className="text-center">Smart Analytics</CardTitle>
+                <CardDescription className="text-center">
+                  Data-driven insights for better farming decisions
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2 pt-0">
+                <p>• Historical yield trends</p>
+                <p>• Weather pattern analysis</p>
+                <p>• Risk assessment tools</p>
+                <p>• Performance tracking</p>
+              </CardContent>
+            </Card>
+
+            {/* AI Chatbot */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pt-5 pb-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <MessageSquare className="h-6 w-6 text-green-700" />
+                </div>
+                <CardTitle className="text-center">AI Chatbot</CardTitle>
+                <CardDescription className="text-center">
+                  Personalized farming advice and recommendations
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2 pt-0">
+                <p>• Ask rice-farming questions</p>
+                <p>• Location-aware answers</p>
+                <p>• Tips on variety and inputs</p>
+                <p>• Available as floating widget</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </div>
 
       {/* Footer */}
@@ -263,7 +215,7 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold">Quick Links</h3>
               <ul className="space-y-2">
                 <li><Link href="/predictions" className="text-gray-400 hover:text-white transition-colors">Yield Predictions</Link></li>
-                <li><Link href="/map" className="text-gray-400 hover:text-white transition-colors">Province Map</Link></li>
+                
                 <li><span className="text-gray-400">AI Chatbot (Floating Widget)</span></li>
               </ul>
             </div>

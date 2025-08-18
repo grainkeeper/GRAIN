@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/auth/logout-button'
-import { Wheat, Home, BarChart3, MessageSquare, MapPin } from 'lucide-react'
+import { Wheat, Home, BarChart3, MessageSquare, Sprout } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -18,12 +18,7 @@ const navItems = [
   {
     title: 'Yield Predictions',
     href: '/predictions',
-    icon: Wheat
-  },
-  {
-    title: 'Map',
-    href: '/map',
-    icon: MapPin
+    icon: Sprout
   }
 ]
 

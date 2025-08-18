@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Settings, Save, Wheat, Cloud, Bot, MapPin } from 'lucide-react'
+import { Settings, Save, Wheat, Cloud, Bot } from 'lucide-react'
 
 export default function SettingsPage() {
   return (
@@ -148,37 +148,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Geospatial Settings</CardTitle>
-            <CardDescription>
-              Philippine map and province data
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Interactive Map</Label>
-                <p className="text-sm text-muted-foreground">
-                  Enable clickable province map
-                </p>
-              </div>
-              <Switch defaultChecked />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="map-provider">Map Provider</Label>
-              <select id="map-provider" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option>Leaflet</option>
-                <option>Google Maps</option>
-                <option>Mapbox</option>
-              </select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="map-api-key">Map API Key</Label>
-              <Input id="map-api-key" type="password" placeholder="••••••••" />
-            </div>
-          </CardContent>
-        </Card>
+        
 
         <Card>
           <CardHeader>

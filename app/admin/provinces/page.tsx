@@ -10,10 +10,7 @@ export default function ProvincesPage() {
           <h1 className="text-3xl font-bold">Philippine Provinces</h1>
           <p className="text-muted-foreground">Geospatial data and yield predictions by province</p>
         </div>
-        <Button>
-          <MapPin className="h-4 w-4 mr-2" />
-          View Map
-        </Button>
+        
       </div>
 
       <div className="grid gap-6 md:grid-cols-4">
@@ -71,24 +68,7 @@ export default function ProvincesPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Geospatial Map</CardTitle>
-            <CardDescription>
-              Interactive map of the Philippines
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px] bg-muted rounded-lg flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MapPin className="h-12 w-12 mx-auto mb-4" />
-                <p className="text-lg font-medium">Philippine Map</p>
-                <p className="text-sm">Interactive province map with yield data</p>
-                <Button className="mt-4">Load Map</Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        
 
         <Card>
           <CardHeader>

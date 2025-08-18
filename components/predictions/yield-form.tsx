@@ -202,28 +202,14 @@ export default function YieldPredictionForm() {
   };
 
      return (
-     <div className="max-w-6xl mx-auto p-4 space-y-6">
-             {/* Header */}
-       <div className="text-center space-y-3">
-         <div className="flex items-center justify-center gap-3">
-           <div className="p-2 bg-gradient-to-r from-green-500 to-blue-500 rounded-full">
-             <ChartBarIcon className="h-6 w-6 text-white" />
-           </div>
-           <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-             Rice Yield Prediction
-           </h1>
-         </div>
-         <p className="text-base text-gray-600 max-w-2xl mx-auto">
-           Get optimal planting windows and yield predictions for your rice farm using advanced AI and weather analysis
-         </p>
-       </div>
+     <div className="max-w-6xl mx-auto p-4 md:p-0 space-y-6">
 
              {/* Form Card */}
-       <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
-         <CardHeader className="pb-4">
+       <Card className="shadow-xl border-0 bg-white">
+         <CardHeader className="pb-2">
            <div className="flex items-center gap-3">
-             <div className="p-2 bg-blue-100 rounded-lg">
-               <MapPinIcon className="h-5 w-5 text-blue-600" />
+             <div className="p-2 bg-green-100 rounded-lg">
+               <MapPinIcon className="h-5 w-5 text-green-700" />
              </div>
              <div>
                <CardTitle className="text-xl text-gray-900">Farm Information</CardTitle>
@@ -235,43 +221,40 @@ export default function YieldPredictionForm() {
          </CardHeader>
          <CardContent>
            <form onSubmit={handleSubmit} className="space-y-6">
-                         {/* Location Section */}
+             {/* Location Section */}
              <div className="space-y-4">
                <div className="flex items-center gap-2">
-                 <MapPinIcon className="h-4 w-4 text-blue-600" />
+                 <MapPinIcon className="h-4 w-4 text-green-700" />
                  <h3 className="text-base font-semibold text-gray-900">Location Details</h3>
                </div>
                <CascadingDropdown onLocationChange={setSelectedLocation} />
              </div>
 
              {/* Other Form Fields */}
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              <div className="space-y-3">
-                <Label htmlFor="year" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <CalendarIcon className="h-4 w-4 text-gray-500" />
-                  Year
-                </Label>
-                <Input
-                  id="year"
-                  type="number"
-                  value={formData.year}
-                  onChange={(e) => setFormData({...formData, year: parseInt(e.target.value)})}
-                  min={new Date().getFullYear()}
-                  max={new Date().getFullYear() + 1}
-                  className="h-12 text-base font-medium"
-                />
-                                 <p className="text-xs text-gray-500">
-                   📊 Next 14 days: Live forecast. Future quarters: Historical patterns from same quarter.
-                 </p>
-              </div>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+               <div className="space-y-3">
+                 <Label htmlFor="year" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                   <CalendarIcon className="h-4 w-4 text-gray-500" />
+                   Year
+                 </Label>
+                 <Input
+                   id="year"
+                   type="number"
+                   value={formData.year}
+                   onChange={(e) => setFormData({...formData, year: parseInt(e.target.value)})}
+                   min={new Date().getFullYear()}
+                   max={new Date().getFullYear() + 1}
+                   className="h-12 w-full text-base font-medium"
+                 />
+               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="quarter" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <ClockIcon className="h-4 w-4 text-gray-500" />
-                  Planting Quarter
-                </Label>
-                                                  <Select value={formData.quarter.toString()} onValueChange={(value) => setFormData({...formData, quarter: parseInt(value)})}>
-                   <SelectTrigger className="h-12 text-base font-medium">
+               <div className="space-y-3">
+                 <Label htmlFor="quarter" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                   <ClockIcon className="h-4 w-4 text-gray-500" />
+                   Planting Quarter
+                 </Label>
+                 <Select value={formData.quarter.toString()} onValueChange={(value) => setFormData({...formData, quarter: parseInt(value)})}>
+                   <SelectTrigger className="h-12 w-full text-base font-medium truncate whitespace-nowrap">
                      <SelectValue />
                    </SelectTrigger>
                    <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[300px]">
@@ -281,25 +264,22 @@ export default function YieldPredictionForm() {
                          <SelectItem key={q} value={q.toString()} className="py-3">
                            <div className="flex items-center gap-3 w-full">
                              <span className="text-lg flex-shrink-0">{info.icon}</span>
-                             <div className="min-w-0 flex-1 overflow-hidden">
-                               <div className="font-medium truncate">{info.name} ({info.period})</div>
-                               <div className="text-sm text-gray-500 truncate">Planting season</div>
-                             </div>
+                             <div className="font-medium truncate">{info.name} ({info.period})</div>
                            </div>
                          </SelectItem>
                        );
                      })}
                    </SelectContent>
                  </Select>
-              </div>
+               </div>
 
-              <div className="space-y-3">
-                <Label htmlFor="riceVariety" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-                  <SparklesIcon className="h-4 w-4 text-gray-500" />
-                  Rice Variety (Optional)
-                </Label>
-                                 <Select value={formData.riceVariety} onValueChange={(value) => setFormData({...formData, riceVariety: value})}>
-                   <SelectTrigger className="h-12 text-base font-medium">
+               <div className="space-y-3">
+                 <Label htmlFor="riceVariety" className="flex items-center gap-2 text-sm font-semibold text-gray-700">
+                   <SparklesIcon className="h-4 w-4 text-gray-500" />
+                   Rice Variety (Optional)
+                 </Label>
+                 <Select value={formData.riceVariety} onValueChange={(value) => setFormData({...formData, riceVariety: value})}>
+                   <SelectTrigger className="h-12 w-full text-base font-medium truncate whitespace-nowrap">
                      <SelectValue placeholder="Select rice variety" />
                    </SelectTrigger>
                    <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[300px]">
@@ -307,44 +287,26 @@ export default function YieldPredictionForm() {
                        <SelectItem key={variety.name} value={variety.name} className="py-3">
                          <div className="flex items-center gap-3 w-full">
                            <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
-                           <div className="min-w-0 flex-1 overflow-hidden">
-                             <div className="font-medium truncate">{variety.name}</div>
-                             <div className="text-sm text-gray-500 truncate">{variety.description}</div>
-                           </div>
+                           <div className="font-medium truncate">{variety.name}</div>
                          </div>
                        </SelectItem>
                      ))}
                    </SelectContent>
                  </Select>
-              </div>
-            </div>
-
-                         {/* Submit Button */}
-             <div className="pt-4">
-               {!selectedLocation.province && (
-                 <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                   <p className="text-sm text-blue-700 flex items-center gap-2">
-                     <MapPinIcon className="h-4 w-4" />
-                     Please select at least a province to continue
-                   </p>
-                 </div>
-               )}
-               
-               {/* Weather Data Info */}
-               <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                 <p className="text-sm text-green-700 flex items-center gap-2">
-                   <ChartBarIcon className="h-4 w-4" />
-                   <span>
-                     <strong>Real Weather Data:</strong> Live forecasts (next 14 days) or historical patterns (future quarters)
-                   </span>
-                 </p>
                </div>
-               <Button 
-                 type="submit" 
-                 disabled={isLoading || !selectedLocation.province} 
-                 className="w-full h-12 text-base font-semibold bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+             </div>
+             <p className="text-xs text-gray-500">
+               📊 Next 14 days: Live forecast. Future quarters: Historical patterns from same quarter.
+             </p>
+
+             {/* Submit Button */}
+             <div className="pt-4">
+               <Button
+                 type="submit"
+                 disabled={isLoading || !selectedLocation.province}
+                 className="w-full h-12 text-base font-semibold bg-green-600 hover:bg-green-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
                >
-                                 {isLoading ? (
+                 {isLoading ? (
                    <div className="flex items-center gap-2">
                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                      Analyzing Weather Data...
@@ -355,152 +317,146 @@ export default function YieldPredictionForm() {
                      Get Planting Windows
                    </div>
                  )}
-              </Button>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+               </Button>
+             </div>
+           </form>
+         </CardContent>
+       </Card>
 
-      {/* Error Display */}
-      {error && (
-        <Card className="border-red-200 bg-red-50 shadow-lg">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
-              <p className="text-red-600 font-medium">{error}</p>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+       {/* Error Display */}
+       {error && (
+         <Card className="border-red-200 bg-red-50 shadow-lg">
+           <CardContent className="pt-6">
+             <div className="flex items-center gap-3">
+               <ExclamationTriangleIcon className="h-6 w-6 text-red-600" />
+               <p className="text-red-600 font-medium">{error}</p>
+             </div>
+           </CardContent>
+         </Card>
+       )}
 
-                           {/* Results Display */}
-         {results && (
-           <div className="mt-8 space-y-4">
-             {/* Summary Card */}
-             <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-               <div className="flex items-center justify-between mb-3">
-                 <h3 className="text-lg font-semibold text-green-800">
-                   🌾 Optimal Planting Windows Found
-                 </h3>
-                 <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full">
-                   {results.optimalWindows.length} windows
-                 </span>
-               </div>
-               
-               <div className="grid md:grid-cols-4 gap-4 text-sm">
-                 <div>
-                   <span className="font-medium text-green-700">📍 Location:</span>
-                   <p className="text-gray-700 truncate">{results.location}</p>
-                 </div>
-                 <div>
-                   <span className="font-medium text-green-700">📅 Period:</span>
-                   <p className="text-gray-700">Q{results.quarter} {results.year}</p>
-                 </div>
-                 <div>
-                   <span className="font-medium text-green-700">📊 Quarter Avg:</span>
-                   <p className="text-lg font-bold text-green-600">{(results.quarterAverage / 1000).toFixed(1)} t/ha</p>
-                 </div>
-                 <div>
-                   <span className="font-medium text-green-700">🎯 Best Month:</span>
-                   <p className="text-gray-700">{results.analysis.bestMonth}</p>
-                 </div>
-               </div>
+       {/* Results Display */}
+       {results && (
+         <div className="mt-8 space-y-4">
+           {/* Summary Card */}
+           <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+             <div className="flex items-center justify-between mb-3">
+               <h3 className="text-lg font-semibold text-green-800">🌾 Optimal Planting Windows Found</h3>
+               <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded-full">
+                 {results.optimalWindows.length} windows
+               </span>
              </div>
 
-             {/* Top 3 Optimal Windows - Column Cards */}
-             <div className="space-y-3">
-               <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                 🏆 Top 3 Optimal 7-Day Windows
-                 <span className="text-sm font-normal text-gray-500">(click to expand)</span>
-               </h3>
-               
-               <div className="grid md:grid-cols-3 gap-4">
-                 {results.optimalWindows.slice(0, 3).map((window: any, index: number) => (
-                   <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-                     {/* Card Header */}
-                     <div className="text-center mb-4">
-                       <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                         <span className="text-green-600 font-bold text-lg">#{index + 1}</span>
-                       </div>
-                       <h4 className="font-semibold text-gray-800 text-sm">
-                         {new Date(window.startDate).toLocaleDateString()} - {new Date(window.endDate).toLocaleDateString()}
-                       </h4>
-                       <p className="text-xs text-gray-500">7-day planting window</p>
-                     </div>
-                     
-                     {/* Yield Display */}
-                     <div className="text-center mb-4">
-                       <p className="text-2xl font-bold text-green-600">
-                         {(window.averageYield / 1000).toFixed(1)} t/ha
-                       </p>
-                       <p className="text-xs text-gray-500">Average Yield</p>
-                     </div>
-                     
-                     {/* Metrics */}
-                     <div className="grid grid-cols-2 gap-3 mb-4">
-                       <div className="text-center">
-                         <p className="text-lg font-bold text-blue-600">{window.weatherStability.toFixed(0)}%</p>
-                         <p className="text-xs text-gray-500">Stability</p>
-                       </div>
-                       <div className="text-center">
-                         <p className="text-lg font-bold text-purple-600">{window.confidence.toFixed(0)}%</p>
-                         <p className="text-xs text-gray-500">Confidence</p>
-                       </div>
-                     </div>
-                     
-                     {/* Collapsible Details */}
-                     <details className="mt-3">
-                       <summary className="cursor-pointer text-sm text-blue-600 hover:text-blue-800 font-medium">
-                         📋 View Details & Recommendations
-                       </summary>
-                       <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
-                         {window.riskFactors.length > 0 && (
-                           <div>
-                             <h5 className="font-medium text-red-700 mb-2 text-sm">⚠️ Risk Factors</h5>
-                             <div className="flex flex-wrap gap-1">
-                               {window.riskFactors.map((risk: string, riskIndex: number) => (
-                                 <span key={riskIndex} className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
-                                   {risk}
-                                 </span>
-                               ))}
-                             </div>
-                           </div>
-                         )}
-                         
-                         <div>
-                           <h5 className="font-medium text-green-700 mb-2 text-sm">💡 Recommendations</h5>
-                           <ul className="space-y-1">
-                             {window.recommendations.map((rec: string, recIndex: number) => (
-                               <li key={recIndex} className="text-sm text-gray-700 flex items-start">
-                                 <span className="text-green-500 mr-2">•</span>
-                                 {rec}
-                               </li>
-                             ))}
-                           </ul>
-                         </div>
-                       </div>
-                     </details>
-                   </div>
-                 ))}
+             <div className="grid md:grid-cols-4 gap-4 text-sm">
+               <div>
+                 <span className="font-medium text-green-700">📍 Location:</span>
+                 <p className="text-gray-700 truncate">{results.location}</p>
                </div>
-             </div>
-
-             {/* Quick Farming Advice */}
-             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-               <h3 className="text-lg font-semibold text-blue-800 mb-3">
-                 🌱 Quick Farming Advice
-               </h3>
-               <div className="grid md:grid-cols-2 gap-3">
-                 {results.analysis.farmingAdvice.slice(0, 4).map((advice: string, index: number) => (
-                   <p key={index} className="text-blue-700 text-sm flex items-start">
-                     <span className="text-blue-500 mr-2">•</span>
-                     {advice}
-                   </p>
-                 ))}
+               <div>
+                 <span className="font-medium text-green-700">📅 Period:</span>
+                 <p className="text-gray-700">Q{results.quarter} {results.year}</p>
+               </div>
+               <div>
+                 <span className="font-medium text-green-700">📊 Quarter Avg:</span>
+                 <p className="text-lg font-bold text-green-600">{(results.quarterAverage / 1000).toFixed(1)} t/ha</p>
+               </div>
+               <div>
+                 <span className="font-medium text-green-700">🎯 Best Month:</span>
+                 <p className="text-gray-700">{results.analysis.bestMonth}</p>
                </div>
              </div>
            </div>
-         )}
-    </div>
-  );
-}
+
+           {/* Top 3 Optimal Windows - Column Cards */}
+           <div className="space-y-3">
+             <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+               🏆 Top 3 Optimal 7-Day Windows
+               <span className="text-sm font-normal text-gray-500">(click to expand)</span>
+             </h3>
+
+             <div className="grid md:grid-cols-3 gap-4">
+               {results.optimalWindows.slice(0, 3).map((window: any, index: number) => (
+                 <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                   {/* Card Header */}
+                   <div className="text-center mb-4">
+                     <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                       <span className="text-green-600 font-bold text-lg">#{index + 1}</span>
+                     </div>
+                     <h4 className="font-semibold text-gray-800 text-sm">
+                       {new Date(window.startDate).toLocaleDateString()} - {new Date(window.endDate).toLocaleDateString()}
+                     </h4>
+                     <p className="text-xs text-gray-500">7-day planting window</p>
+                   </div>
+
+                   {/* Yield Display */}
+                   <div className="text-center mb-4">
+                     <p className="text-2xl font-bold text-green-600">{(window.averageYield / 1000).toFixed(1)} t/ha</p>
+                     <p className="text-xs text-gray-500">Average Yield</p>
+                   </div>
+
+                   {/* Metrics */}
+                   <div className="grid grid-cols-2 gap-3 mb-4">
+                     <div className="text-center">
+                       <p className="text-lg font-bold text-green-600">{window.weatherStability.toFixed(0)}%</p>
+                       <p className="text-xs text-gray-500">Stability</p>
+                     </div>
+                     <div className="text-center">
+                       <p className="text-lg font-bold text-green-600">{window.confidence.toFixed(0)}%</p>
+                       <p className="text-xs text-gray-500">Confidence</p>
+                     </div>
+                   </div>
+
+                   {/* Collapsible Details */}
+                   <details className="mt-3">
+                     <summary className="cursor-pointer text-sm text-green-700 hover:text-green-800 font-medium">
+                       📋 View Details & Recommendations
+                     </summary>
+                     <div className="mt-3 pt-3 border-t border-gray-100 space-y-3">
+                       {window.riskFactors.length > 0 && (
+                         <div>
+                           <h5 className="font-medium text-red-700 mb-2 text-sm">⚠️ Risk Factors</h5>
+                           <div className="flex flex-wrap gap-1">
+                             {window.riskFactors.map((risk: string, riskIndex: number) => (
+                               <span key={riskIndex} className="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">
+                                 {risk}
+                               </span>
+                             ))}
+                           </div>
+                         </div>
+                       )}
+
+                       <div>
+                         <h5 className="font-medium text-green-700 mb-2 text-sm">💡 Recommendations</h5>
+                         <ul className="space-y-1">
+                           {window.recommendations.map((rec: string, recIndex: number) => (
+                             <li key={recIndex} className="text-sm text-gray-700 flex items-start">
+                               <span className="text-green-600 mr-2">•</span>
+                               {rec}
+                             </li>
+                           ))}
+                         </ul>
+                       </div>
+                     </div>
+                   </details>
+                 </div>
+               ))}
+             </div>
+           </div>
+
+           {/* Quick Farming Advice */}
+           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+             <h3 className="text-lg font-semibold text-green-800 mb-3">🌱 Quick Farming Advice</h3>
+             <div className="grid md:grid-cols-2 gap-3">
+               {results.analysis.farmingAdvice.slice(0, 4).map((advice: string, index: number) => (
+                 <p key={index} className="text-green-700 text-sm flex items-start">
+                   <span className="text-green-600 mr-2">•</span>
+                   {advice}
+                 </p>
+               ))}
+             </div>
+           </div>
+         </div>
+       )}
+     </div>
+   );
+ }
