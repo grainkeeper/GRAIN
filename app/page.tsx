@@ -110,7 +110,7 @@ export default function HomePage() {
                   for maximum yield potential in your region.
                 </p>
                 <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/weather">Check Weather</Link>
+                  <Link href="/predictions">Get Predictions</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -133,7 +133,7 @@ export default function HomePage() {
                   and location from our intelligent assistant.
                 </p>
                 <Button asChild size="sm" variant="outline" className="w-full">
-                  <Link href="/chatbot">Chat with AI</Link>
+                  <span className="text-sm text-muted-foreground">Available as floating widget</span>
                 </Button>
               </CardContent>
             </Card>
@@ -263,9 +263,8 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold">Quick Links</h3>
               <ul className="space-y-2">
                 <li><Link href="/predictions" className="text-gray-400 hover:text-white transition-colors">Yield Predictions</Link></li>
-                <li><Link href="/weather" className="text-gray-400 hover:text-white transition-colors">Weather Forecast</Link></li>
                 <li><Link href="/map" className="text-gray-400 hover:text-white transition-colors">Province Map</Link></li>
-                <li><Link href="/chatbot" className="text-gray-400 hover:text-white transition-colors">AI Chatbot</Link></li>
+                <li><span className="text-gray-400">AI Chatbot (Floating Widget)</span></li>
               </ul>
             </div>
 
