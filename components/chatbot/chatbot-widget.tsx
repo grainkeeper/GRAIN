@@ -8,6 +8,7 @@ import { MessageSquare, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
 import { createClient } from '@/lib/supabase/client'
+import { logger } from '@/lib/utils/logger'
 
 interface Message {
   id: string
@@ -80,7 +81,7 @@ export function ChatbotWidget() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser()
       
-      console.log('Initializing conversation for user:', user?.id)
+      logger.info('Initializing conversation for user:', user?.id)
       
       if (user) {
         // Authenticated user - use database
@@ -90,7 +91,7 @@ export function ChatbotWidget() {
         await initializeUnauthenticatedConversation()
       }
     } catch (error) {
-      console.error('Error initializing conversation:', error)
+      logger.error('Error initializing conversation:', error)
       // Fallback to unauthenticated mode
       await initializeUnauthenticatedConversation()
     } finally {
@@ -113,7 +114,7 @@ export function ChatbotWidget() {
 
       // If there are multiple active conversations, deactivate all but the most recent one
       if (existingConversations && existingConversations.length > 1) {
-        console.log('Found multiple active conversations, deactivating older ones...')
+        logger.info('Found multiple active conversations, deactivating older ones...')
         const conversationIdsToDeactivate = existingConversations.slice(1).map(conv => conv.id)
         
         await supabase
@@ -123,7 +124,7 @@ export function ChatbotWidget() {
       }
 
       if (existingConversation && !convError) {
-        console.log('Found existing conversation:', existingConversation.id)
+        logger.info('Found existing conversation:', existingConversation.id)
         setConversationId(existingConversation.id)
         setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`) // Generate new session ID
         
@@ -135,7 +136,7 @@ export function ChatbotWidget() {
           .order('message_timestamp', { ascending: true })
 
         if (msgError) {
-          console.error('Error loading messages:', msgError)
+          logger.error('Error loading messages:', msgError)
         }
 
         if (conversationMessages && !msgError) {
@@ -149,7 +150,7 @@ export function ChatbotWidget() {
           setMessages(formattedMessages)
         } else {
           // If no messages found or error loading messages, show welcome message
-          console.log('No messages found in conversation or error loading messages, showing welcome message')
+          logger.info('No messages found in conversation or error loading messages, showing welcome message')
           const welcomeMessage: Message = {
             id: Date.now().toString(),
             text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
@@ -165,7 +166,7 @@ export function ChatbotWidget() {
           setUserFarmingData(existingConversation.user_farm_context.farming_data)
         }
       } else {
-        console.log('No existing conversation found, creating new one...')
+        logger.info('No existing conversation found, creating new one...')
         // Create new conversation
         const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
         setSessionId(newSessionId)
@@ -179,7 +180,7 @@ export function ChatbotWidget() {
           user_location_region: null
         }
         
-        console.log('Attempting to create conversation with data:', conversationData)
+        logger.debug('Attempting to create conversation with data:', conversationData)
         
         const { data: newConversation, error } = await supabase
           .from('chatbot_conversations')
@@ -202,10 +203,10 @@ export function ChatbotWidget() {
           await saveMessageToDatabase(welcomeMessage, newConversation.id, user.id)
           setMessages([welcomeMessage])
         } else {
-          console.error('Error creating new conversation:', error)
-          console.error('Error details:', JSON.stringify(error, null, 2))
-          console.error('User ID:', user.id)
-          console.error('Session ID:', newSessionId)
+          logger.error('Error creating new conversation:', error)
+          logger.debug('Error details:', JSON.stringify(error, null, 2))
+          logger.debug('User ID:', user.id)
+          logger.debug('Session ID:', newSessionId)
           // If database creation fails, still show welcome message but don't save to DB
           const welcomeMessage: Message = {
             id: Date.now().toString(),
@@ -218,7 +219,7 @@ export function ChatbotWidget() {
         }
       }
     } catch (error) {
-      console.error('Error initializing authenticated conversation:', error)
+      logger.error('Error initializing authenticated conversation:', error)
       // Even if there's an error, show welcome message
       const welcomeMessage: Message = {
         id: Date.now().toString(),
@@ -258,7 +259,7 @@ export function ChatbotWidget() {
             type: 'text'
           }])
         } catch (error) {
-          console.error('Error loading farming data:', error)
+          logger.error('Error loading farming data:', error)
         }
       } else {
         // If no farming data, show setup profile message
@@ -271,7 +272,7 @@ export function ChatbotWidget() {
         }])
       }
     } catch (error) {
-      console.error('Error initializing unauthenticated conversation:', error)
+      logger.error('Error initializing unauthenticated conversation:', error)
       // Set default welcome message
       setMessages([{
         id: '1',
@@ -284,7 +285,7 @@ export function ChatbotWidget() {
   }
 
     const saveMessageToDatabase = async (message: Message, convId?: string, userId?: string) => {
-    console.log('Saving message to database:', { convId, userId, messageText: message.text })
+    logger.debug('Saving message to database:', { convId, userId, messageText: message.text })
     
     // Only save to database if we have both conversationId and userId (authenticated user)
     if (convId && userId) {
@@ -305,15 +306,15 @@ export function ChatbotWidget() {
           })
 
         if (error) {
-          console.error('Error saving message:', error)
+          logger.error('Error saving message:', error)
         } else {
-          console.log('Message saved successfully to database')
+          logger.debug('Message saved successfully to database')
         }
       } catch (error) {
-        console.error('Error saving message to database:', error)
+        logger.error('Error saving message to database:', error)
       }
     } else {
-      console.log('Not saving to database - missing convId or userId')
+      logger.debug('Not saving to database - missing convId or userId')
     }
     // For unauthenticated users, messages are only stored in memory
   }
@@ -350,7 +351,7 @@ export function ChatbotWidget() {
         .update(updateData)
         .eq('id', conversationId)
     } catch (error) {
-      console.error('Error updating conversation:', error)
+      logger.error('Error updating conversation:', error)
     }
   }
 
@@ -414,11 +415,11 @@ export function ChatbotWidget() {
 
     const { data: { user } } = await supabase.auth.getUser()
     
-    console.log('Sending message - conversationId:', conversationId, 'userId:', user?.id)
+    logger.debug('Sending message', { conversationId, userId: user?.id })
 
     // If no conversationId, try to initialize conversation
     if (!conversationId && user) {
-      console.log('No conversationId found, initializing conversation...')
+      logger.info('No conversationId found, initializing conversation...')
       await initializeAuthenticatedConversation(user)
       return // Wait for next render cycle
     }
@@ -505,7 +506,7 @@ export function ChatbotWidget() {
         throw new Error(data.error || 'Failed to get response')
       }
     } catch (error) {
-      console.error('Error getting chatbot response:', error)
+      logger.error('Error getting chatbot response:', error)
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.',

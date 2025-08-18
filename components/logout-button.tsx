@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
+import { logger } from '@/lib/utils/logger'
 
 export function LogoutButton() {
   const router = useRouter()
@@ -13,7 +14,7 @@ export function LogoutButton() {
       const { error } = await supabase.auth.signOut()
       
       if (error) {
-        console.error('Logout error:', error)
+        logger.error('Logout error:', error)
         return
       }
 
@@ -24,7 +25,7 @@ export function LogoutButton() {
       // Force a hard redirect to login page
       window.location.href = '/auth/login'
     } catch (error) {
-      console.error('Logout error:', error)
+      logger.error('Logout error:', error)
       // Fallback to hard redirect
       window.location.href = '/auth/login'
     }

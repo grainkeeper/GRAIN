@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/utils/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -92,7 +93,7 @@ User ID: ${userId || 'anonymous'}`
           })
 
         if (dbError) {
-          console.error('Error saving bot message to database:', dbError)
+          logger.error('Error saving bot message to database:', dbError)
         }
 
         // Update conversation metadata
@@ -109,7 +110,7 @@ User ID: ${userId || 'anonymous'}`
           .eq('id', conversationId)
 
       } catch (dbError) {
-        console.error('Database error:', dbError)
+        logger.error('Database error:', dbError)
       }
     }
 
@@ -127,7 +128,7 @@ User ID: ${userId || 'anonymous'}`
     })
 
   } catch (error) {
-    console.error('Chatbot API error:', error)
+    logger.error('Chatbot API error:', error)
     return NextResponse.json(
       {
         success: false,
