@@ -1,5 +1,6 @@
 // Enhanced Prediction API Model
 // Finds optimal 7-day planting windows within quarters using live weather forecasts
+import { logger } from '@/lib/utils/logger'
 
 export interface PlantingWindowRequest {
   location: {
@@ -64,7 +65,7 @@ export class EnhancedPredictionAPI {
    */
   async findOptimalPlantingWindows(request: PlantingWindowRequest): Promise<PlantingWindowResponse> {
     try {
-      console.log(`🔍 Finding optimal planting windows for ${request.location.province}, Q${request.quarter} ${request.year}`);
+      logger.info(`Finding optimal planting windows for ${request.location.province}, Q${request.quarter} ${request.year}`);
 
       // 1. Get quarter date range
       const quarterDates = this.getQuarterDateRange(request.year, request.quarter);
@@ -93,7 +94,7 @@ export class EnhancedPredictionAPI {
       };
 
     } catch (error: any) {
-      console.error('Error finding optimal planting windows:', error);
+      logger.error('Error finding optimal planting windows:', error);
       throw new Error(`Failed to find optimal planting windows: ${error.message}`);
     }
   }

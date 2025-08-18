@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MapPin, Wheat, Droplets, Thermometer, Calendar } from 'lucide-react'
 import { RICE_VARIETIES } from '@/lib/constants/rice-varieties'
 import { psgcService, PSGCProvince, PSGCCity, PSGCBarangay } from '@/lib/services/psgc-api'
+import { logger } from '@/lib/utils/logger'
 
 interface FarmingData {
   location: {
@@ -143,9 +144,9 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
     try {
       const provincesData = await psgcService.getProvincesCached()
       setProvinces(provincesData)
-    } catch (error) {
-      console.error('Error loading provinces:', error)
-    } finally {
+            } catch (error) {
+          logger.error('Error loading provinces:', error)
+        } finally {
       setLoadingProvinces(false)
     }
   }
@@ -155,9 +156,9 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
     try {
       const citiesData = await psgcService.getCitiesAndMunicipalitiesCached(provinceCode)
       setCities(citiesData)
-    } catch (error) {
-      console.error('Error loading cities:', error)
-    } finally {
+            } catch (error) {
+          logger.error('Error loading cities:', error)
+        } finally {
       setLoadingCities(false)
     }
   }
@@ -167,9 +168,9 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
     try {
       const barangaysData = await psgcService.getBarangaysCached(cityCode)
       setBarangays(barangaysData)
-    } catch (error) {
-      console.error('Error loading barangays:', error)
-    } finally {
+            } catch (error) {
+          logger.error('Error loading barangays:', error)
+        } finally {
       setLoadingBarangays(false)
     }
   }
@@ -185,17 +186,17 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
   }
 
   const nextStep = () => {
-    console.log('Next step clicked, current step:', step, 'isValid:', isStepValid())
+    logger.debug('Next step clicked', { step, isValid: isStepValid() })
     if (step < 4) {
       setStep(step + 1)
     } else {
-      console.log('Completing profile setup with data:', data)
+      logger.info('Completing profile setup with data:', data)
       onComplete(data)
     }
   }
 
   const prevStep = () => {
-    console.log('Previous step clicked, current step:', step)
+    logger.debug('Previous step clicked', { step })
     if (step > 1) {
       setStep(step - 1)
     }

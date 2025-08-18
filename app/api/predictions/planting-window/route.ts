@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { WeatherService } from '@/lib/services/weather-api';
 import { YieldPredictionModel } from '@/lib/services/prediction-model';
 import { EnhancedPredictionAPI } from '@/lib/services/enhanced-prediction-api';
+import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { location, year, quarter, riceVariety } = body;
 
-    console.log('🌾 Planting Window Request:', { location, year, quarter, riceVariety });
+    logger.info('Planting Window Request:', { location, year, quarter, riceVariety });
 
     // Validate required fields
     if (!location || !year || !quarter || !riceVariety) {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
       riceVariety
     });
 
-    console.log(`✅ Found ${result.optimalWindows.length} optimal planting windows`);
+    logger.info(`Found ${result.optimalWindows.length} optimal planting windows`);
 
     return NextResponse.json({
       success: true,
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error: any) {
-    console.error('❌ Planting window prediction error:', error);
+    logger.error('Planting window prediction error:', error);
     
     return NextResponse.json(
       { 
