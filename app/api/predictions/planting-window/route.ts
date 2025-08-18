@@ -6,52 +6,32 @@ import { logger } from '@/lib/utils/logger';
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { location, year, quarter, riceVariety } = body;
-
-    logger.info('Planting Window Request:', { location, year, quarter, riceVariety });
-
-    // Validate required fields
-    if (!location || !year || !quarter || !riceVariety) {
-      return NextResponse.json(
-        { 
-          error: 'Missing required fields',
-          details: 'location, year, quarter, and riceVariety are required'
-        },
-        { status: 400 }
-      );
+    const { location, year, quarter } = await request.json()
+    
+    if (!location || !year || !quarter) {
+      return NextResponse.json({ 
+        error: 'Missing required parameters: location, year, quarter' 
+      }, { status: 400 })
     }
 
-    // Initialize services
-    const weatherAPI = new WeatherService();
-    const predictionModel = new YieldPredictionModel();
-    const enhancedAPI = new EnhancedPredictionAPI(weatherAPI, predictionModel);
+    logger.info('Planting window request:', { location, year, quarter })
 
-    // Find optimal planting windows
-    const result = await enhancedAPI.findOptimalPlantingWindows({
-      location,
-      year,
-      quarter,
-      riceVariety
-    });
+    const predictionModel = new YieldPredictionModel()
+    const windows = await predictionModel.findBestPlantingWindow(location, year, quarter)
 
-    logger.info(`Found ${result.optimalWindows.length} optimal planting windows`);
+    logger.info('Planting windows found:', { count: windows.length })
 
     return NextResponse.json({
       success: true,
-      data: result
-    });
+      windows: windows
+    })
 
-  } catch (error: any) {
-    logger.error('Planting window prediction error:', error);
-    
-    return NextResponse.json(
-      { 
-        error: 'Failed to predict planting windows',
-        details: error.message || 'Unknown error occurred'
-      },
-      { status: 500 }
-    );
+  } catch (error) {
+    logger.error('Error in planting window prediction:', error)
+    return NextResponse.json({ 
+      error: 'Failed to predict planting windows',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 }
 

@@ -299,7 +299,7 @@ export class YieldPredictionModel {
     };
   }
 
-  private calculatePlantingScore(conditions: any, quarter: number, weekData: WeatherData[]): number {
+  private calculatePlantingScore(conditions: Record<string, number>, quarter: number, weekData: WeatherData[]): number {
     let score = 50; // Start with base score of 50
     
     // Base score from yield prediction (normalize to reasonable range)
@@ -324,7 +324,7 @@ export class YieldPredictionModel {
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  private predictYield(conditions: any, quarter: number): number {
+  private predictYield(conditions: Record<string, number>, quarter: number): number {
     switch (quarter) {
       case 1: return this.predictQuarter1(conditions.temperature, conditions.dewPoint, conditions.precipitation, conditions.windSpeed, conditions.humidity);
       case 2: return this.predictQuarter2(conditions.temperature, conditions.dewPoint, conditions.precipitation, conditions.windSpeed, conditions.humidity);

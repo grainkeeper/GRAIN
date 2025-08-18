@@ -1,37 +1,13 @@
 'use client'
-
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/auth/logout-button'
-import { Wheat, Home, BarChart3, MessageSquare, MapPin } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
-
-const navItems = [
-  {
-    title: 'Home',
-    href: '/',
-    icon: Home
-  },
-  {
-    title: 'Yield Predictions',
-    href: '/predictions',
-    icon: Wheat
-  },
-  {
-    title: 'Map',
-    href: '/map',
-    icon: MapPin
-  }
-]
+import { User as SupabaseUser } from '@supabase/supabase-js'
 
 export function Navbar() {
-  const pathname = usePathname()
-  const isHomePage = pathname === '/'
-  const isAuthPage = pathname.startsWith('/auth')
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<SupabaseUser | null>(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -41,7 +17,6 @@ export function Navbar() {
       setUser(user)
       setLoading(false)
     }
-
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -51,50 +26,22 @@ export function Navbar() {
     return () => subscription.unsubscribe()
   }, [supabase.auth])
 
-  // Don't show navbar on auth pages
-  if (isAuthPage) {
-    return null
+  // Hide navbar on auth pages
+  if (typeof window !== 'undefined') {
+    const isAuthPage = window.location.pathname.startsWith('/auth')
+    if (isAuthPage) {
+      return null
+    }
   }
 
   return (
-    <nav className={cn(
-      "transition-all duration-300",
-      isHomePage 
-        ? "bg-transparent border-transparent absolute top-0 left-0 right-0 z-50" 
-        : "border-b bg-white/95 backdrop-blur-sm dark:bg-gray-950/95"
-    )}>
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
-            <Link href="/" className="flex items-center space-x-2">
-              <Wheat className={cn("h-6 w-6", isHomePage ? "text-white" : "")} />
-              <span className={cn("text-xl font-bold", isHomePage ? "text-white" : "")}>GrainKeeper</span>
+    <nav className="bg-white shadow-sm border-b">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="text-xl font-bold text-green-600">
+              GrainKeeper
             </Link>
-            
-            <div className="hidden md:flex items-center space-x-6">
-              {navItems.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary",
-                      isHomePage 
-                        ? pathname === item.href
-                          ? "text-white"
-                          : "text-white/80 hover:text-white"
-                        : pathname === item.href
-                          ? "text-black dark:text-white"
-                          : "text-muted-foreground"
-                    )}
-                  >
-                    <Icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                )
-              })}
-            </div>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -103,33 +50,14 @@ export function Navbar() {
                 {user ? (
                   <LogoutButton />
                 ) : (
-                  <div className="flex items-center space-x-2">
+                  <>
                     <Link href="/auth/login">
-                      <Button 
-                        variant="ghost" 
-                        className={cn(
-                          "text-sm font-medium transition-colors",
-                          isHomePage 
-                            ? "text-white/80 hover:text-white" 
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        Login
-                      </Button>
+                      <Button variant="outline">Login</Button>
                     </Link>
-                    <Link href="/auth/sign-up">
-                      <Button 
-                        className={cn(
-                          "text-sm font-medium",
-                          isHomePage 
-                            ? "bg-white text-green-600 hover:bg-white/90" 
-                            : "bg-green-600 text-white hover:bg-green-700"
-                        )}
-                      >
-                        Sign Up
-                      </Button>
+                    <Link href="/auth/signup">
+                      <Button>Sign Up</Button>
                     </Link>
-                  </div>
+                  </>
                 )}
               </>
             )}

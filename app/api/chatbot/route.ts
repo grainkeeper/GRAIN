@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Verify user authentication (optional for chatbot)
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
     // Note: We allow unauthenticated users to use the chatbot, but they won't have persistent storage
 
     // Initialize Gemini

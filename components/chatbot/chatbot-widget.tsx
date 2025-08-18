@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
 import { createClient } from '@/lib/supabase/client'
 import { logger } from '@/lib/utils/logger'
+import { User as SupabaseUser } from '@supabase/supabase-js'
 
 interface Message {
   id: string
@@ -99,7 +100,7 @@ export function ChatbotWidget() {
     }
   }
 
-  const initializeAuthenticatedConversation = async (user: any) => {
+  const initializeAuthenticatedConversation = async (user: SupabaseUser) => {
     try {
       // Try to get existing active conversation
       const { data: existingConversations, error: convError } = await supabase
@@ -320,39 +321,21 @@ export function ChatbotWidget() {
   }
 
   const updateConversation = async (farmingData?: FarmingData) => {
-    // Only update database if we have conversationId (authenticated user)
     if (!conversationId) {
-      // For unauthenticated users, save farming data to localStorage
-      if (farmingData) {
-        localStorage.setItem('grainkeeper_farming_data', JSON.stringify(farmingData))
-      }
+      if (farmingData) { localStorage.setItem('grainkeeper_farming_data', JSON.stringify(farmingData)) }
       return
     }
-
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-
-      const updateData: any = {
-        last_activity: new Date().toISOString(),
-        total_messages: messages.length
-      }
-
+      const updateData: Record<string, unknown> = { last_activity: new Date().toISOString(), total_messages: messages.length }
       if (farmingData) {
-        updateData.user_farm_context = {
-          farming_data: farmingData
-        }
+        updateData.user_farm_context = { farming_data: farmingData }
         updateData.user_location_province = farmingData.location.province?.name
         updateData.user_location_region = farmingData.location.province?.region_code
       }
-
-      await supabase
-        .from('chatbot_conversations')
-        .update(updateData)
-        .eq('id', conversationId)
-    } catch (error) {
-      logger.error('Error updating conversation:', error)
-    }
+      await supabase.from('chatbot_conversations').update(updateData).eq('id', conversationId)
+    } catch (error) { logger.error('Error updating conversation:', error) }
   }
 
   // Store farming data in database
