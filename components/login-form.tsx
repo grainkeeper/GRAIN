@@ -48,10 +48,10 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
         if (profile?.role === 'admin') {
           router.push('/admin')
         } else {
-          router.push('/protected')
+          router.push('/')
         }
       } else {
-        router.push('/protected')
+        router.push('/')
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')
