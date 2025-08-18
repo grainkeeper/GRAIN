@@ -689,12 +689,6 @@ export const API_ENDPOINTS = {
   PLANTING_WINDOWS: '/api/weather/planting-windows',
   WEATHER_ALERTS: '/api/weather/alerts',
   
-  // Chatbot
-  CHATBOT_CONVERSATIONS: '/api/chatbot/conversations',
-  CHATBOT_MESSAGES: '/api/chatbot/messages',
-  CHATBOT_KNOWLEDGE: '/api/chatbot/knowledge',
-  CHATBOT_RATE: '/api/chatbot/rate',
-  
   // Farm Profiles
   FARM_PROFILES: '/api/farm-profiles',
   
