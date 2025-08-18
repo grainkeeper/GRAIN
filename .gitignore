@@ -43,7 +43,9 @@ next-env.d.ts
 # development and tooling
 .cursor/
 tasks/
-scripts/
+scripts/*
+!scripts/deploy-production.sh
+!scripts/run-migration.js
 
 # IDE and editor files
 .vscode/
