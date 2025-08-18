@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
-import { ChatbotWidget } from "@/components/chatbot/chatbot-widget";
+import { ChatbotWrapper } from "@/components/chatbot/chatbot-wrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,7 +34,7 @@ export default function RootLayout({
           <main>
             {children}
           </main>
-          <ChatbotWidget />
+          <ChatbotWrapper />
         </div>
       </body>
     </html>

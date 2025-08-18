@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { MessageSquare, X, Send, Bot, User } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
+import { createClient } from '@/lib/supabase/client'
 
 interface Message {
   id: string
@@ -56,40 +57,199 @@ export function ChatbotWidget() {
   const [showDataCollection, setShowDataCollection] = useState(false)
   const [userFarmingData, setUserFarmingData] = useState<FarmingData | null>(null)
   const [sessionId, setSessionId] = useState<string>('')
+  const [conversationId, setConversationId] = useState<string>('')
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const supabase = createClient()
 
-  // Generate session ID on component mount
+  // Initialize conversation and load existing data
   useEffect(() => {
-    // Try to get existing session ID from localStorage
-    const existingSessionId = localStorage.getItem('grainkeeper_session_id')
-    if (existingSessionId) {
-      setSessionId(existingSessionId)
-    } else {
-      // Generate new session ID and store it
-      const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      setSessionId(newSessionId)
-      localStorage.setItem('grainkeeper_session_id', newSessionId)
-    }
+    initializeConversation()
   }, [])
 
-  // Store farming data in localStorage for persistence
-  useEffect(() => {
-    if (userFarmingData) {
-      localStorage.setItem('grainkeeper_farming_data', JSON.stringify(userFarmingData))
-    }
-  }, [userFarmingData])
+  // Note: Auth state changes are now handled by the ChatbotWrapper component
+  // which forces a complete re-render of this component when the user changes
 
-  // Load farming data from localStorage on mount
-  useEffect(() => {
-    const savedFarmingData = localStorage.getItem('grainkeeper_farming_data')
-    if (savedFarmingData) {
-      try {
-        setUserFarmingData(JSON.parse(savedFarmingData))
-        // If user has farming data, show welcome message
-        if (messages.length === 0) {
+  const initializeConversation = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      console.log('Initializing conversation for user:', user?.id)
+      
+      if (user) {
+        // Authenticated user - use database
+        await initializeAuthenticatedConversation(user)
+      } else {
+        // Unauthenticated user - use localStorage fallback
+        await initializeUnauthenticatedConversation()
+      }
+    } catch (error) {
+      console.error('Error initializing conversation:', error)
+      // Fallback to unauthenticated mode
+      await initializeUnauthenticatedConversation()
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const initializeAuthenticatedConversation = async (user: any) => {
+    try {
+      // Try to get existing active conversation
+      const { data: existingConversations, error: convError } = await supabase
+        .from('chatbot_conversations')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+      
+      const existingConversation = existingConversations?.[0]
+
+      // If there are multiple active conversations, deactivate all but the most recent one
+      if (existingConversations && existingConversations.length > 1) {
+        console.log('Found multiple active conversations, deactivating older ones...')
+        const conversationIdsToDeactivate = existingConversations.slice(1).map(conv => conv.id)
+        
+        await supabase
+          .from('chatbot_conversations')
+          .update({ is_active: false })
+          .in('id', conversationIdsToDeactivate)
+      }
+
+      if (existingConversation && !convError) {
+        console.log('Found existing conversation:', existingConversation.id)
+        setConversationId(existingConversation.id)
+        setSessionId(`session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`) // Generate new session ID
+        
+        // Load messages for this conversation
+        const { data: conversationMessages, error: msgError } = await supabase
+          .from('chatbot_messages')
+          .select('*')
+          .eq('conversation_id', existingConversation.id)
+          .order('message_timestamp', { ascending: true })
+
+        if (msgError) {
+          console.error('Error loading messages:', msgError)
+        }
+
+        if (conversationMessages && !msgError) {
+          const formattedMessages: Message[] = conversationMessages.map(msg => ({
+            id: msg.id,
+            text: msg.message_text,
+            sender: msg.message_type as 'user' | 'bot',
+            timestamp: new Date(msg.message_timestamp),
+            type: msg.message_role as 'text' | 'recommendation' | 'data_collection'
+          }))
+          setMessages(formattedMessages)
+        } else {
+          // If no messages found or error loading messages, show welcome message
+          console.log('No messages found in conversation or error loading messages, showing welcome message')
+          const welcomeMessage: Message = {
+            id: Date.now().toString(),
+            text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text'
+          }
+          setMessages([welcomeMessage])
+        }
+
+        // Load farming data from user_farm_context
+        if (existingConversation.user_farm_context && existingConversation.user_farm_context.farming_data) {
+          setUserFarmingData(existingConversation.user_farm_context.farming_data)
+        }
+      } else {
+        console.log('No existing conversation found, creating new one...')
+        // Create new conversation
+        const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        setSessionId(newSessionId)
+        
+        const conversationData = {
+          user_id: user.id,
+          conversation_title: 'New Conversation',
+          conversation_type: 'general',
+          is_active: true,
+          user_location_province: null,
+          user_location_region: null
+        }
+        
+        console.log('Attempting to create conversation with data:', conversationData)
+        
+        const { data: newConversation, error } = await supabase
+          .from('chatbot_conversations')
+          .insert(conversationData)
+          .select()
+          .single()
+
+        if (newConversation && !error) {
+          setConversationId(newConversation.id)
+          
+          // Add welcome message
+          const welcomeMessage: Message = {
+            id: Date.now().toString(),
+            text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text'
+          }
+          
+          await saveMessageToDatabase(welcomeMessage, newConversation.id, user.id)
+          setMessages([welcomeMessage])
+        } else {
+          console.error('Error creating new conversation:', error)
+          console.error('Error details:', JSON.stringify(error, null, 2))
+          console.error('User ID:', user.id)
+          console.error('Session ID:', newSessionId)
+          // If database creation fails, still show welcome message but don't save to DB
+          const welcomeMessage: Message = {
+            id: Date.now().toString(),
+            text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+            sender: 'bot',
+            timestamp: new Date(),
+            type: 'text'
+          }
+          setMessages([welcomeMessage])
+        }
+      }
+    } catch (error) {
+      console.error('Error initializing authenticated conversation:', error)
+      // Even if there's an error, show welcome message
+      const welcomeMessage: Message = {
+        id: Date.now().toString(),
+        text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+        sender: 'bot',
+        timestamp: new Date(),
+        type: 'text'
+      }
+      setMessages([welcomeMessage])
+    }
+  }
+
+  const initializeUnauthenticatedConversation = async () => {
+    try {
+      // Try to get existing session ID from localStorage
+      const existingSessionId = localStorage.getItem('grainkeeper_session_id')
+      if (existingSessionId) {
+        setSessionId(existingSessionId)
+      } else {
+        // Generate new session ID and store it
+        const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        setSessionId(newSessionId)
+        localStorage.setItem('grainkeeper_session_id', newSessionId)
+      }
+
+      // Load farming data from localStorage
+      const savedFarmingData = localStorage.getItem('grainkeeper_farming_data')
+      if (savedFarmingData) {
+        try {
+          setUserFarmingData(JSON.parse(savedFarmingData))
+          // If user has farming data, show welcome message
           setMessages([{
             id: '1',
             text: 'Welcome back! How can I help with your rice farming today?',
@@ -97,13 +257,11 @@ export function ChatbotWidget() {
             timestamp: new Date(),
             type: 'text'
           }])
+        } catch (error) {
+          console.error('Error loading farming data:', error)
         }
-      } catch (error) {
-        console.error('Error loading farming data:', error)
-      }
-    } else {
-      // If no farming data, show setup profile message
-      if (messages.length === 0) {
+      } else {
+        // If no farming data, show setup profile message
         setMessages([{
           id: '1',
           text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
@@ -112,8 +270,103 @@ export function ChatbotWidget() {
           type: 'text'
         }])
       }
+    } catch (error) {
+      console.error('Error initializing unauthenticated conversation:', error)
+      // Set default welcome message
+      setMessages([{
+        id: '1',
+        text: 'Hello! I\'m GRAINKEEPER. Please set up your farming profile to get personalized advice.',
+        sender: 'bot',
+        timestamp: new Date(),
+        type: 'text'
+      }])
     }
-  }, [messages.length])
+  }
+
+    const saveMessageToDatabase = async (message: Message, convId?: string, userId?: string) => {
+    console.log('Saving message to database:', { convId, userId, messageText: message.text })
+    
+    // Only save to database if we have both conversationId and userId (authenticated user)
+    if (convId && userId) {
+      try {
+        const { error } = await supabase
+          .from('chatbot_messages')
+          .insert({
+            conversation_id: convId,
+            user_id: userId,
+            message_text: message.text,
+            message_type: message.sender,
+            message_role: message.type || 'text',
+            message_timestamp: message.timestamp.toISOString(),
+            message_context: {
+              farming_data: userFarmingData,
+              session_id: sessionId
+            }
+          })
+
+        if (error) {
+          console.error('Error saving message:', error)
+        } else {
+          console.log('Message saved successfully to database')
+        }
+      } catch (error) {
+        console.error('Error saving message to database:', error)
+      }
+    } else {
+      console.log('Not saving to database - missing convId or userId')
+    }
+    // For unauthenticated users, messages are only stored in memory
+  }
+
+  const updateConversation = async (farmingData?: FarmingData) => {
+    // Only update database if we have conversationId (authenticated user)
+    if (!conversationId) {
+      // For unauthenticated users, save farming data to localStorage
+      if (farmingData) {
+        localStorage.setItem('grainkeeper_farming_data', JSON.stringify(farmingData))
+      }
+      return
+    }
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const updateData: any = {
+        last_activity: new Date().toISOString(),
+        total_messages: messages.length
+      }
+
+      if (farmingData) {
+        updateData.user_farm_context = {
+          farming_data: farmingData
+        }
+        updateData.user_location_province = farmingData.location.province?.name
+        updateData.user_location_region = farmingData.location.province?.region_code
+      }
+
+      await supabase
+        .from('chatbot_conversations')
+        .update(updateData)
+        .eq('id', conversationId)
+    } catch (error) {
+      console.error('Error updating conversation:', error)
+    }
+  }
+
+  // Store farming data in database
+  useEffect(() => {
+    if (userFarmingData && conversationId) {
+      updateConversation(userFarmingData)
+    }
+  }, [userFarmingData, conversationId])
+
+  // Update conversation on message changes
+  useEffect(() => {
+    if (conversationId && messages.length > 0) {
+      updateConversation()
+    }
+  }, [messages.length, conversationId])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -123,10 +376,12 @@ export function ChatbotWidget() {
     scrollToBottom()
   }, [messages])
 
-  const handleDataCollectionComplete = (farmingData: FarmingData) => {
+  const handleDataCollectionComplete = async (farmingData: FarmingData) => {
     setUserFarmingData(farmingData)
     setShowDataCollection(false)
     
+    const { data: { user } } = await supabase.auth.getUser()
+
     const userMessage: Message = {
       id: Date.now().toString(),
       text: 'I\'ve completed my farming profile setup',
@@ -143,6 +398,10 @@ export function ChatbotWidget() {
       type: 'text'
     }
 
+    // Save messages (to database if authenticated, or just in memory if not)
+    await saveMessageToDatabase(userMessage, conversationId, user?.id)
+    await saveMessageToDatabase(botMessage, conversationId, user?.id)
+
     setMessages(prev => [...prev, userMessage, botMessage])
   }
 
@@ -152,6 +411,17 @@ export function ChatbotWidget() {
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
+
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    console.log('Sending message - conversationId:', conversationId, 'userId:', user?.id)
+
+    // If no conversationId, try to initialize conversation
+    if (!conversationId && user) {
+      console.log('No conversationId found, initializing conversation...')
+      await initializeAuthenticatedConversation(user)
+      return // Wait for next render cycle
+    }
 
     // Handle profile edit commands
     if (inputValue.toLowerCase().includes('/profile') || inputValue.toLowerCase().includes('/edit')) {
@@ -178,6 +448,10 @@ export function ChatbotWidget() {
         type: 'text'
       }
 
+      // Save messages (to database if authenticated, or just in memory if not)
+      await saveMessageToDatabase(userMessage, conversationId, user?.id)
+      await saveMessageToDatabase(botMessage, conversationId, user?.id)
+
       setMessages(prev => [...prev, userMessage, botMessage])
       setInputValue('')
       return
@@ -191,6 +465,8 @@ export function ChatbotWidget() {
       type: 'text'
     }
 
+    // Save user message (to database if authenticated, or just in memory if not)
+    await saveMessageToDatabase(userMessage, conversationId, user?.id)
     setMessages(prev => [...prev, userMessage])
     setInputValue('')
     setIsTyping(true)
@@ -206,7 +482,8 @@ export function ChatbotWidget() {
           farmingData: userFarmingData,
           conversationHistory: messages,
           sessionId,
-          userId: null // TODO: Add user authentication
+          userId: user?.id || null,
+          conversationId
         }),
       })
 
@@ -220,6 +497,9 @@ export function ChatbotWidget() {
           timestamp: new Date(),
           type: 'recommendation'
         }
+        
+        // Save bot message (to database if authenticated, or just in memory if not)
+        await saveMessageToDatabase(botMessage, conversationId, user?.id)
         setMessages(prev => [...prev, botMessage])
       } else {
         throw new Error(data.error || 'Failed to get response')
@@ -233,6 +513,9 @@ export function ChatbotWidget() {
         timestamp: new Date(),
         type: 'text'
       }
+      
+      // Save error message (to database if authenticated, or just in memory if not)
+      await saveMessageToDatabase(botMessage, conversationId, user?.id)
       setMessages(prev => [...prev, botMessage])
     } finally {
       setIsTyping(false)
@@ -244,6 +527,20 @@ export function ChatbotWidget() {
       e.preventDefault()
       handleSendMessage()
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <Button
+          className="h-14 w-14 rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
+          size="icon"
+          disabled
+        >
+          <MessageSquare className="h-6 w-6" />
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -409,7 +706,7 @@ export function ChatbotWidget() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder={userFarmingData ? "Type your message... (or /profile to edit)" : "Set up your profile first to start chatting..."}
+                  placeholder={userFarmingData ? "Type your message" : "Set up your profile first to start chatting..."}
                   className="flex-1 border-gray-200 focus:border-green-500 focus:ring-green-500"
                   disabled={isTyping}
                 />

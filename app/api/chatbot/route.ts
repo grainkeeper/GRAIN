@@ -1,14 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, farmingData, sessionId } = body
+    const { message, farmingData, sessionId, userId, conversationId } = body
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
     }
+
+    // Initialize Supabase
+    const supabase = await createClient()
+
+    // Verify user authentication (optional for chatbot)
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    // Note: We allow unauthenticated users to use the chatbot, but they won't have persistent storage
 
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
@@ -55,11 +63,55 @@ IMPORTANT: Always consider this farming profile when providing advice. Reference
     }
 
     prompt += `\n\nUser message: ${message}
-Session ID: ${sessionId || 'new_session'}`
+Session ID: ${sessionId || 'new_session'}
+User ID: ${userId || 'anonymous'}`
 
     const result = await model.generateContent(prompt)
     const response = await result.response
     const text = response.text()
+
+    // Save bot response to database if conversationId is provided and user is authenticated
+    if (conversationId && user) {
+      try {
+        const { error: dbError } = await supabase
+          .from('chatbot_messages')
+          .insert({
+            conversation_id: conversationId,
+            user_id: user.id,
+            message_text: text,
+            message_type: 'bot',
+            message_role: 'recommendation',
+            message_timestamp: new Date().toISOString(),
+            message_context: {
+              farming_data: farmingData,
+              session_id: sessionId
+            },
+            bot_confidence_score: 0.8,
+            bot_response_type: 'recommendation',
+            bot_knowledge_source: 'rule_base'
+          })
+
+        if (dbError) {
+          console.error('Error saving bot message to database:', dbError)
+        }
+
+        // Update conversation metadata
+        await supabase
+          .from('chatbot_conversations')
+          .update({
+            last_activity: new Date().toISOString(),
+            total_messages: (await supabase
+              .from('chatbot_messages')
+              .select('id', { count: 'exact' })
+              .eq('conversation_id', conversationId)
+            ).count || 0
+          })
+          .eq('id', conversationId)
+
+      } catch (dbError) {
+        console.error('Database error:', dbError)
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -70,7 +122,8 @@ Session ID: ${sessionId || 'new_session'}`
         weatherAlert: false,
         nextActions: []
       },
-      sessionId: sessionId || 'new_session_' + Date.now()
+      sessionId: sessionId || 'new_session',
+      conversationId: conversationId
     })
 
   } catch (error) {

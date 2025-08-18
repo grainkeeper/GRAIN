@@ -6,6 +6,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/auth/logout-button'
 import { Wheat, Home, BarChart3, MessageSquare, MapPin } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState } from 'react'
 
 const navItems = [
   {
@@ -28,6 +30,31 @@ const navItems = [
 export function Navbar() {
   const pathname = usePathname()
   const isHomePage = pathname === '/'
+  const isAuthPage = pathname.startsWith('/auth')
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const supabase = createClient()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+      setLoading(false)
+    }
+
+    getUser()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [supabase.auth])
+
+  // Don't show navbar on auth pages
+  if (isAuthPage) {
+    return null
+  }
 
   return (
     <nav className={cn(
@@ -71,7 +98,41 @@ export function Navbar() {
           </div>
           
           <div className="flex items-center space-x-4">
-            <LogoutButton />
+            {!loading && (
+              <>
+                {user ? (
+                  <LogoutButton />
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Link href="/auth/login">
+                      <Button 
+                        variant="ghost" 
+                        className={cn(
+                          "text-sm font-medium transition-colors",
+                          isHomePage 
+                            ? "text-white/80 hover:text-white" 
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Login
+                      </Button>
+                    </Link>
+                    <Link href="/auth/sign-up">
+                      <Button 
+                        className={cn(
+                          "text-sm font-medium",
+                          isHomePage 
+                            ? "bg-white text-green-600 hover:bg-white/90" 
+                            : "bg-green-600 text-white hover:bg-green-700"
+                        )}
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
       </div>
