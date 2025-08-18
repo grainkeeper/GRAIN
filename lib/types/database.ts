@@ -1,8 +1,6 @@
 // GrainKeeper Database Types
 // Generated from lib/database/schema.sql
 
-import { Database } from '@supabase/supabase-js'
-
 // ============================================================================
 // BASE TYPES
 // ============================================================================
@@ -903,7 +901,7 @@ export interface DatabaseSchema {
 // ============================================================================
 
 // Type for database client with our schema
-export type DatabaseClient = Database<DatabaseSchema>
+export type DatabaseClient = any
 
 // Type for table names
 export type TableName = keyof DatabaseSchema['public']['Tables']

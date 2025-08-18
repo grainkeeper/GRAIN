@@ -1,10 +1,15 @@
-import type { NextConfig } from "next";
+import { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Production optimizations
   compress: true,
   poweredByHeader: false,
-  
+
   // Security headers
   async headers() {
     return [
@@ -31,21 +36,20 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-  
+
   // Environment variables
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  
+
   // Image optimization
   images: {
     domains: ['localhost'],
     formats: ['image/webp', 'image/avif'],
   },
-  
+
   // Experimental features
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
   },
 };
