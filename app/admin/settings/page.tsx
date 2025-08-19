@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { Settings, Save, Shield, Info, Phone, Mail, Activity, Database, Cloud, AlertTriangle, CheckCircle } from 'lucide-react'
+import { Settings, Save, Shield, Info, Phone, Mail, Activity, Database, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function SettingsAdminPage() {

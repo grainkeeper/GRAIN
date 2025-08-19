@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, FileText, BarChart3, Activity, Wheat, Cloud, MapPin, Bot, Upload, Settings, MessageSquare, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react'
+import { Users, FileText, BarChart3, Activity, Wheat, MapPin, Bot, Upload, Settings, MessageSquare, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import SystemHealthDashboard from '@/components/admin/system-health-dashboard'
