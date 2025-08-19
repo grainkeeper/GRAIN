@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Users, FileText, BarChart3, Activity, Wheat, Cloud, MapPin, Bot, Upload, Settings, MessageSquare, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import SystemHealthDashboard from '@/components/admin/system-health-dashboard'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -298,9 +299,9 @@ export default function AdminDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>System Health</CardTitle>
+            <CardTitle>System Health Overview</CardTitle>
             <CardDescription>
-              Platform status and performance
+              Platform status and performance summary
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -328,6 +329,11 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* System Health Dashboard */}
+      <div className="mt-8">
+        <SystemHealthDashboard />
       </div>
     </div>
   )
