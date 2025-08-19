@@ -769,3 +769,58 @@ ALTER TABLE chatbot_knowledge_base ADD CONSTRAINT idx_knowledge_base_category_ac
 ALTER TABLE chatbot_rules_patterns ADD CONSTRAINT idx_rules_patterns_category_priority UNIQUE (rule_category, rule_priority);
 ALTER TABLE user_interaction_analytics ADD CONSTRAINT idx_user_analytics_user_timestamp UNIQUE (user_id, interaction_timestamp);
 ALTER TABLE chatbot_training_data ADD CONSTRAINT idx_training_data_intent_category UNIQUE (training_intent, data_category);
+
+-- =====================================================================
+-- Admin Additions (Yield datasets, Rice varieties, Chatbot/Weather settings)
+-- =====================================================================
+
+-- Stores uploaded yield dataset versions; only one can be active
+CREATE TABLE IF NOT EXISTS yield_dataset_versions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    filename TEXT NOT NULL,
+    checksum TEXT NOT NULL,
+    row_count INTEGER NOT NULL DEFAULT 0,
+    is_active BOOLEAN NOT NULL DEFAULT false,
+    created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_yield_dataset_versions_checksum
+  ON yield_dataset_versions(checksum);
+
+CREATE INDEX IF NOT EXISTS idx_yield_dataset_versions_active
+  ON yield_dataset_versions(is_active);
+
+-- Rice varieties managed in admin; public app reads only active ones
+CREATE TABLE IF NOT EXISTS rice_varieties (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name TEXT UNIQUE NOT NULL,
+    description TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT true,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TRIGGER update_rice_varieties_updated_at 
+    BEFORE UPDATE ON rice_varieties 
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Chatbot runtime settings (singleton)
+CREATE TABLE IF NOT EXISTS chatbot_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    widget_enabled BOOLEAN NOT NULL DEFAULT true,
+    system_prompt TEXT,
+    temperature DOUBLE PRECISION DEFAULT 0.7,
+    top_p DOUBLE PRECISION DEFAULT 1.0,
+    max_tokens INTEGER DEFAULT 512,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+-- App-level settings incl. weather provider/key (singleton)
+CREATE TABLE IF NOT EXISTS app_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    weather_provider TEXT NOT NULL DEFAULT 'WeatherAPI',
+    weather_api_key TEXT,
+    weather_last_ok_at TIMESTAMP WITH TIME ZONE
+);

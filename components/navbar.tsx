@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/auth/logout-button'
-import { Wheat, Home, BarChart3, MessageSquare, Sprout } from 'lucide-react'
+import { Wheat, Home, BarChart3, MessageSquare, Sprout, Target } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
@@ -19,6 +19,11 @@ const navItems = [
     title: 'Yield Predictions',
     href: '/predictions',
     icon: Sprout
+  },
+  {
+    title: 'Planting Windows',
+    href: '/predictions/planting-window',
+    icon: Target
   }
 ]
 

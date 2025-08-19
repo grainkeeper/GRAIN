@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RICE_VARIETIES } from '@/lib/constants/rice-varieties';
+// Varieties are loaded from API at runtime
 import CascadingDropdown from './cascading-dropdown';
 import { 
   CalendarIcon, 
@@ -99,6 +99,7 @@ export default function YieldPredictionForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState<PlantingWindowResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [varieties, setVarieties] = useState<{id:string;name:string;description?:string}[]>([]);
   const [selectedLocation, setSelectedLocation] = useState<{
     region: PSGCItem | null;
     province: PSGCItem | null;
@@ -110,6 +111,16 @@ export default function YieldPredictionForm() {
     city: null,
     barangay: null
   });
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch('/api/varieties', { cache: 'no-store' })
+        const j = await r.json()
+        if (r.ok) setVarieties(j.data || [])
+      } catch {}
+    })()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -283,8 +294,8 @@ export default function YieldPredictionForm() {
                      <SelectValue placeholder="Select rice variety" />
                    </SelectTrigger>
                    <SelectContent className="w-[var(--radix-select-trigger-width)] max-w-[300px]">
-                     {Object.values(RICE_VARIETIES).map((variety) => (
-                       <SelectItem key={variety.name} value={variety.name} className="py-3">
+                     {varieties.map((variety) => (
+                       <SelectItem key={variety.id} value={variety.name} className="py-3">
                          <div className="flex items-center gap-3 w-full">
                            <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
                            <div className="font-medium truncate">{variety.name}</div>

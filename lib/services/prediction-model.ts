@@ -133,13 +133,16 @@ export class YieldPredictionModel {
     return new Date(year, month + 1, 0);
   }
 
-  private async getWeatherForecast(location: string, startDate: Date, endDate: Date): Promise<WeatherData[]> {
+  private async getWeatherForecast(location: any, startDate: Date, endDate: Date): Promise<WeatherData[]> {
     // Use real WeatherAPI - no fallback to mock data
     const { WeatherService } = await import('./weather-api');
     const weatherService = new WeatherService();
     
+    // Convert location object to string format for WeatherAPI
+    const locationString = typeof location === 'string' ? location : `${location.city}, ${location.province}, Philippines`;
+    
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    console.log(`🌤️ Debug: Requesting ${days} days of weather for ${location} from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
+    console.log(`🌤️ Debug: Requesting ${days} days of weather for ${locationString} from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
     
     // For future dates, limit to 14 days (WeatherAPI max)
     const now = new Date();
@@ -153,7 +156,7 @@ export class YieldPredictionModel {
       console.log(`🎯 Debug: Future date range detected, limiting to 14 days forecast`);
     }
     
-    const forecast = await weatherService.getWeatherForecast(location, actualDays);
+    const forecast = await weatherService.getWeatherForecast(locationString, actualDays);
     console.log(`📅 Debug: Received ${forecast.length} days of weather data`);
     
     // For future dates, don't filter - use all available forecast data
@@ -172,13 +175,16 @@ export class YieldPredictionModel {
     return filteredForecast;
   }
 
-  private async getHistoricalWeatherData(location: string, startDate: Date, endDate: Date): Promise<WeatherData[]> {
+  private async getHistoricalWeatherData(location: any, startDate: Date, endDate: Date): Promise<WeatherData[]> {
     // Use real WeatherAPI historical data
     const { WeatherService } = await import('./weather-api');
     const weatherService = new WeatherService();
     
+    // Convert location object to string format for WeatherAPI
+    const locationString = typeof location === 'string' ? location : `${location.city}, ${location.province}, Philippines`;
+    
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    console.log(`📚 Debug: Requesting ${days} days of historical weather for ${location} from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
+    console.log(`📚 Debug: Requesting ${days} days of historical weather for ${locationString} from ${startDate.toISOString().split('T')[0]} to ${endDate.toISOString().split('T')[0]}`);
     
     const historicalData: WeatherData[] = [];
     
@@ -189,7 +195,7 @@ export class YieldPredictionModel {
     for (const date of sampleDates) {
       try {
         const dateStr = date.toISOString().split('T')[0];
-        const dayData = await weatherService.getHistoricalWeather(location, dateStr);
+        const dayData = await weatherService.getHistoricalWeather(locationString, dateStr);
         historicalData.push(dayData);
       } catch (error) {
         console.warn(`⚠️ Debug: Failed to get historical data for ${date.toISOString().split('T')[0]}:`, error);

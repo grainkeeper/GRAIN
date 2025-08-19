@@ -28,14 +28,14 @@ const navItems = [
     icon: LayoutDashboard
   },
   {
-    title: 'Farmers',
-    href: '/admin/farmers',
-    icon: Users
-  },
-  {
     title: 'Yield Data',
     href: '/admin/yield-data',
     icon: Wheat
+  },
+  {
+    title: 'Varieties',
+    href: '/admin/varieties',
+    icon: Database
   },
   {
     title: 'Weather',
@@ -46,21 +46,6 @@ const navItems = [
     title: 'Chatbot',
     href: '/admin/chatbot',
     icon: Bot
-  },
-  {
-    title: 'Provinces',
-    href: '/admin/provinces',
-    icon: MapPin
-  },
-  {
-    title: 'Analytics',
-    href: '/admin/analytics',
-    icon: BarChart3
-  },
-  {
-    title: 'Data Import',
-    href: '/admin/data-import',
-    icon: Database
   },
   {
     title: 'Settings',

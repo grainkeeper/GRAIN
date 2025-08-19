@@ -40,17 +40,24 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api') &&
-    !request.nextUrl.pathname.startsWith('/_next') &&
-    request.nextUrl.pathname !== '/'
+    request.nextUrl.pathname.startsWith('/admin')
   ) {
-    // no user, redirect to the landing page (home) instead of login
     const url = request.nextUrl.clone()
     url.pathname = '/'
     return NextResponse.redirect(url)
   }
+
+  // For now, allow any authenticated user to access admin
+  // You can add role-based checks later when you implement user roles
+  // if (
+  //   user &&
+  //   request.nextUrl.pathname.startsWith('/admin') &&
+  //   user['role'] && user['role'] !== 'admin'
+  // ) {
+  //   const url = request.nextUrl.clone()
+  //   url.pathname = '/'
+  //   return NextResponse.redirect(url)
+  // }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
