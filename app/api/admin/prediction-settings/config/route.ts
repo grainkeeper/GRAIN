@@ -338,7 +338,6 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ConfigR
     // For now, return success response
     return NextResponse.json({
       success: true,
-      data: { id: configId, deleted: true },
       timestamp: new Date().toISOString()
     } as ConfigResponse);
 

@@ -470,7 +470,6 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<Locatio
     // For now, return success response
     return NextResponse.json({
       success: true,
-      data: { id: adjustmentId, deleted: true },
       timestamp: new Date().toISOString()
     } as LocationAdjustmentResponse);
 

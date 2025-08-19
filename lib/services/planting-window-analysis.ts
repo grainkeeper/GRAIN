@@ -12,9 +12,9 @@
  */
 
 import { 
-  analyzeQuarterSelection, 
-  type QuarterSelectionResult 
+  analyzeQuarterSelection
 } from './rice-yield-prediction';
+import type { QuarterSelectionResult } from '@/lib/types/prediction';
 import { 
   getQuarterlyHistoricalWeatherData, 
   type LocationCoordinates,
