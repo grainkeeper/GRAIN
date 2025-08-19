@@ -48,6 +48,11 @@ const navItems = [
     icon: Bot
   },
   {
+    title: 'Prediction Settings',
+    href: '/admin/prediction-settings',
+    icon: BarChart3
+  },
+  {
     title: 'Settings',
     href: '/admin/settings',
     icon: Settings

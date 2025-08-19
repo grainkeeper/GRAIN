@@ -221,6 +221,14 @@ export default function AdminDashboard() {
                 <Wheat className="h-4 w-4 mr-2" />
                 Manage Rice Varieties
               </Button>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start" 
+                onClick={() => router.push('/admin/prediction-settings')}
+              >
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Configure MLR Formulas
+              </Button>
             </div>
           </CardContent>
         </Card>
