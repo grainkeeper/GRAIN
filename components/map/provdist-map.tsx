@@ -26,57 +26,90 @@ export default function ProvdistMap({ height = 520 }: Props) {
 
 	useEffect(() => {
 		let cancelled = false
-		fetch('/api/map/provdists')
-			.then((r) => r.json())
-			.then((json) => {
-				if (!cancelled) setData(json)
-			})
-			.catch(() => {})
-
-    fetch('/api/admin/map/settings')
-      .then(r => r.json())
-      .then((d) => {
-        if (!cancelled) setTpl({ title: d?.popup_title_template, subtitle: d?.popup_subtitle_template, body: d?.popup_body_template })
-      })
-      .catch(() => {})
+		Promise.all([
+			fetch('/api/map/provdists').then(r => r.json()),
+			fetch('/api/admin/map/settings').then(r => r.json())
+		]).then(([geoJsonData, settings]) => {
+			if (!cancelled) {
+				setData(geoJsonData)
+				setTpl({ 
+					title: settings?.popup_title_template, 
+					subtitle: settings?.popup_subtitle_template, 
+					body: settings?.popup_body_template 
+				})
+			}
+		}).catch(console.error)
 		return () => {
 			cancelled = true
 		}
 	}, [])
 
 	const styleFn = (feature?: { properties?: FeatureProps }) => {
+		const fill = feature?.properties?.color_override ?? '#ffffff'
 		return {
 			color: '#334155',
 			weight: 0.8,
-			fillColor: '#ffffff',
-			fillOpacity: 0,
+			fillColor: fill,
+			fillOpacity: fill === '#ffffff' ? 0 : 0.7,
 		}
+	}
+
+	const renderTemplate = (template: string | null, props: FeatureProps) => {
+		if (!template) return ''
+		let content = template
+		for (const key in props) {
+			if (Object.prototype.hasOwnProperty.call(props, key)) {
+				const value = (props as any)[key]
+				content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value == null ? '—' : String(value))
+			}
+		}
+		return content
 	}
 
 	const onEachFeature = (feature: { properties?: FeatureProps }, layer: any) => {
 		const p = feature?.properties || {}
-		const name = p.name_overlay || String(p.psgc_code || p.adm2_psgc || 'Unknown')
-		const y = p.yield_t_ha
-		const title = p.popup_title || name
-		const subtitle = p.popup_subtitle || ''
-		const extra = Array.isArray(p.popup_fields) ? p.popup_fields : []
+		const defaultName = String(p.psgc_code_norm || p.adm2_psgc || 'Unknown')
+
+		// Determine popup content based on per-district override or global template
+		const title = p.popup_title ?? renderTemplate(tpl?.title, p) || defaultName
+		const subtitle = p.popup_subtitle ?? renderTemplate(tpl?.subtitle, p) || ''
+		const bodyHtml = renderTemplate(tpl?.body, p) || `<div>Rice yield: ${p.yield_t_ha == null ? '—' : `${p.yield_t_ha} t/ha`}</div>`
+
+		const popupContent = `
+			<div style="min-width:180px; max-width:280px; font-size:14px;">
+				<strong>${title}</strong>
+				${subtitle ? `<br/><small style="color:#6b7280">${subtitle}</small>` : ''}
+				${bodyHtml}
+			</div>
+		`
+
 		layer.on({
-			click: () => {
-				const vars: Record<string, any> = { name, psgc_code: p.psgc_code || p.adm2_psgc, yield_t_ha: y }
-				extra.forEach(f => { vars[f.label] = f.value })
-				const render = (s?: string) => s ? s.replace(/\{\{(.*?)\}\}/g, (_, k) => (vars[k.trim()] ?? '')) : ''
-				const T = p.popup_title || render(tpl?.title) || name
-				const S = p.popup_subtitle || render(tpl?.subtitle) || ''
-				const B = render(tpl?.body)
-				const lines = [`<div style="min-width:220px">`, `<div style="font-weight:600">${T}</div>`, S ? `<div style="color:#6b7280">${S}</div>` : '', B, !B ? `<div>Rice yield: ${y == null ? '—' : `${y} t/ha`}</div>` : '', ...extra.map(f => `<div><span style=\"color:#6b7280\">${f.label}:</span> ${f.value}</div>`), `</div>`].filter(Boolean).join('')
-				layer.bindPopup(lines).openPopup()
-			},
+			mouseover: (e: any) => e.target.setStyle({ weight: 1.6 }),
+			mouseout: (e: any) => e.target.setStyle({ weight: 0.8 }),
+			click: () => layer.bindPopup(popupContent).openPopup(),
 		})
 	}
 
+	// Responsive height for mobile
+	const responsiveHeight = useMemo(() => {
+		if (typeof window !== 'undefined' && window.innerWidth < 768) {
+			return Math.min(height, 400) // Smaller on mobile
+		}
+		return height
+	}, [height])
+
 	return (
-		<div style={{ width: '100%', height }}>
-			<MapContainer center={center} zoom={6} style={{ width: '100%', height: '100%' }}>
+		<div style={{ width: '100%', height: responsiveHeight }}>
+			<MapContainer 
+				center={center} 
+				zoom={6} 
+				style={{ width: '100%', height: '100%' }}
+				zoomControl={true}
+				scrollWheelZoom={true}
+				doubleClickZoom={true}
+				touchZoom={true}
+				dragging={true}
+			>
 				<TileLayer
 					attribution='&copy; OpenStreetMap'
 					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
