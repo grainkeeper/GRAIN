@@ -33,6 +33,7 @@ interface PlantingWindowRequestBody {
   options?: {
     includeAlternatives?: boolean;
     useHistoricalData?: boolean;
+    overrideQuarter?: 1 | 2 | 3 | 4;
   };
 }
 
@@ -141,7 +142,8 @@ export async function POST(request: NextRequest) {
       year,
       location: coordinates,
       includeAlternatives: options.includeAlternatives ?? false,
-      useHistoricalData: options.useHistoricalData ?? true
+      useHistoricalData: options.useHistoricalData ?? true,
+      overrideQuarter: options.overrideQuarter as any
     };
 
     // Perform integrated analysis

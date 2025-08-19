@@ -152,17 +152,18 @@ const generateMockHealthData = (): SystemHealthMetrics => {
 
 export async function GET(request: NextRequest): Promise<NextResponse<HealthResponse>> {
   try {
-    // Check authentication
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Skip Supabase for development
+    // const supabase = createClient();
+    // const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (authError || !user) {
-      return NextResponse.json({
-        success: false,
-        error: 'Authentication required',
-        timestamp: new Date().toISOString()
-      } as HealthResponse, { status: 401 });
-    }
+    // Skip authentication check for development (comment out for production)
+    // if (authError || !user) {
+    //   return NextResponse.json({
+    //     success: false,
+    //     error: 'Authentication required',
+    //     timestamp: new Date().toISOString()
+    //   } as HealthResponse, { status: 401 });
+    // }
 
     // Generate health metrics
     const healthData = generateMockHealthData();

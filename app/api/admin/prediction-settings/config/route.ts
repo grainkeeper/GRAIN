@@ -51,7 +51,7 @@ interface ConfigResponse {
 export async function GET(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -178,7 +178,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ConfigResp
 export async function POST(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -256,7 +256,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ConfigRes
 export async function PATCH(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -312,7 +312,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ConfigRe
 export async function DELETE(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

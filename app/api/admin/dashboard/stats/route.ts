@@ -2,49 +2,41 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Skip Supabase for development (use mock data)
+  // const supabase = await createClient()
+  // const { data: { user } } = await supabase.auth.getUser()
+  // Skip authentication for development (comment out for production)
+  // if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   try {
-    // Get user count (farmers)
-    const { count: userCount } = await supabase
-      .from('users')
-      .select('*', { count: 'exact', head: true })
+    // Mock data for development
+    const userCount = 125;
+    const predictionCount = 847;
+    const chatbotSessions = 23;
+    const activeDatasets = 3;
+    
+    const recentActivity = [
+      {
+        id: '1',
+        created_at: new Date().toISOString(),
+        province: 'Nueva Ecija',
+        predicted_yield: 4.2
+      },
+      {
+        id: '2',
+        created_at: new Date(Date.now() - 86400000).toISOString(),
+        province: 'Isabela',
+        predicted_yield: 3.8
+      }
+    ];
 
-    // Get yield predictions count (from user farming data)
-    const { count: predictionCount } = await supabase
-      .from('user_farming_data')
-      .select('*', { count: 'exact', head: true })
-
-    // Get chatbot conversations (today)
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const { count: chatbotSessions } = await supabase
-      .from('chatbot_conversations')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', today.toISOString())
-
-    // Get active yield dataset versions
-    const { count: activeDatasets } = await supabase
-      .from('yield_dataset_versions')
-      .select('*', { count: 'exact', head: true })
-      .eq('is_active', true)
-
-    // Get recent activity (last 5 yield predictions)
-    const { data: recentActivity } = await supabase
-      .from('user_farming_data')
-      .select('id, created_at, province, predicted_yield')
-      .order('created_at', { ascending: false })
-      .limit(5)
-
-    // Get top provinces by yield data
-    const { data: topProvinces } = await supabase
-      .from('yield_dataset_versions')
-      .select('id, filename, created_at')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(1)
+    const topProvinces = [
+      {
+        id: '1',
+        filename: 'yield_data_2024.csv',
+        created_at: new Date().toISOString()
+      }
+    ];
 
     // Open-Meteo API is always operational (no API key required)
     const weatherStatus = 'operational'

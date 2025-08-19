@@ -39,10 +39,7 @@ interface AccuracyStats {
     last90Days: number;
     lastYear: number;
   };
-  accuracyTrend: {
-    period: string;
-    accuracy: number;
-  }[];
+
   recommendations: string[];
 }
 
@@ -284,30 +281,7 @@ export default function AccuracyTracking({ className }: AccuracyTrackingProps) {
         </CardContent>
       </Card>
 
-      {/* Accuracy Trend */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Accuracy Trend</CardTitle>
-          <CardDescription>
-            Monthly accuracy performance for the current year
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {accuracyData.accuracyTrend.map((trend, index) => (
-              <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium w-12">{trend.period}</span>
-                <div className="flex-1 mx-4">
-                  <Progress value={trend.accuracy} className="h-2" />
-                </div>
-                <span className={`text-sm font-medium w-16 ${getAccuracyColor(trend.accuracy)}`}>
-                  {trend.accuracy.toFixed(1)}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+
 
       {/* Recommendations */}
       {accuracyData.recommendations.length > 0 && (

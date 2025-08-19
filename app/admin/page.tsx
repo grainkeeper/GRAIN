@@ -198,14 +198,7 @@ export default function AdminDashboard() {
                 <Upload className="h-4 w-4 mr-2" />
                 Upload Yield Data (CSV/Excel)
               </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start" 
-                onClick={() => router.push('/admin/weather')}
-              >
-                <Cloud className="h-4 w-4 mr-2" />
-                Update Weather Integration
-              </Button>
+
               <Button 
                 variant="ghost" 
                 className="w-full justify-start" 

@@ -237,7 +237,7 @@ const MOCK_LOCATION_ADJUSTMENTS: LocationAdjustment[] = [
 export async function GET(request: NextRequest): Promise<NextResponse<LocationAdjustmentResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -306,7 +306,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<LocationAd
 export async function POST(request: NextRequest): Promise<NextResponse<LocationAdjustmentResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -388,7 +388,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<LocationA
 export async function PATCH(request: NextRequest): Promise<NextResponse<LocationAdjustmentResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
@@ -444,7 +444,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<Location
 export async function DELETE(request: NextRequest): Promise<NextResponse<LocationAdjustmentResponse>> {
   try {
     // Check authentication
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

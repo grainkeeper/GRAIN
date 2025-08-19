@@ -71,6 +71,8 @@ export interface PlantingAnalysisRequest {
   location: LocationCoordinates;
   includeAlternatives?: boolean;
   useHistoricalData?: boolean; // true = use Open-Meteo historical, false = use forecast when available
+  /** Optional quarter override from user (1..4). If provided, use this quarter instead of MLR optimal. */
+  overrideQuarter?: Quarter;
 }
 
 export interface PlantingAnalysisValidation {
@@ -100,28 +102,29 @@ export class PlantingWindowAnalysisService {
       // Step 1: Perform quarter selection using MLR formulas
       console.log(`[PlantingAnalysis] Analyzing optimal quarter for year ${year}`);
       const quarterSelection = analyzeQuarterSelection(year);
-      const optimalQuarter = quarterSelection.optimalQuarter;
+      // Use override quarter if provided, otherwise MLR optimal
+      const chosenQuarter = (request.overrideQuarter ?? quarterSelection.optimalQuarter) as Quarter;
       
       // Quarter confidence is based on the 96.01% accuracy of MLR formulas
       const quarterConfidence = this.calculateQuarterConfidence(quarterSelection);
 
-      // Step 2: Get historical weather data for the optimal quarter
-      console.log(`[PlantingAnalysis] Fetching weather data for Q${optimalQuarter} at ${location.name}`);
+      // Step 2: Get historical weather data for the chosen quarter
+      console.log(`[PlantingAnalysis] Fetching weather data for Q${chosenQuarter} at ${location.name}`);
       let weatherData: WeatherDataPoint[];
       
       try {
         if (useHistoricalData) {
           // Use previous year's data as a proxy for historical patterns
           const historicalYear = year - 1;
-          weatherData = await getQuarterlyHistoricalWeatherData(location, historicalYear, optimalQuarter);
+          weatherData = await getQuarterlyHistoricalWeatherData(location, historicalYear, chosenQuarter);
         } else {
           // For future implementation: Use forecast data when available
-          weatherData = await getQuarterlyHistoricalWeatherData(location, year - 1, optimalQuarter);
+          weatherData = await getQuarterlyHistoricalWeatherData(location, year - 1, chosenQuarter);
         }
       } catch (error) {
         console.warn(`[PlantingAnalysis] Failed to fetch weather data: ${error}`);
         // Fallback: try with a different year
-        weatherData = await getQuarterlyHistoricalWeatherData(location, 2023, optimalQuarter);
+        weatherData = await getQuarterlyHistoricalWeatherData(location, 2023, chosenQuarter);
       }
 
       // Validate weather data
@@ -131,7 +134,21 @@ export class PlantingWindowAnalysisService {
 
       // Step 3: Analyze 7-day planting windows within the quarter
       console.log(`[PlantingAnalysis] Analyzing 7-day planting windows for ${weatherData.length} days of data`);
-      const windowAnalysis = findPlantingWindows(weatherData, location.name, year, optimalQuarter);
+      let windowAnalysis = findPlantingWindows(weatherData, location.name, year, chosenQuarter);
+
+      // Project window dates from reference year to target year for display
+      if (windowAnalysis.windows.length > 0) {
+        const projected = windowAnalysis.windows.map(w => ({
+          ...w,
+          startDate: this.projectDateToYear(w.startDate, year),
+          endDate: this.projectDateToYear(w.endDate, year)
+        }));
+        const projectedOptimal = windowAnalysis.optimalWindow
+          ? { ...windowAnalysis.optimalWindow, startDate: this.projectDateToYear(windowAnalysis.optimalWindow.startDate, year), endDate: this.projectDateToYear(windowAnalysis.optimalWindow.endDate, year) }
+          : null;
+        windowAnalysis = { ...windowAnalysis, windows: projected, optimalWindow: projectedOptimal };
+      }
+
       const optimalWindow = windowAnalysis.optimalWindow;
 
       // Step 4: Calculate confidence scores
@@ -162,7 +179,7 @@ export class PlantingWindowAnalysisService {
 
       return {
         quarterSelection,
-        optimalQuarter,
+        optimalQuarter: chosenQuarter,
         quarterConfidence,
         windowAnalysis,
         optimalWindow,
@@ -180,6 +197,12 @@ export class PlantingWindowAnalysisService {
       console.error(`[PlantingAnalysis] Analysis failed:`, error);
       throw new Error(`Planting window analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+  }
+
+  private projectDateToYear(dateStr: string, targetYear: number): string {
+    const d = new Date(dateStr);
+    const projected = new Date(targetYear, d.getMonth(), d.getDate());
+    return projected.toISOString().slice(0, 10);
   }
 
   /**

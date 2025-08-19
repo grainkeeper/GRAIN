@@ -19,11 +19,6 @@ const navItems = [
     title: 'Yield Predictions',
     href: '/predictions',
     icon: Sprout
-  },
-  {
-    title: 'Planting Windows',
-    href: '/predictions/planting-window',
-    icon: Target
   }
 ]
 
