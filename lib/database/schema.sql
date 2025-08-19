@@ -824,3 +824,44 @@ CREATE TABLE IF NOT EXISTS app_settings (
     weather_api_key TEXT,
     weather_last_ok_at TIMESTAMP WITH TIME ZONE
 );
+
+-- Global map UI settings (singleton)
+CREATE TABLE IF NOT EXISTS map_settings (
+    id INT PRIMARY KEY DEFAULT 1,
+    popup_title_template TEXT,        -- e.g., "{{name}}"
+    popup_subtitle_template TEXT,     -- e.g., "Province {{psgc_code}}"
+    popup_body_template TEXT,         -- e.g., HTML snippet with variables
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+CREATE TRIGGER update_map_settings_updated_at
+    BEFORE UPDATE ON map_settings
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Map overlays keyed by PSGC (ADM levels). Used to annotate GeoJSON features with admin-managed data
+CREATE TABLE IF NOT EXISTS map_overlays (
+    psgc_code TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    level INTEGER NOT NULL DEFAULT 2, -- ADM level: 2 for province/district
+    parent_psgc_code TEXT,            -- Optional PSGC of parent (e.g., ADM1 region)
+    yield_t_ha DECIMAL(6,2),          -- Rice yield in tons per hectare
+    color_override TEXT,              -- Optional HEX/RGBA for map styling
+    notes TEXT,                       -- Free-form notes
+    popup_title TEXT,                 -- Admin-managed popup title
+    popup_subtitle TEXT,              -- Admin-managed popup subtitle
+    popup_fields JSONB DEFAULT '[]',  -- Array of {label, value}
+    updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_map_overlays_level
+  ON map_overlays(level);
+
+CREATE INDEX IF NOT EXISTS idx_map_overlays_parent
+  ON map_overlays(parent_psgc_code);
+
+-- Keep updated_at fresh
+CREATE TRIGGER update_map_overlays_updated_at
+    BEFORE UPDATE ON map_overlays
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

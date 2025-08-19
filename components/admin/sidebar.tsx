@@ -48,6 +48,16 @@ const navItems = [
     icon: BarChart3
   },
   {
+    title: 'Map',
+    href: '/admin/map',
+    icon: MapPin
+  },
+  {
+    title: 'Map Settings',
+    href: '/admin/map/settings',
+    icon: Settings
+  },
+  {
     title: 'Settings',
     href: '/admin/settings',
     icon: Settings
