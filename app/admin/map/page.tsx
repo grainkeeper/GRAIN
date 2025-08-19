@@ -191,8 +191,6 @@ export default function AdminMapPage() {
 									<th className="text-left p-2">Region (ADM1)</th>
 									<th className="text-left p-2 w-[140px]">Yield (t/ha)</th>
 									<th className="text-left p-2 w-[140px]">Color</th>
-									<th className="text-left p-2">Notes</th>
-									<th className="text-left p-2 w-[220px]">Popup Title / Subtitle</th>
 									<th className="text-left p-2 w-[120px]"></th>
 								</tr>
 							</thead>
@@ -243,39 +241,6 @@ export default function AdminMapPage() {
 													onChange={(e) => {
 														const v = e.target.value
 														setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, color_override: v || null } : x))
-														setDirty(prev => new Set(prev).add(r.psgc_code))
-													}}
-												/>
-											</div>
-										</td>
-										<td className="p-2">
-											<Input
-												placeholder="Notes (optional)"
-												value={r.notes ?? ''}
-												onChange={(e) => {
-													const v = e.target.value
-													setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, notes: v || null } : x))
-													setDirty(prev => new Set(prev).add(r.psgc_code))
-												}}
-											/>
-										</td>
-										<td className="p-2">
-											<div className="flex flex-col gap-1">
-												<Input
-													placeholder="Popup title"
-													value={r.popup_title ?? ''}
-													onChange={(e) => {
-														const v = e.target.value
-														setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, popup_title: v || null } : x))
-														setDirty(prev => new Set(prev).add(r.psgc_code))
-													}}
-												/>
-												<Input
-													placeholder="Popup subtitle"
-													value={r.popup_subtitle ?? ''}
-													onChange={(e) => {
-														const v = e.target.value
-														setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, popup_subtitle: v || null } : x))
 														setDirty(prev => new Set(prev).add(r.psgc_code))
 													}}
 												/>
