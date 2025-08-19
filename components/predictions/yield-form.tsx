@@ -128,7 +128,7 @@ export default function YieldPredictionForm() {
     setError(null);
     setResults(null);
 
-    // Build a more specific location string for WeatherAPI
+            // Build a more specific location string for Open-Meteo API
     let location = '';
     if (selectedLocation.barangay?.name && selectedLocation.city?.name && selectedLocation.province?.name) {
       location = `${selectedLocation.barangay.name}, ${selectedLocation.city.name}, ${selectedLocation.province.name}, Philippines`;

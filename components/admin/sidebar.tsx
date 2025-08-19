@@ -12,7 +12,6 @@ import {
   FileText,
   BarChart3,
   Wheat,
-  Cloud,
   Bot,
   MapPin,
   Database,
@@ -37,11 +36,7 @@ const navItems = [
     href: '/admin/varieties',
     icon: Database
   },
-  {
-    title: 'Weather',
-    href: '/admin/weather',
-    icon: Cloud
-  },
+
   {
     title: 'Chatbot',
     href: '/admin/chatbot',

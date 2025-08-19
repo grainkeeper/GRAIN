@@ -348,7 +348,7 @@ export default function SystemHealthDashboard({ className }: SystemHealthDashboa
             <div className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-2">
                 <Cloud className="h-4 w-4" />
-                <span className="font-medium">Weather API</span>
+                <span className="font-medium">Open-Meteo API</span>
               </div>
               <div className="flex items-center gap-2">
                 {getStatusIcon(healthData.components.openMeteoAPI.status)}

@@ -129,11 +129,11 @@ export default function SettingsAdminPage() {
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 border rounded-lg">
-                {getStatusIcon(health.weather.status)}
+                {getStatusIcon(health.openMeteo.status)}
                 <div>
-                  <div className="font-medium">Weather API</div>
-                  <div className={`text-sm ${getStatusColor(health.weather.status)}`}>
-                    {health.weather.message}
+                  <div className="font-medium">Open-Meteo API</div>
+                  <div className={`text-sm ${getStatusColor(health.openMeteo.status)}`}>
+                    {health.openMeteo.message}
                   </div>
                 </div>
               </div>

@@ -267,35 +267,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Weather Integration</CardTitle>
-            <CardDescription>
-              Current weather API status
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">API Status</span>
-                {getStatusIcon(stats?.systemHealth?.weatherAPI)}
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {stats?.systemHealth?.weatherAPI === 'operational' && 'Weather forecasts active'}
-                {stats?.systemHealth?.weatherAPI === 'configured' && 'API configured, needs testing'}
-                {stats?.systemHealth?.weatherAPI === 'not_configured' && 'No API key configured'}
-              </div>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="mt-2"
-                onClick={() => router.push('/admin/weather')}
-              >
-                Configure Weather
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+
 
         <Card>
           <CardHeader>
@@ -307,8 +279,8 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Weather API</span>
-                {getStatusIcon(stats?.systemHealth?.weatherAPI)}
+                <span className="text-sm">Open-Meteo API</span>
+                <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Prediction Model</span>

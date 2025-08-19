@@ -683,11 +683,7 @@ export const API_ENDPOINTS = {
   PREDICTION_FACTORS: '/api/predictions/factors',
   PREDICTION_ACCURACY: '/api/predictions/accuracy',
   
-  // Weather
-  CURRENT_WEATHER: '/api/weather/current',
-  WEATHER_FORECAST: '/api/weather/forecast',
-  PLANTING_WINDOWS: '/api/weather/planting-windows',
-  WEATHER_ALERTS: '/api/weather/alerts',
+  // Weather - Now using Open-Meteo API directly
   
   // Farm Profiles
   FARM_PROFILES: '/api/farm-profiles',

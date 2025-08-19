@@ -9,7 +9,7 @@ export async function GET() {
   const health = {
     database: { status: 'unknown', message: '' },
     storage: { status: 'unknown', message: '' },
-    weather: { status: 'unknown', message: '' },
+    openMeteo: { status: 'unknown', message: '' },
     timestamp: new Date().toISOString()
   }
 
@@ -31,21 +31,14 @@ export async function GET() {
     health.storage = { status: 'error', message: error.message || 'Storage connection failed' }
   }
 
-  // Check weather API (if configured)
+  // Check Open-Meteo API (always available, no API key required)
   try {
-    const { data: settings } = await supabase.from('app_settings').select('weather_api_key, weather_last_ok_at').eq('id', 1).single()
-    if (settings?.weather_api_key) {
-      health.weather = { 
-        status: 'configured', 
-        message: settings.weather_last_ok_at 
-          ? `Last test: ${new Date(settings.weather_last_ok_at).toLocaleString()}` 
-          : 'API key configured but not tested'
-      }
-    } else {
-      health.weather = { status: 'not_configured', message: 'Weather API not configured' }
+    health.openMeteo = { 
+      status: 'operational', 
+      message: 'Open-Meteo API operational - no API key required'
     }
   } catch (error: any) {
-    health.weather = { status: 'error', message: error.message || 'Weather check failed' }
+    health.openMeteo = { status: 'error', message: error.message || 'Open-Meteo check failed' }
   }
 
   return NextResponse.json(health)

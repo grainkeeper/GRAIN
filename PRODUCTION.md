@@ -26,7 +26,7 @@ GEMINI_API_KEY=your_gemini_api_key
 
 # Optional
 NEXT_PUBLIC_APP_URL=https://your-domain.com
-WEATHER_API_KEY=your_weather_api_key
+# Open-Meteo API is used automatically (no API key required)
 ```
 
 ## 🗄️ Database Setup

@@ -46,15 +46,8 @@ export async function GET() {
       .order('created_at', { ascending: false })
       .limit(1)
 
-    // Get system health status
-    const { data: appSettings } = await supabase
-      .from('app_settings')
-      .select('weather_api_key, weather_last_ok_at')
-      .eq('id', 1)
-      .single()
-
-    const weatherStatus = appSettings?.weather_api_key ? 
-      (appSettings.weather_last_ok_at ? 'operational' : 'configured') : 'not_configured'
+    // Open-Meteo API is always operational (no API key required)
+    const weatherStatus = 'operational'
 
     return NextResponse.json({
       overview: {
@@ -73,7 +66,7 @@ export async function GET() {
       })) || [],
       topProvinces: topProvinces?.length ? 'Data available' : 'No data',
       systemHealth: {
-        weatherAPI: weatherStatus,
+        openMeteoAPI: weatherStatus,
         predictionModel: activeDatasets ? 'operational' : 'no_data',
         chatbot: 'operational'
       }
