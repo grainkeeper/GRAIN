@@ -11,6 +11,7 @@ type Props = {
 
 type FeatureProps = {
 	psgc_code?: string | number | null
+	name?: string | null
 	name_overlay?: string | null
 	yield_t_ha?: number | null
 	adm2_psgc?: string | number | null
@@ -59,9 +60,20 @@ export default function ProvdistMap({ height = 520 }: Props) {
 	const renderTemplate = (template: string | null, props: FeatureProps) => {
 		if (!template) return ''
 		let content = template
-		for (const key in props) {
-			if (Object.prototype.hasOwnProperty.call(props, key)) {
-				const value = (props as any)[key]
+		
+		// Handle all available properties for template substitution
+		// This ensures that template variables like {{name}}, {{psgc_code}}, {{yield_t_ha}} work correctly
+		const allProps = {
+			...props,
+			// Ensure common properties are available with fallbacks
+			name: props.name || props.name_overlay || 'Unknown',
+			psgc_code: props.psgc_code || props.adm2_psgc || props.psgc_code_norm || 'Unknown',
+			yield_t_ha: props.yield_t_ha || 0
+		}
+		
+		for (const key in allProps) {
+			if (Object.prototype.hasOwnProperty.call(allProps, key)) {
+				const value = (allProps as any)[key]
 				content = content.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value == null ? '—' : String(value))
 			}
 		}

@@ -564,25 +564,25 @@ export default function YieldPredictionForm() {
                 <div className="space-y-6">
                   {/* Quick Summary */}
                   <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
-                    <div className="grid md:grid-cols-4 gap-4 text-sm">
-                      <div>
-                        <span className="font-medium text-green-700">📍 Location:</span>
-                        <p className="text-gray-700 truncate">{results?.location || results?.analysis?.location?.name || '—'}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-green-700">📅 Target Year:</span>
-                        <p className="text-gray-700">{results?.year || results?.analysis?.year || '—'}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-green-700">🏆 Optimal Quarter:</span>
-                        <p className="text-lg font-bold text-green-600">{results?.optimalQuarter ? `Q${results.optimalQuarter}` : (results?.analysis?.optimalQuarter ? `Q${results.analysis.optimalQuarter}` : '—')}</p>
-                      </div>
-                      <div>
-                        <span className="font-medium text-green-700">🎯 7-Day Windows:</span>
-                        <p className="text-gray-700">{(results?.plantingWindows?.length ?? results?.analysis?.windowAnalysis?.windows?.length ?? 0)} found</p>
-                      </div>
-                    </div>
-                  </div>
+            <div className="grid md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <span className="font-medium text-green-700">📍 Location:</span>
+                <p className="text-gray-700 truncate">{results?.location || results?.analysis?.location?.name || '—'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-green-700">📅 Target Year:</span>
+                <p className="text-gray-700">{results?.year || results?.analysis?.year || '—'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-green-700">🏆 Optimal Quarter:</span>
+                <p className="text-lg font-bold text-green-600">{results?.optimalQuarter ? `Q${results.optimalQuarter}` : (results?.analysis?.optimalQuarter ? `Q${results.analysis.optimalQuarter}` : '—')}</p>
+              </div>
+              <div>
+                <span className="font-medium text-green-700">🎯 7-Day Windows:</span>
+                <p className="text-gray-700">{(results?.plantingWindows?.length ?? results?.analysis?.windowAnalysis?.windows?.length ?? 0)} found</p>
+              </div>
+            </div>
+          </div>
 
                   {/* Key Findings */}
                   <div className="grid md:grid-cols-2 gap-6">
@@ -611,9 +611,9 @@ export default function YieldPredictionForm() {
 
               {/* Quarters Tab */}
               {activeTab === 'quarters' && (
-                <div className="space-y-4">
+          <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800">📊 Quarter Analysis (MLR 96.01% Accuracy)</h3>
-                  <div className="grid md:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-4 gap-4">
                     {quarterCards.map((quarter: any, index: number) => {
                       const yieldRisk = assessYieldRisk(quarter.predictedYield);
                       const financialImpact = calculateFinancialImpact(quarter.predictedYield);
@@ -625,7 +625,7 @@ export default function YieldPredictionForm() {
                             ? (isNegativeYield ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200')
                             : 'bg-gray-50 border-gray-200'
                         }`}>
-                          <div className="text-center mb-3">
+                  <div className="text-center mb-3">
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 ${
                               quarter.quarter === optimalQuarter 
                                 ? (isNegativeYield ? 'bg-red-100' : 'bg-green-100')
@@ -636,17 +636,17 @@ export default function YieldPredictionForm() {
                                   ? (isNegativeYield ? 'text-red-600' : 'text-green-600')
                                   : 'text-gray-600'
                               }`}>
-                                {getQuarterInfo(quarter.quarter).icon}
-                              </span>
-                            </div>
+                        {getQuarterInfo(quarter.quarter).icon}
+                      </span>
+                    </div>
                             <h4 className={`font-semibold text-sm ${
                               quarter.quarter === optimalQuarter 
                                 ? (isNegativeYield ? 'text-red-800' : 'text-green-800')
                                 : 'text-gray-800'
                             }`}>
-                              Q{quarter.quarter}
-                            </h4>
-                            {quarter.quarter === optimalQuarter && (
+                      Q{quarter.quarter}
+                    </h4>
+                    {quarter.quarter === optimalQuarter && (
                               <span className={`text-xs px-2 py-1 rounded-full ${
                                 isNegativeYield 
                                   ? 'text-red-600 bg-red-100' 
@@ -654,8 +654,8 @@ export default function YieldPredictionForm() {
                               }`}>
                                 {isNegativeYield ? 'HIGH RISK' : 'OPTIMAL'}
                               </span>
-                            )}
-                          </div>
+                    )}
+                  </div>
                           
                           <div className="text-center mb-3">
                             <p className={`text-lg font-bold ${
@@ -663,7 +663,7 @@ export default function YieldPredictionForm() {
                             }`}>
                               {(Number(quarter?.predictedYield) / 1000).toFixed(1)} t/ha
                             </p>
-                            <p className="text-xs text-gray-500">Predicted Yield</p>
+                    <p className="text-xs text-gray-500">Predicted Yield</p>
                             
                             <div className="mt-2">
                               <span className={`text-xs px-2 py-1 rounded-full ${
@@ -694,24 +694,24 @@ export default function YieldPredictionForm() {
                                   <span className="text-red-600">₱{Math.abs(financialImpact.profit).toLocaleString()}</span>
                                 </div>
                               </div>
-                            </div>
+                  </div>
                           )}
                           
-                          <div className="mt-2 text-center">
-                            <span className={`text-xs px-2 py-1 rounded-full ${getConfidenceColor(String(quarter?.confidence || 'high'))}`}>
-                              {String(quarter?.confidence || 'high').toUpperCase()} Confidence
-                            </span>
-                          </div>
-                        </div>
-                      );
-                    })}
+                  <div className="mt-2 text-center">
+                    <span className={`text-xs px-2 py-1 rounded-full ${getConfidenceColor(String(quarter?.confidence || 'high'))}`}>
+                      {String(quarter?.confidence || 'high').toUpperCase()} Confidence
+                    </span>
                   </div>
                 </div>
+                      );
+                    })}
+            </div>
+          </div>
               )}
 
               {/* Windows Tab */}
               {activeTab === 'windows' && (
-                <div className="space-y-4">
+          <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-gray-800">🏆 Top 7-Day Planting Windows</h3>
                   
                   {/* Warning for Negative Yield Quarter */}
@@ -745,11 +745,11 @@ export default function YieldPredictionForm() {
                               <span className={`font-bold text-lg ${
                                 isNegativeQuarter ? 'text-orange-600' : 'text-green-600'
                               }`}>#{index + 1}</span>
-                            </div>
-                            <h4 className="font-semibold text-gray-800 text-sm">
-                              {formatDate(window.startDate)} - {formatDate(window.endDate)}
-                            </h4>
-                            <p className="text-xs text-gray-500">7-day planting window</p>
+                    </div>
+                    <h4 className="font-semibold text-gray-800 text-sm">
+                      {formatDate(window.startDate)} - {formatDate(window.endDate)}
+                    </h4>
+                    <p className="text-xs text-gray-500">7-day planting window</p>
                             
                             {isNegativeQuarter && (
                               <div className="mt-2">
@@ -758,29 +758,29 @@ export default function YieldPredictionForm() {
                                 </span>
                               </div>
                             )}
-                          </div>
+                  </div>
 
-                          {window?.predictedYield != null && (
-                            <div className="text-center mb-4">
+                  {window?.predictedYield != null && (
+                    <div className="text-center mb-4">
                               <p className={`text-2xl font-bold ${
                                 window.predictedYield < 0 ? 'text-red-600' : 'text-green-600'
                               }`}>
                                 {(Number(window.predictedYield) / 1000).toFixed(1)} t/ha
                               </p>
-                              <p className="text-xs text-gray-500">Predicted Yield</p>
-                            </div>
-                          )}
+                      <p className="text-xs text-gray-500">Predicted Yield</p>
+                    </div>
+                  )}
 
-                          <div className="grid grid-cols-2 gap-3 mb-4">
-                            <div className="text-center">
-                              <p className="text-lg font-bold text-green-600">{Number(window?.weatherStability ?? (window?.score?.overallScore != null ? window.score.overallScore * 100 : 0)).toFixed(0)}%</p>
-                              <p className="text-xs text-gray-500">Stability</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-lg font-bold text-green-600">{Number(window?.confidence ?? 0).toFixed(0)}%</p>
-                              <p className="text-xs text-gray-500">Confidence</p>
-                            </div>
-                          </div>
+                  <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-green-600">{Number(window?.weatherStability ?? (window?.score?.overallScore != null ? window.score.overallScore * 100 : 0)).toFixed(0)}%</p>
+                      <p className="text-xs text-gray-500">Stability</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-green-600">{Number(window?.confidence ?? 0).toFixed(0)}%</p>
+                      <p className="text-xs text-gray-500">Confidence</p>
+                    </div>
+                  </div>
 
                           {isNegativeQuarter && (
                             <div className="mb-4 p-3 bg-red-50 rounded-lg border border-red-200">
@@ -789,13 +789,13 @@ export default function YieldPredictionForm() {
                                 <p><strong>Quarter Context:</strong> This window is within a quarter with negative predicted yield</p>
                                 <p><strong>Risk Level:</strong> High - despite optimal timing, significant yield loss expected</p>
                                 <p><strong>Recommendation:</strong> Consider alternative quarters or risk mitigation strategies</p>
-                              </div>
-                            </div>
-                          )}
+                          </div>
                         </div>
+                      )}
+                      </div>
                       );
                     })}
-                  </div>
+                    </div>
                 </div>
               )}
 
@@ -834,9 +834,9 @@ export default function YieldPredictionForm() {
                                       <li>• <strong>Costs:</strong> ₱{financialImpact.costs.toLocaleString()}</li>
                                       <li>• <strong>Net Loss:</strong> ₱{Math.abs(financialImpact.profit).toLocaleString()}</li>
                                     </ul>
-                                  </div>
-                                </div>
-                                
+            </div>
+          </div>
+
                                 <div className="mt-4">
                                   <h5 className="font-medium text-red-700 mb-2">🚨 Consequences & Recommendations</h5>
                                   <ul className="text-sm text-red-700 space-y-1">
@@ -853,19 +853,19 @@ export default function YieldPredictionForm() {
                           </div>
                         );
                       })}
-                    </div>
+              </div>
                   ) : (
                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <div className="flex items-center gap-3">
                         <CheckCircleIcon className="h-6 w-6 text-green-600" />
-                        <div>
+              <div>
                           <h4 className="text-lg font-semibold text-green-800">✅ Low Risk Assessment</h4>
                           <p className="text-green-700 text-sm mt-1">
                             All quarters show positive predicted yields. Standard farming practices and risk management are recommended.
                           </p>
-                        </div>
-                      </div>
-                    </div>
+              </div>
+            </div>
+          </div>
                   )}
                 </div>
               )}
@@ -876,15 +876,15 @@ export default function YieldPredictionForm() {
                   <h3 className="text-lg font-semibold text-gray-800">🌱 Farming Recommendations</h3>
                   
                   <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                       <h4 className="font-semibold text-green-800 mb-3">📋 Action Items</h4>
                       <div className="space-y-2">
                         {(results?.farmingAdvice || results?.analysis?.recommendation?.actionItems || results?.regionInfo?.recommendations || []).map((advice: string, index: number) => (
-                          <p key={index} className="text-green-700 text-sm flex items-start">
-                            <span className="text-green-600 mr-2">•</span>
-                            {advice}
-                          </p>
-                        ))}
+                <p key={index} className="text-green-700 text-sm flex items-start">
+                  <span className="text-green-600 mr-2">•</span>
+                  {advice}
+                </p>
+              ))}
                       </div>
                     </div>
                     
