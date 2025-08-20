@@ -14,6 +14,8 @@ type FeatureProps = {
 	name_overlay?: string | null
 	yield_t_ha?: number | null
 	adm2_psgc?: string | number | null
+	psgc_code_norm?: string | null
+	color_override?: string | null
   popup_title?: string | null
   popup_subtitle?: string | null
   popup_fields?: Array<{ label: string; value: string }>
@@ -71,15 +73,15 @@ export default function ProvdistMap({ height = 520 }: Props) {
 		const defaultName = String(p.psgc_code_norm || p.adm2_psgc || 'Unknown')
 
 		// Determine popup content based on per-district override or global template
-		const title = p.popup_title ?? renderTemplate(tpl?.title, p) || defaultName
-		const subtitle = p.popup_subtitle ?? renderTemplate(tpl?.subtitle, p) || ''
-		const bodyHtml = renderTemplate(tpl?.body, p) || `<div>Rice yield: ${p.yield_t_ha == null ? '—' : `${p.yield_t_ha} t/ha`}</div>`
+		const title = p.popup_title ?? (renderTemplate(tpl?.title || null, p) || defaultName)
+		const subtitle = p.popup_subtitle ?? (renderTemplate(tpl?.subtitle || null, p) || '')
+		const bodyHtml = renderTemplate(tpl?.body || null, p) || `<div>Rice yield: ${p.yield_t_ha == null ? '—' : `${p.yield_t_ha} t/ha`}</div>`
 
 		const popupContent = `
-			<div style="min-width:180px; max-width:280px; font-size:14px;">
-				<strong>${title}</strong>
-				${subtitle ? `<br/><small style="color:#6b7280">${subtitle}</small>` : ''}
-				${bodyHtml}
+			<div style="min-width:180px; max-width:280px; font-size:14px; color:#1f2937;">
+				<div style="font-weight:600; color:#111827; margin-bottom:4px;">${title}</div>
+				${subtitle ? `<div style="color:#6b7280; font-size:12px; margin-bottom:8px;">${subtitle}</div>` : ''}
+				<div style="color:#374151;">${bodyHtml}</div>
 			</div>
 		`
 

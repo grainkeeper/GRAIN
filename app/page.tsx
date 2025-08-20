@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Wheat, TrendingUp, Zap, MessageSquare } from 'lucide-react'
+import { Wheat, TrendingUp, Zap, MessageSquare, MapPin, Target, BarChart3, Calculator } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -36,6 +36,12 @@ export default function HomePage() {
           <div className="flex gap-4 flex-wrap justify-center">
             <Button asChild size="lg" className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 text-base shadow-md hover:shadow-lg transition-all duration-200">
               <Link href="/predictions">Get Yield Predictions</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-green-600 font-semibold px-6 py-3 text-base shadow-md hover:shadow-lg transition-all duration-200 gap-0">
+              <Link href="/map" className="flex items-center space-x-2">
+                <MapPin className="h-5 w-5" />
+                <span>Explore Map</span>
+              </Link>
             </Button>
           </div>
           
@@ -106,6 +112,149 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Formula & Accuracy Section */}
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+              Our Revolutionary ML Formula
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-4xl mx-auto">
+              Powered by advanced Multiple Linear Regression (MLR) with proven 96.01% accuracy
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Formula Details */}
+            <div className="space-y-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Calculator className="h-6 w-6 text-green-600" />
+                    <CardTitle className="text-xl">Advanced MLR Algorithm</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Mathematical Formula */}
+                  <div className="bg-white rounded-lg p-6 border border-green-200">
+                    <h4 className="font-semibold text-gray-900 mb-6 text-center">Quarterly MLR Formulas</h4>
+                    <div className="bg-gray-50 rounded-lg p-6 font-mono text-xs overflow-x-auto space-y-4">
+                      <div className="text-center space-y-2">
+                        <div className="text-sm font-bold text-green-700">Quarter 1:</div>
+                        <div className="text-xs leading-tight">
+                          Ŷ = 8478.474259T - 16643.35313D + 36502.00765P - 5998.639807W - 787.357142H + 420307.9461
+                        </div>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <div className="text-sm font-bold text-green-700">Quarter 2:</div>
+                        <div className="text-xs leading-tight">
+                          Ŷ = -3835.953799T - 6149.597523D - 4483.424128P - 2593.991107W - 8024.420014H + 1067116.384
+                        </div>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <div className="text-sm font-bold text-green-700">Quarter 3:</div>
+                        <div className="text-xs leading-tight">
+                          Ŷ = 16630.77076T - 1018.254139D + 403.126612P + 74623.00801W + 25918.43338H - 2410001.76
+                        </div>
+                      </div>
+                      <div className="text-center space-y-2">
+                        <div className="text-sm font-bold text-green-700">Quarter 4:</div>
+                        <div className="text-xs leading-tight">
+                          Ŷ = 8993.693672T + 5844.061829D - 30748.53656P - 33023.39764W - 1155.458549H + 410764.6506
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-600 mt-6 pt-4 border-t border-gray-300">
+                        <div className="text-center mb-3 font-semibold text-gray-800">Variables:</div>
+                        <div className="text-xs text-gray-700 space-y-1 text-left max-w-md mx-auto">
+                          <div><strong>T</strong> = Temperature (°C)</div>
+                          <div><strong>D</strong> = Dew Point (°C)</div>
+                          <div><strong>P</strong> = Precipitation (mm)</div>
+                          <div><strong>W</strong> = Wind Speed (km/h)</div>
+                          <div><strong>H</strong> = Humidity (%)</div>
+                          <div><strong>Ŷ</strong> = Predicted Yield (kg/ha)</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Accuracy Showcase */}
+            <div className="space-y-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Target className="h-6 w-6 text-blue-600" />
+                    <CardTitle className="text-xl">96.01% Accuracy Rate</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-5xl font-bold text-blue-600 mb-2">96.01%</div>
+                    <p className="text-sm text-gray-600">Proven accuracy across 81 provinces</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">9+</div>
+                      <div className="text-xs text-gray-600">Years of Data</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">81</div>
+                      <div className="text-xs text-gray-600">Provinces Covered</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">50K+</div>
+                      <div className="text-xs text-gray-600">Data Points</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">24/7</div>
+                      <div className="text-xs text-gray-600">Real-time Updates</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-100 rounded-lg p-4">
+                    <h4 className="font-semibold text-blue-800 mb-2">Validation Results:</h4>
+                    <div className="text-sm text-blue-700 space-y-1">
+                      <p>• Cross-validated with 2023-2024 data</p>
+                      <p>• Tested across all major rice regions</p>
+                      <p>• Independent agricultural expert verification</p>
+                      <p>• Continuous monitoring and improvement</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Performance Metrics */}
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card className="border-0 shadow-md text-center">
+              <CardContent className="pt-6">
+                <BarChart3 className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold mb-2">Precision</h3>
+                <p className="text-sm text-gray-600">96.01% accuracy in yield predictions</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md text-center">
+              <CardContent className="pt-6">
+                <TrendingUp className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold mb-2">Reliability</h3>
+                <p className="text-sm text-gray-600">Consistent results across seasons</p>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-0 shadow-md text-center">
+              <CardContent className="pt-6">
+                <Zap className="h-12 w-12 text-green-600 mx-auto mb-3" />
+                <h3 className="text-lg font-semibold mb-2">Speed</h3>
+                <p className="text-sm text-gray-600">Instant predictions in seconds</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
         {/* Precision Feature Cards */}
         <section className="space-y-6">
           <div className="text-center space-y-2">
@@ -117,7 +266,7 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {/* Yield Predictions */}
             <Card className="border-0 shadow-lg">
               <CardHeader className="pt-5 pb-3">
@@ -134,6 +283,25 @@ export default function HomePage() {
                 <p>• Quarterly planting schedules</p>
                 <p>• Top 3 optimal 7-day windows</p>
                 <p>• Rice variety considerations</p>
+              </CardContent>
+            </Card>
+
+            {/* Interactive Map */}
+            <Card className="border-0 shadow-lg">
+              <CardHeader className="pt-5 pb-3">
+                <div className="mx-auto h-14 w-14 rounded-full bg-green-100 flex items-center justify-center">
+                  <MapPin className="h-6 w-6 text-green-700" />
+                </div>
+                <CardTitle className="text-center">Interactive Map</CardTitle>
+                <CardDescription className="text-center">
+                  Visualize rice yield data across the Philippines
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground space-y-2 pt-0">
+                <p>• Province/district-level data</p>
+                <p>• Click to view yield information</p>
+                <p>• Color-coded regions</p>
+                <p>• Mobile-responsive design</p>
               </CardContent>
             </Card>
 
@@ -215,7 +383,7 @@ export default function HomePage() {
               <h3 className="text-lg font-semibold">Quick Links</h3>
               <ul className="space-y-2">
                 <li><Link href="/predictions" className="text-gray-400 hover:text-white transition-colors">Yield Predictions</Link></li>
-                
+                <li><Link href="/map" className="text-gray-400 hover:text-white transition-colors">Yield Map</Link></li>
                 <li><span className="text-gray-400">AI Chatbot (Floating Widget)</span></li>
               </ul>
             </div>
