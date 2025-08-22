@@ -515,7 +515,7 @@ export function ChatbotWidget() {
 
   if (isLoading) {
     return (
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-40">
         <Button
           className="h-14 w-14 rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
           size="icon"
@@ -528,7 +528,7 @@ export function ChatbotWidget() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999]">
+    <div className="fixed bottom-4 right-4 z-40">
       {/* Chat Button */}
       {!isOpen && (
         <Button

@@ -63,7 +63,7 @@ export function Navbar() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-2">
               <Wheat className={cn("h-6 w-6", isHomePage ? "text-white" : "")} />
-              <span className={cn("text-xl font-bold", isHomePage ? "text-white" : "")}>GrainKeeper</span>
+              <span className={cn("text-xl font-bold", isHomePage ? "text-white" : "")}>GR-AI-N</span>
             </Link>
           </div>
           

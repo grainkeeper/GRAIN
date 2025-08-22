@@ -57,14 +57,12 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url)
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('rice_varieties')
-    .update({ is_active: false })
+    .delete()
     .eq('id', id)
-    .select('*')
-    .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json({ data })
+  return NextResponse.json({ success: true })
 }
 
 

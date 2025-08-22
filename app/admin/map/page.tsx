@@ -6,12 +6,11 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import dynamic from 'next/dynamic'
 const ProvdistMap = dynamic(() => import('@/components/map/provdist-map'), { ssr: false })
-import { psgcService } from '@/lib/services/psgc-api'
-import { normalizeProvincePsgc } from '@/lib/map/psgc'
+import { getRegionName, REGION_OPTIONS } from '@/lib/constants/regions'
+import { getProvinceName } from '@/lib/constants/provinces-psgc'
 
 type Row = {
 	psgc_code: string
-	name: string
 	yield_t_ha: number | null
 	color_override?: string | null
 	notes?: string | null
@@ -23,7 +22,6 @@ type Row = {
 
 type Overlay = {
 	psgc_code: string
-	name?: string | null
 	yield_t_ha?: number | null
 	color_override?: string | null
 	notes?: string | null
@@ -41,7 +39,6 @@ export default function AdminMapPage() {
     const [regionFilter, setRegionFilter] = useState<string>('')
     const [page, setPage] = useState(1)
     const pageSize = 25
-    const [codeToName, setCodeToName] = useState<Map<string, string>>(new Map())
 
 	useEffect(() => {
 		Promise.all([
@@ -54,7 +51,6 @@ export default function AdminMapPage() {
 				const ov = (code ? ovBy.get(String(code)) : undefined) as Overlay | undefined
 				return {
 					psgc_code: String(code),
-					name: (ov?.name ?? undefined) ? String(ov?.name) : '',
 					yield_t_ha: ov?.yield_t_ha ?? null,
 					color_override: ov?.color_override ?? null,
 					notes: ov?.notes ?? null,
@@ -68,25 +64,7 @@ export default function AdminMapPage() {
 		})
 	}, [])
 
-    // Autofill names by PSGC (client-side from PSGC API)
-    useEffect(() => {
-        (async () => {
-            const provinces = await psgcService.getProvincesCached()
-            const m = new Map<string, string>()
-            provinces.forEach(p => {
-                const key = normalizeProvincePsgc(p.code)
-                if (key) m.set(key, p.name)
-            })
-            setCodeToName(m)
-            // Fill missing names in current rows using normalized 9-digit codes
-            setRows(prev => prev.map(r => {
-                const key = normalizeProvincePsgc(r.psgc_code)
-                const auto = key ? m.get(key) : undefined
-                const name = (r.name && r.name.trim().length > 0) ? r.name : (auto || '')
-                return { ...r, name }
-            }))
-        })()
-    }, [])
+
 
 	const onSave = async (r: Row) => {
 		setSaving(r.psgc_code)
@@ -135,8 +113,9 @@ export default function AdminMapPage() {
 		if (q) {
 			out = out.filter(r =>
 				r.psgc_code.toLowerCase().includes(q) ||
-				(r.name || '').toLowerCase().includes(q) ||
-				String(r.adm1_psgc || '').toLowerCase().includes(q)
+				getProvinceName(r.psgc_code).toLowerCase().includes(q) ||
+				String(r.adm1_psgc || '').toLowerCase().includes(q) ||
+				getRegionName(String(r.adm1_psgc || '')).toLowerCase().includes(q)
 			)
 		}
 		return out
@@ -151,7 +130,18 @@ export default function AdminMapPage() {
     const regionOptions = useMemo(() => {
         const set = new Set<string>()
         rows.forEach(r => { if (r.adm1_psgc) set.add(String(r.adm1_psgc)) })
-        return Array.from(set).sort()
+        
+        // Create a map to deduplicate regions by name (in case multiple PSGC codes map to same region)
+        const regionMap = new Map<string, { code: string; name: string }>()
+        
+        Array.from(set).sort().forEach(code => {
+            const name = getRegionName(code)
+            if (!regionMap.has(name)) {
+                regionMap.set(name, { code, name })
+            }
+        })
+        
+        return Array.from(regionMap.values()).sort((a, b) => a.name.localeCompare(b.name))
     }, [rows])
 
 	return (
@@ -162,35 +152,78 @@ export default function AdminMapPage() {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<ProvdistMap />
-					<div className="flex items-center gap-2 flex-wrap">
-						<Input
-							placeholder="Search by name, PSGC, or region code…"
-							value={filter}
-							onChange={(e) => setFilter(e.target.value)}
-						/>
-						<select
-							className="h-9 rounded border px-2"
-							value={regionFilter}
-							onChange={(e) => { setRegionFilter(e.target.value); setPage(1) }}
-						>
-							<option value="">All regions</option>
-							{regionOptions.map(code => (
-								<option key={code} value={code}>{code}</option>
-							))}
-						</select>
-						<Button variant="outline" onClick={onSaveAll} disabled={dirty.size === 0 || savingAll}>
-							{savingAll ? 'Saving…' : `Save All (${dirty.size})`}
-						</Button>
+					<div className="space-y-4">
+						{/* Search and Filter Controls */}
+						<div className="flex items-center gap-3 flex-wrap">
+							<div className="flex-1 min-w-[200px]">
+								<Input
+									placeholder="Search by province name, PSGC, or region name…"
+									value={filter}
+									onChange={(e) => setFilter(e.target.value)}
+								/>
+							</div>
+							<div className="flex items-center gap-2">
+								<label className="text-sm font-medium text-gray-700">Filter by Region:</label>
+								<select
+									className="h-9 rounded border px-3 text-sm min-w-[200px]"
+									value={regionFilter}
+									onChange={(e) => { setRegionFilter(e.target.value); setPage(1) }}
+								>
+									<option value="">All regions</option>
+									{regionOptions.map(region => (
+										<option key={region.code} value={region.code}>{region.name}</option>
+									))}
+								</select>
+							</div>
+							<Button variant="outline" onClick={onSaveAll} disabled={dirty.size === 0 || savingAll}>
+								{savingAll ? 'Saving…' : `Save All (${dirty.size})`}
+							</Button>
+						</div>
+						
+						{/* Active Filters Display */}
+						{(filter || regionFilter) && (
+							<div className="flex items-center gap-2 flex-wrap">
+								<span className="text-sm text-gray-600">Active filters:</span>
+								{filter && (
+									<span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+										Search: "{filter}"
+										<button 
+											onClick={() => setFilter('')}
+											className="ml-1 text-blue-600 hover:text-blue-800"
+										>
+											×
+										</button>
+									</span>
+								)}
+								{regionFilter && (
+									<span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+										Region: {getRegionName(regionFilter)}
+										<button 
+											onClick={() => setRegionFilter('')}
+											className="ml-1 text-green-600 hover:text-green-800"
+										>
+											×
+										</button>
+									</span>
+								)}
+								<button 
+									onClick={() => { setFilter(''); setRegionFilter(''); setPage(1); }}
+									className="text-sm text-gray-500 hover:text-gray-700 underline"
+								>
+									Clear all filters
+								</button>
+							</div>
+						)}
 					</div>
 					<div className="border rounded-md overflow-auto">
 						<table className="w-full text-sm">
 							<thead className="sticky top-0 bg-muted">
 								<tr>
-									<th className="text-left p-2 w-[280px]">Name</th>
-									<th className="text-left p-2">PSGC</th>
-									<th className="text-left p-2">Region (ADM1)</th>
+									<th className="text-left p-2">Province</th>
+									<th className="text-left p-2">Region</th>
 									<th className="text-left p-2 w-[140px]">Yield (t/ha)</th>
 									<th className="text-left p-2 w-[140px]">Color</th>
+									<th className="text-left p-2 w-[200px]">Description</th>
 									<th className="text-left p-2 w-[120px]"></th>
 								</tr>
 							</thead>
@@ -198,18 +231,15 @@ export default function AdminMapPage() {
 								{paged.map((r) => (
 									<tr key={r.psgc_code} className="border-t">
 										<td className="p-2">
-											<Input
-												placeholder="Friendly name"
-												value={r.name ?? ''}
-												onChange={(e) => {
-													const v = e.target.value
-													setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, name: v } : x))
-													setDirty(prev => new Set(prev).add(r.psgc_code))
-												}}
-											/>
+											<div className="text-sm font-semibold">
+												{getProvinceName(r.psgc_code)}
+											</div>
 										</td>
-										<td className="p-2 font-mono text-xs">{r.psgc_code}</td>
-										<td className="p-2 font-mono text-xs">{r.adm1_psgc ?? '—'}</td>
+										<td className="p-2">
+											<div className="text-xs font-semibold">
+												{getRegionName(String(r.adm1_psgc || ''))}
+											</div>
+										</td>
 										<td className="p-2">
 											<Input
 												type="number"
@@ -245,6 +275,17 @@ export default function AdminMapPage() {
 													}}
 												/>
 											</div>
+										</td>
+										<td className="p-2">
+											<Input
+												placeholder="Enter description..."
+												value={r.notes ?? ''}
+												onChange={(e) => {
+													const v = e.target.value
+													setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, notes: v || null } : x))
+													setDirty(prev => new Set(prev).add(r.psgc_code))
+												}}
+											/>
 										</td>
 										<td className="p-2">
 											<Button variant="outline" onClick={() => onSave(r)} disabled={saving === r.psgc_code}>

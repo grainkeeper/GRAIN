@@ -5,7 +5,7 @@ export default function AnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">GrainKeeper Analytics</h1>
+        <h1 className="text-3xl font-bold">GR-AI-N Analytics</h1>
         <p className="text-muted-foreground">Comprehensive insights into rice yield forecasting and farmer engagement</p>
       </div>
 

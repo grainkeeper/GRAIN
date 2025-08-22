@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Wheat, TrendingUp, Zap, MessageSquare, MapPin, Target, BarChart3, Calculator } from 'lucide-react'
+import { Wheat, TrendingUp, Zap, MessageSquare, MapPin, Target, BarChart3, Calculator, Database, Download } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="relative text-center space-y-8 h-full flex flex-col justify-center items-center px-8">
           <div className="space-y-6 max-w-4xl mx-auto">
             <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white drop-shadow-xl">
-              Smart Rice Farming with <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">96.01% Accuracy</span>
+              Rice Yield and Optimal Planting Window Forecasting System
             </h1>
             <p className="text-xl lg:text-2xl text-white/95 drop-shadow-lg font-medium leading-relaxed">
             Revolutionize your rice farming with our ML-powered predictions. Get precise planting recommendations, weather insights, and yield forecasts tailored for the Philippines.
@@ -255,6 +255,126 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Download Predictions Section */}
+        <section className="space-y-8">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white">
+              Download Our Complete Predictions Dataset
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-4xl mx-auto">
+              Access our comprehensive rice yield predictions from 2025-2100 for research, analysis, and planning
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            {/* Dataset Preview */}
+            <div className="space-y-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-50">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Database className="h-6 w-6 text-green-600" />
+                    <CardTitle className="text-xl">Complete Predictions Dataset</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="bg-white rounded-lg p-6 border border-green-200">
+                    <h4 className="font-semibold text-gray-900 mb-4 text-center">Dataset Overview</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold text-green-700">76 Years</div>
+                        <div className="text-xs text-gray-600">Prediction Period</div>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold text-green-700">304 Quarters</div>
+                        <div className="text-xs text-gray-600">Data Points</div>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold text-green-700">6 Variables</div>
+                        <div className="text-xs text-gray-600">Per Quarter</div>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <div className="text-lg font-bold text-green-700">CSV Format</div>
+                        <div className="text-xs text-gray-600">Easy to Import</div>
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-600 mt-4 pt-4 border-t border-gray-300">
+                      <div className="text-center mb-2 font-semibold text-gray-800">Variables Included:</div>
+                      <div className="text-xs text-gray-700 space-y-1 text-left max-w-md mx-auto">
+                        <div><strong>Quarter:</strong> Q1-Q4 with Year</div>
+                        <div><strong>Yield:</strong> Predicted yield (kg/ha)</div>
+                        <div><strong>Temp:</strong> Temperature (°C)</div>
+                        <div><strong>Dew:</strong> Dew Point (°C)</div>
+                        <div><strong>Precip:</strong> Precipitation (mm)</div>
+                        <div><strong>Wind:</strong> Wind Speed (km/h)</div>
+                        <div><strong>Humidity:</strong> Relative Humidity (%)</div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Download Section */}
+            <div className="space-y-6">
+              <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <div className="flex items-center space-x-2">
+                    <Download className="h-6 w-6 text-blue-600" />
+                    <CardTitle className="text-xl">Download Predictions</CardTitle>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-blue-600 mb-2">2025-2100</div>
+                    <p className="text-sm text-gray-600">Complete rice yield predictions</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">76</div>
+                      <div className="text-xs text-gray-600">Years of Data</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">304</div>
+                      <div className="text-xs text-gray-600">Quarterly Records</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">7</div>
+                      <div className="text-xs text-gray-600">Data Columns</div>
+                    </div>
+                    <div className="text-center p-3 bg-white rounded-lg border border-blue-200">
+                      <div className="text-2xl font-bold text-green-600">Free</div>
+                      <div className="text-xs text-gray-600">No Cost</div>
+                    </div>
+                  </div>
+
+                  <div className="bg-blue-100 rounded-lg p-4">
+                    <h4 className="font-semibold text-blue-800 mb-2">Perfect For:</h4>
+                    <div className="text-sm text-blue-700 space-y-1">
+                      <p>• Agricultural research and analysis</p>
+                      <p>• Long-term farming planning</p>
+                      <p>• Academic studies and papers</p>
+                      <p>• Government policy development</p>
+                      <p>• Investment and business planning</p>
+                    </div>
+                  </div>
+
+                                     <Button 
+                     asChild 
+                     size="lg" 
+                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 text-base shadow-lg hover:shadow-xl transition-all duration-200"
+                   >
+                     <a href="/yield_output.csv" download="rice_yield_predictions_2025-2100.csv">
+                       <Download className="h-5 w-5 mr-2" />
+                       Download Complete Dataset (CSV)
+                     </a>
+                   </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
+
         {/* Precision Feature Cards */}
         <section className="space-y-6">
           <div className="text-center space-y-2">
@@ -354,7 +474,7 @@ export default function HomePage() {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Wheat className="h-6 w-6 text-green-400" />
-                <span className="text-xl font-bold">GrainKeeper</span>
+                <span className="text-xl font-bold">GR-AI-N</span>
               </div>
               <p className="text-gray-400">
                 Empowering Filipino farmers with AI-powered rice yield predictions and expert farming guidance.

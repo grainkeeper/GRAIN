@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css'
 import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import { useEffect, useMemo, useState } from 'react'
 import type { LatLngExpression } from 'leaflet'
+import { getProvinceName } from '@/lib/constants/provinces-psgc'
 
 type Props = {
 	height?: number
@@ -17,6 +18,7 @@ type FeatureProps = {
 	adm2_psgc?: string | number | null
 	psgc_code_norm?: string | null
 	color_override?: string | null
+	notes?: string | null
   popup_title?: string | null
   popup_subtitle?: string | null
   popup_fields?: Array<{ label: string; value: string }>
@@ -61,14 +63,19 @@ export default function ProvdistMap({ height = 520 }: Props) {
 		if (!template) return ''
 		let content = template
 		
+		// Get the PSGC code for province name mapping
+		const psgcCode = String(props.psgc_code || props.adm2_psgc || props.psgc_code_norm || '')
+		
 		// Handle all available properties for template substitution
-		// This ensures that template variables like {{name}}, {{psgc_code}}, {{yield_t_ha}} work correctly
+		// This ensures that template variables like {{province}}, {{psgc_code}}, {{yield_t_ha}}, {{notes}} work correctly
 		const allProps = {
 			...props,
-			// Ensure common properties are available with fallbacks
-			name: props.name || props.name_overlay || 'Unknown',
-			psgc_code: props.psgc_code || props.adm2_psgc || props.psgc_code_norm || 'Unknown',
-			yield_t_ha: props.yield_t_ha || 0
+			// Use province name from our mapping instead of old name field
+			province: getProvinceName(psgcCode),
+			name: getProvinceName(psgcCode), // Keep backward compatibility with {{name}}
+			psgc_code: psgcCode,
+			yield_t_ha: props.yield_t_ha || 0,
+			notes: props.notes || ''
 		}
 		
 		for (const key in allProps) {

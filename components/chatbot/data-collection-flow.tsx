@@ -78,6 +78,7 @@ const weatherConditions = [
 
 export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataCollectionFlowProps) {
   const [step, setStep] = useState(1)
+  const [varieties, setVarieties] = useState<{id: string; name: string; description?: string}[]>([])
   const [data, setData] = useState<FarmingData>(existingData || {
     location: {
       province: null,
@@ -99,6 +100,17 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
       rainfall: ''
     }
   })
+
+  // Fetch rice varieties from database
+  useEffect(() => {
+    (async () => {
+      try {
+        const r = await fetch('/api/varieties', { cache: 'no-store' })
+        const j = await r.json()
+        if (r.ok) setVarieties(j.data || [])
+      } catch {}
+    })()
+  }, [])
 
   // PSGC Data states
   const [provinces, setProvinces] = useState<PSGCProvince[]>([])
@@ -329,8 +341,8 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
                     <SelectValue placeholder="Select rice variety" />
                   </SelectTrigger>
                   <SelectContent>
-                    {Object.values(RICE_VARIETIES).map((variety) => (
-                      <SelectItem key={variety.code} value={variety.name}>
+                    {(varieties.length > 0 ? varieties : Object.values(RICE_VARIETIES)).map((variety) => (
+                      <SelectItem key={variety.id || variety.code} value={variety.name}>
                         {variety.name}
                       </SelectItem>
                     ))}
