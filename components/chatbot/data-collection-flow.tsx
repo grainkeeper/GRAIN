@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { MapPin, Wheat, Droplets, Thermometer, Calendar } from 'lucide-react'
-import { RICE_VARIETIES } from '@/lib/constants/rice-varieties'
+
 import { psgcService, PSGCProvince, PSGCCity, PSGCBarangay } from '@/lib/services/psgc-api'
 import { logger } from '@/lib/utils/logger'
 
@@ -340,12 +340,12 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
                   <SelectTrigger className="h-9 text-sm">
                     <SelectValue placeholder="Select rice variety" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {(varieties.length > 0 ? varieties : Object.values(RICE_VARIETIES)).map((variety) => (
-                      <SelectItem key={(variety as any).id || variety.code || variety.name} value={variety.name}>
-                        {variety.name}
-                      </SelectItem>
-                    ))}
+                                    <SelectContent>
+                     {varieties.map((variety) => (
+                       <SelectItem key={variety.id} value={variety.name}>
+                         {variety.name}
+                       </SelectItem>
+                     ))}
                   </SelectContent>
                 </Select>
               </div>

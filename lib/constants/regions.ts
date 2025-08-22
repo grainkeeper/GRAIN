@@ -44,7 +44,6 @@ export const PHILIPPINE_REGIONS: Record<string, string> = {
   
   // Region X - Northern Mindanao
   '10000000000': 'Region X - Northern Mindanao',
-  '1000000000': 'Region X - Northern Mindanao',
   '1900000000': 'Region X - Northern Mindanao',
   
   // Region XI - Davao Region
