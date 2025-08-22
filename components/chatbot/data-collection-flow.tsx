@@ -342,7 +342,7 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
                   </SelectTrigger>
                   <SelectContent>
                     {(varieties.length > 0 ? varieties : Object.values(RICE_VARIETIES)).map((variety) => (
-                      <SelectItem key={variety.id || variety.code} value={variety.name}>
+                      <SelectItem key={(variety as any).id || variety.code || variety.name} value={variety.name}>
                         {variety.name}
                       </SelectItem>
                     ))}
