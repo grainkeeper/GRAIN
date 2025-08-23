@@ -75,9 +75,6 @@ export function AdminSidebar() {
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b">
-        {!isCollapsed && (
-                      <h2 className="text-lg font-semibold">GR-AI-N</h2>
-        )}
         <Button
           variant="ghost"
           size="sm"
@@ -97,7 +94,8 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
+                isCollapsed ? "justify-center" : "justify-start",
                 pathname === item.href
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted"
