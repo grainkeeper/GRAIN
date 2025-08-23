@@ -1,4 +1,5 @@
 import { AdminSidebar } from '@/components/admin/sidebar'
+import AdminBodyClass from '@/components/admin/admin-body-class'
 
 export default async function AdminLayout({
   children,
@@ -6,13 +7,16 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex h-screen bg-background">
-      <AdminSidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-6">
-          {children}
-        </main>
+    <>
+      <AdminBodyClass />
+      <div className="flex h-screen bg-background overflow-hidden">
+        <AdminSidebar />
+        <div className="flex-1 flex flex-col min-h-0">
+          <main className="flex-1 overflow-y-auto p-6">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

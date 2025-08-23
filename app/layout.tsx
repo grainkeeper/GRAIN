@@ -34,9 +34,7 @@ export default function RootLayout({
       <body className="font-sans">
         <div className="min-h-screen bg-background">
           <Navbar />
-          <main>
-            {children}
-          </main>
+          {children}
           <ChatbotWrapper />
         </div>
       </body>

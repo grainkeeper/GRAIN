@@ -70,11 +70,11 @@ export function AdminSidebar() {
 
   return (
     <div className={cn(
-      "flex flex-col bg-white dark:bg-gray-950 border-r transition-all duration-300",
+      "flex flex-col bg-white dark:bg-gray-950 border-r transition-all duration-300 h-full",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b">
+      <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
         <Button
           variant="ghost"
           size="sm"
@@ -86,7 +86,7 @@ export function AdminSidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-4 space-y-2 overflow-y-auto min-h-0">
         {navItems.map((item) => {
           const Icon = item.icon
           return (
@@ -109,7 +109,7 @@ export function AdminSidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t flex-shrink-0">
         {!isCollapsed && (
           <div className="mb-2">
             <p className="text-xs text-muted-foreground">Admin Panel</p>

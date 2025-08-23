@@ -6,37 +6,8 @@
 :root {
   --background: oklch(1 0 0); /* White background */
   --foreground: oklch(0.35 0 0); /* Dark gray for text (#475569) */
-  --card: oklch(0.97 0 0); /* Light gray for cards (#f1f5f9) */
-  --card-foreground: oklch(0.35 0 0); /* Dark gray for card text */
-  --popover: oklch(1 0 0); /* White for popovers */
-  --popover-foreground: oklch(0.35 0 0); /* Dark gray for popover text */
   --primary: oklch(0.45 0.15 160); /* Emerald green (#059669) */
-  --primary-foreground: oklch(1 0 0); /* White text on primary */
-  --secondary: oklch(0.55 0.15 160); /* Lighter emerald (#10b981) */
-  --secondary-foreground: oklch(1 0 0); /* White text on secondary */
-  --muted: oklch(0.97 0 0); /* Light gray for muted elements */
-  --muted-foreground: oklch(0.35 0 0); /* Dark gray for muted text */
-  --accent: oklch(0.55 0.15 160); /* Lighter emerald for accents */
-  --accent-foreground: oklch(1 0 0); /* White text on accents */
-  --destructive: oklch(0.577 0.245 27.325); /* Red for errors */
-  --destructive-foreground: oklch(1 0 0); /* White text on destructive */
-  --border: oklch(0.85 0 0); /* Light gray borders (#d1d5db) */
-  --input: oklch(1 0 0); /* White input backgrounds */
-  --ring: oklch(0.45 0.15 160); /* Emerald focus rings */
-  --chart-1: oklch(0.55 0.15 160); /* Light emerald for charts */
-  --chart-2: oklch(0.45 0.15 160); /* Dark emerald for charts */
-  --chart-3: oklch(0.35 0 0); /* Dark gray for charts */
-  --chart-4: oklch(0.97 0 0); /* Light gray for charts */
-  --chart-5: oklch(0.577 0.245 27.325); /* Red for charts */
   --radius: 0.5rem; /* Modern rounded corners */
-  --sidebar: oklch(1 0 0); /* White sidebar */
-  --sidebar-foreground: oklch(0.35 0 0); /* Dark gray sidebar text */
-  --sidebar-primary: oklch(0.97 0 0); /* Light gray sidebar primary */
-  --sidebar-primary-foreground: oklch(0.35 0 0); /* Dark gray sidebar primary text */
-  --sidebar-accent: oklch(0.55 0.15 160); /* Emerald sidebar accents */
-  --sidebar-accent-foreground: oklch(1 0 0); /* White sidebar accent text */
-  --sidebar-border: oklch(0.85 0 0); /* Light gray sidebar borders */
-  --sidebar-ring: oklch(0.45 0.15 160); /* Emerald sidebar focus rings */
   --font-source-sans: "Source Sans Pro", sans-serif;
   --font-playfair: "Playfair Display", serif;
 }
@@ -44,10 +15,6 @@
 .dark {
   --background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
-  --card: oklch(0.145 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.145 0 0);
-  --popover-foreground: oklch(0.985 0 0);
   --primary: oklch(0.55 0.15 160); /* Lighter emerald in dark mode */
   --primary-foreground: oklch(0.145 0 0); /* Dark text on primary in dark mode */
   --secondary: oklch(0.269 0 0);
@@ -101,10 +68,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -113,31 +76,47 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  /* Added custom font family variables for typography system */
-  --font-sans: var(--font-source-sans);
-  --font-serif: var(--font-playfair);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: var(--radius);
+  --font-source-sans: var(--font-source-sans);
+  --font-playfair: var(--font-playfair);
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  /* Added custom typography classes for headings and body text */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-bold;
   }
-  p,
-  span,
-  div {
+  
+  p, span, div {
     @apply font-sans;
+  }
+
+  /* Prevent body overflow in admin pages */
+  body.admin-page {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-in-out;
+  }
+  
+  .animate-fade-in-delay {
+    animation: fadeIn 0.6s ease-in-out 0.2s both;
+  }
+  
+  .animate-fade-in-delay-2 {
+    animation: fadeIn 0.6s ease-in-out 0.4s both;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
