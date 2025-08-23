@@ -606,7 +606,7 @@ export function ChatbotWidget() {
                   
                   <div
                     className={cn(
-                      "max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm",
+                      "max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm whitespace-pre-wrap",
                       message.sender === 'user'
                         ? "bg-green-600 text-white rounded-br-md"
                         : "bg-gray-100 text-gray-900 rounded-bl-md"
