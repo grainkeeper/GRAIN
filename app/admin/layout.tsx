@@ -9,7 +9,7 @@ export default async function AdminLayout({
   return (
     <>
       <AdminBodyClass />
-      <div className="flex h-screen bg-background overflow-hidden">
+      <div className="flex h-screen bg-background">
         <AdminSidebar />
         <div className="flex-1 flex flex-col min-h-0">
           <main className="flex-1 overflow-y-auto p-6">

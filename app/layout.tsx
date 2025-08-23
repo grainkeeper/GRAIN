@@ -2,8 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Playfair_Display, Source_Sans_3 } from "next/font/google"
 import "./globals.css"
-import { Navbar } from "@/components/navbar"
-import { ChatbotWrapper } from "@/components/chatbot/chatbot-wrapper"
+import ConditionalLayout from "@/components/conditional-layout"
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -33,9 +32,9 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${sourceSans.variable} antialiased`}>
       <body className="font-sans">
         <div className="min-h-screen bg-background">
-          <Navbar />
-          {children}
-          <ChatbotWrapper />
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
         </div>
       </body>
     </html>
