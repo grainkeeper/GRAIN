@@ -2,17 +2,51 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, TrendingUp, Database, Map, BarChart3, Bot, Leaf, Users, Clock, Download } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
 
 export default function HomePage() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-2">
+              <Leaf className="h-8 w-8 text-primary" />
+              <span className="font-serif text-2xl font-bold text-foreground">GR-AI-N</span>
+            </div>
 
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#predictions" className="text-muted-foreground hover:text-foreground transition-colors">
+                Yield Predictions
+              </a>
+              <a href="#map" className="text-muted-foreground hover:text-foreground transition-colors">
+                Map
+              </a>
+              <a href="#dataset" className="text-muted-foreground hover:text-foreground transition-colors">
+                Dataset
+              </a>
+              <a href="#about" className="text-muted-foreground hover:text-foreground transition-colors">
+                About
+              </a>
+              <a href="#contact" className="text-muted-foreground hover:text-foreground transition-colors">
+                Contact
+              </a>
+            </div>
+
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Get Predictions</Button>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <div
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
+          style={{
+            backgroundImage: `url('/placeholder-qw3av.png')`,
+          }}
+        />
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto space-y-8">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight animate-fade-in">
               Rice Yield and Optimal Planting Window Forecasting System
@@ -22,19 +56,15 @@ export default function HomePage() {
               weather insights, and yield forecasts tailored for the Philippines.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in-delay-2">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg">
-                <Link href="/predictions">Get Yield Predictions</Link>
+              <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3 text-lg">
+                Get Yield Predictions
               </Button>
               <Button
-                asChild
                 size="lg"
                 variant="outline"
                 className="border-primary text-primary hover:bg-primary/10 px-8 py-3 text-lg bg-transparent"
               >
-                <Link href="/map" className="flex items-center space-x-2">
-                  <MapPin className="h-5 w-5" />
-                  <span>Explore Map</span>
-                </Link>
+                Explore Map
               </Button>
             </div>
           </div>
@@ -107,8 +137,8 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-12">
-            <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-              <Link href="/predictions">Start Your Prediction</Link>
+            <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+              Start Your Prediction
             </Button>
           </div>
         </div>
@@ -205,45 +235,43 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <Card className="overflow-hidden">
               <CardHeader className="bg-primary/5">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl sm:text-2xl font-serif">Complete Predictions Dataset</CardTitle>
-                    <CardDescription className="text-sm sm:text-base mt-2">
+                    <CardTitle className="text-2xl font-serif">Complete Predictions Dataset</CardTitle>
+                    <CardDescription className="text-base mt-2">
                       2025-2100 Complete Rice Yield Predictions
                     </CardDescription>
                   </div>
-                  <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground w-full sm:w-auto">
-                    <a href="/yield_output.csv" download="rice_yield_predictions_2025-2100.csv">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Predictions
-                    </a>
+                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Predictions
                   </Button>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6">
+                <div className="grid md:grid-cols-4 gap-6 mb-6">
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-primary mb-2">76</div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Years</p>
+                    <div className="text-3xl font-bold text-primary mb-2">76</div>
+                    <p className="text-sm text-muted-foreground">Years</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-secondary mb-2">304</div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Quarters</p>
+                    <div className="text-3xl font-bold text-secondary mb-2">304</div>
+                    <p className="text-sm text-muted-foreground">Quarters</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-accent mb-2">6</div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Variables</p>
+                    <div className="text-3xl font-bold text-accent mb-2">6</div>
+                    <p className="text-sm text-muted-foreground">Variables</p>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-primary mb-2">Free</div>
-                    <p className="text-xs md:text-sm text-muted-foreground">Download</p>
+                    <div className="text-3xl font-bold text-primary mb-2">Free</div>
+                    <p className="text-sm text-muted-foreground">Download</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-2 gap-6">
                   <div>
-                    <h4 className="font-semibold mb-3 text-sm md:text-base">Variables Included:</h4>
-                    <ul className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                    <h4 className="font-semibold mb-3">Variables Included:</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground">
                       <li>• Quarter: Q1 with Year</li>
                       <li>• Yield: Provincial Yield (kg/ha)</li>
                       <li>• Temp: Temperature (°C)</li>
@@ -252,8 +280,8 @@ export default function HomePage() {
                     </ul>
                   </div>
                   <div>
-                    <h4 className="font-semibold mb-3 text-sm md:text-base">Perfect For:</h4>
-                    <ul className="space-y-1 text-xs md:text-sm text-muted-foreground">
+                    <h4 className="font-semibold mb-3">Perfect For:</h4>
+                    <ul className="space-y-1 text-sm text-muted-foreground">
                       <li>• Agricultural research and analysis</li>
                       <li>• Long-term farming planning</li>
                       <li>• Academic studies and papers</li>
@@ -358,19 +386,19 @@ export default function HomePage() {
               <h4 className="font-semibold mb-4">Navigation</h4>
               <ul className="space-y-2 text-sm">
                 <li>
-                  <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">
                     Home
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/predictions" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <a href="#predictions" className="text-muted-foreground hover:text-foreground transition-colors">
                     Predictions
-                  </Link>
+                  </a>
                 </li>
                 <li>
-                  <Link href="/map" className="text-muted-foreground hover:text-foreground transition-colors">
+                  <a href="#map" className="text-muted-foreground hover:text-foreground transition-colors">
                     Map
-                  </Link>
+                  </a>
                 </li>
                 <li>
                   <a href="#dataset" className="text-muted-foreground hover:text-foreground transition-colors">
