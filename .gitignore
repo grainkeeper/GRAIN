@@ -53,3 +53,7 @@ scripts/*
 *.swp
 *.swo
 *~
+
+# Development and testing folders
+landing_inspo/
+__tests__/
