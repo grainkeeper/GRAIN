@@ -93,7 +93,7 @@ export async function GET() {
       recentActivity: recentActivity?.map(activity => ({
         id: activity.id,
         type: 'yield_prediction',
-        province: activity.user_farm_profiles?.province || 'Unknown',
+        province: (activity.user_farm_profiles as any)?.province || 'Unknown',
         predictedYield: activity.predicted_yield_tons_per_hectare,
         timestamp: activity.created_at
       })) || [],

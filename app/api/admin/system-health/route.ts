@@ -252,7 +252,7 @@ async function getUserStats(supabase: any) {
 
 export async function GET(request: NextRequest): Promise<NextResponse<HealthResponse>> {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {

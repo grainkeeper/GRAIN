@@ -831,6 +831,19 @@ CREATE TABLE IF NOT EXISTS map_settings (
     popup_title_template TEXT,        -- e.g., "{{name}}"
     popup_subtitle_template TEXT,     -- e.g., "Province {{psgc_code}}"
     popup_body_template TEXT,         -- e.g., HTML snippet with variables
+    choropleth_ranges JSONB DEFAULT '[
+      {"min": 0, "max": 1, "color": "#fef3c7", "label": "< 1.0"},
+      {"min": 1, "max": 2, "color": "#fde68a", "label": "1.0 - 1.9"},
+      {"min": 2, "max": 3, "color": "#fbbf24", "label": "2.0 - 2.9"},
+      {"min": 3, "max": 4, "color": "#f59e0b", "label": "3.0 - 3.9"},
+      {"min": 4, "max": 5, "color": "#d97706", "label": "4.0 - 4.9"},
+      {"min": 5, "max": 6, "color": "#b45309", "label": "5.0 - 5.9"},
+      {"min": 6, "max": 7, "color": "#92400e", "label": "6.0 - 6.9"},
+      {"min": 7, "max": 8, "color": "#78350f", "label": "7.0 - 7.9"},
+      {"min": 8, "max": 9, "color": "#451a03", "label": "8.0 - 8.9"},
+      {"min": 9, "max": 10, "color": "#1c1917", "label": "≥ 9.0"}
+    ]',                               -- Choropleth color ranges configuration
+    no_data_color TEXT DEFAULT '#f3f4f6', -- Color for areas without yield data
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
 );

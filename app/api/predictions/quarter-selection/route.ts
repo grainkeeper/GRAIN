@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Perform quarter selection analysis
-    const result = analyzeQuarterSelection(year);
+    const result = await analyzeQuarterSelection(year);
 
     // Format result for response
     const formattedResult = formatQuarterSelectionResult(result);
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Perform quarter selection analysis
-    const result = analyzeQuarterSelection(year);
+    const result = await analyzeQuarterSelection(year);
 
     // Format result for response
     const formattedResult = formatQuarterSelectionResult(result);

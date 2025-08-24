@@ -343,7 +343,7 @@ export default function AdminMapPage() {
 								</div>
 
 								{/* Controls - Responsive Grid */}
-								<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+								<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
 									<div className="space-y-1">
 										<Label className="text-xs">Yield (t/ha)</Label>
 										<Input
@@ -357,13 +357,10 @@ export default function AdminMapPage() {
 									</div>
 
 									<div className="space-y-1">
-										<Label className="text-xs">Color Override</Label>
-										<Input
-											type="color"
-											value={row.color_override || '#ffffff'}
-											onChange={(e) => updateRow(row.psgc_code, { color_override: e.target.value })}
-											className="w-16 h-8 p-1"
-										/>
+										<Label className="text-xs">Yield (t/ha)</Label>
+										<div className="text-sm font-medium">
+											{row.yield_t_ha !== null ? `${row.yield_t_ha} t/ha` : 'No data'}
+										</div>
 									</div>
 
 									<div className="space-y-1">
