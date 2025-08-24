@@ -1,13 +1,16 @@
 "use client"
 
 import { useEffect, useMemo, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import dynamic from 'next/dynamic'
 const ProvdistMap = dynamic(() => import('@/components/map/provdist-map'), { ssr: false })
 import { getRegionName, REGION_OPTIONS } from '@/lib/constants/regions'
 import { getProvinceName } from '@/lib/constants/provinces-psgc'
+import { MapPin, Save, Globe, Database, Info, Filter, Layers, Eye } from 'lucide-react'
 
 type Row = {
 	psgc_code: string
@@ -36,7 +39,7 @@ export default function AdminMapPage() {
 	const [filter, setFilter] = useState('')
 	const [savingAll, setSavingAll] = useState(false)
 	const [dirty, setDirty] = useState<Set<string>>(new Set())
-    const [regionFilter, setRegionFilter] = useState<string>('')
+    const [regionFilter, setRegionFilter] = useState<string>('all')
     const [page, setPage] = useState(1)
     const pageSize = 25
 
@@ -63,8 +66,6 @@ export default function AdminMapPage() {
 			setRows(merged)
 		})
 	}, [])
-
-
 
 	const onSave = async (r: Row) => {
 		setSaving(r.psgc_code)
@@ -105,205 +106,351 @@ export default function AdminMapPage() {
 	}
 
 	const filtered = useMemo(() => {
-		const q = filter.trim().toLowerCase()
-		let out = rows
-		if (regionFilter) {
-			out = out.filter(r => String(r.adm1_psgc || '') === regionFilter)
+		let filtered = rows
+		if (filter.trim()) {
+			const q = filter.trim().toLowerCase()
+			filtered = filtered.filter(r => {
+				const name = getProvinceName(r.psgc_code) || ''
+				return name.toLowerCase().includes(q)
+			})
 		}
-		if (q) {
-			out = out.filter(r =>
-				r.psgc_code.toLowerCase().includes(q) ||
-				getProvinceName(r.psgc_code).toLowerCase().includes(q) ||
-				String(r.adm1_psgc || '').toLowerCase().includes(q) ||
-				getRegionName(String(r.adm1_psgc || '')).toLowerCase().includes(q)
-			)
+		if (regionFilter && regionFilter !== 'all') {
+			filtered = filtered.filter(r => {
+				const region = getRegionName(r.adm1_psgc as string) || ''
+				return region === regionFilter
+			})
 		}
-		return out
+		return filtered
 	}, [rows, filter, regionFilter])
 
-    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize))
-    const paged = useMemo(() => {
-        const start = (page - 1) * pageSize
-        return filtered.slice(start, start + pageSize)
-    }, [filtered, page])
+	const paginated = useMemo(() => {
+		const start = (page - 1) * pageSize
+		return filtered.slice(start, start + pageSize)
+	}, [filtered, page])
 
-    const regionOptions = useMemo(() => {
-        const set = new Set<string>()
-        rows.forEach(r => { if (r.adm1_psgc) set.add(String(r.adm1_psgc)) })
-        
-        // Create a map to deduplicate regions by name (in case multiple PSGC codes map to same region)
-        const regionMap = new Map<string, { code: string; name: string }>()
-        
-        Array.from(set).sort().forEach(code => {
-            const name = getRegionName(code)
-            if (!regionMap.has(name)) {
-                regionMap.set(name, { code, name })
-            }
-        })
-        
-        return Array.from(regionMap.values()).sort((a, b) => a.name.localeCompare(b.name))
-    }, [rows])
+	const totalPages = Math.ceil(filtered.length / pageSize)
+
+	const updateRow = (code: string, updates: Partial<Row>) => {
+		setRows(prev => prev.map(r => r.psgc_code === code ? { ...r, ...updates } : r))
+		setDirty(prev => new Set(prev).add(code))
+	}
+
+	const regionsWithData = useMemo(() => {
+		const regions = new Set<string>()
+		rows.forEach(r => {
+			const region = getRegionName(r.adm1_psgc as string)
+			if (region) regions.add(region)
+		})
+		return Array.from(regions).sort()
+	}, [rows])
+
+	// Helper function to format region names for mobile
+	const formatRegionName = (region: string) => {
+		// For mobile, show shorter versions of long region names
+		if (region.includes('Bangsamoro Autonomous Region in Muslim')) {
+			return 'BARMM'
+		}
+		if (region.includes('National Capital Region')) {
+			return 'NCR'
+		}
+		// Keep other region names as they are (they're already short)
+		return region
+	}
+
+	const totalProvinces = rows.length
+	const provincesWithData = rows.filter(r => r.yield_t_ha !== null).length
+	const provincesWithOverrides = rows.filter(r => r.color_override).length
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 max-w-full overflow-x-hidden">
+			{/* Header Section */}
+			<div className="space-y-2">
+				<h1 className="text-3xl font-bold">Philippine Map Management</h1>
+				<p className="text-muted-foreground text-lg">Manage regional yield data and map visualizations</p>
+				<p className="text-sm text-muted-foreground">
+					Configure yield data, color overrides, and popup information for each province/district on the interactive map. Changes affect how farmers see regional data.
+				</p>
+			</div>
+
+			      {/* Overview Stats */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Total Provinces</CardTitle>
+						<MapPin className="h-4 w-4 text-muted-foreground" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">{totalProvinces}</div>
+						<p className="text-xs text-muted-foreground">
+							All Philippine regions
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">With Yield Data</CardTitle>
+						<Database className="h-4 w-4 text-green-500" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold text-green-600">{provincesWithData}</div>
+						<p className="text-xs text-muted-foreground">
+							Provinces with data
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Color Overrides</CardTitle>
+						<Layers className="h-4 w-4 text-blue-500" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold text-blue-600">{provincesWithOverrides}</div>
+						<p className="text-xs text-muted-foreground">
+							Custom colors set
+						</p>
+					</CardContent>
+				</Card>
+
+				<Card>
+					<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+						<CardTitle className="text-sm font-medium">Pending Changes</CardTitle>
+						<Save className="h-4 w-4 text-orange-500" />
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold text-orange-600">{dirty.size}</div>
+						<p className="text-xs text-muted-foreground">
+							Unsaved changes
+						</p>
+					</CardContent>
+				</Card>
+			</div>
+
+			{/* Interactive Map */}
 			<Card>
 				<CardHeader>
-					<CardTitle>Map Overlays (Province/District)</CardTitle>
+					<CardTitle className="flex items-center gap-2">
+						<Globe className="h-5 w-5" />
+						Interactive Map Preview
+					</CardTitle>
+					<CardDescription>Visual representation of current map data and settings</CardDescription>
 				</CardHeader>
-				<CardContent className="space-y-4">
-					<ProvdistMap />
-					<div className="space-y-4">
-						{/* Search and Filter Controls */}
-						<div className="flex items-center gap-3 flex-wrap">
-							<div className="flex-1 min-w-[200px]">
-								<Input
-									placeholder="Search by province name, PSGC, or region name…"
-									value={filter}
-									onChange={(e) => setFilter(e.target.value)}
-								/>
-							</div>
-							<div className="flex items-center gap-2">
-								<label className="text-sm font-medium text-gray-700">Filter by Region:</label>
-								<select
-									className="h-9 rounded border px-3 text-sm min-w-[200px]"
-									value={regionFilter}
-									onChange={(e) => { setRegionFilter(e.target.value); setPage(1) }}
-								>
-									<option value="">All regions</option>
-									{regionOptions.map(region => (
-										<option key={region.code} value={region.code}>{region.name}</option>
-									))}
-								</select>
-							</div>
-							<Button variant="outline" onClick={onSaveAll} disabled={dirty.size === 0 || savingAll}>
-								{savingAll ? 'Saving…' : `Save All (${dirty.size})`}
-							</Button>
+				<CardContent>
+					<div className="h-96 border rounded-lg overflow-hidden">
+						<ProvdistMap height={384} />
+					</div>
+					<div className="mt-3 flex items-center gap-2 text-sm text-muted-foreground">
+						<Eye className="h-4 w-4" />
+						<span>This map shows how farmers will see the regional data. Use the table below to edit province-specific information.</span>
+					</div>
+				</CardContent>
+			</Card>
+
+			{/* Filters and Controls */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<Filter className="h-5 w-5" />
+						Data Management
+					</CardTitle>
+					<CardDescription>Search, filter, and edit province data</CardDescription>
+				</CardHeader>
+				          <CardContent>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+						<div className="space-y-2">
+							<Label htmlFor="search">Search Provinces</Label>
+							<Input
+								id="search"
+								placeholder="Type province name..."
+								value={filter}
+								onChange={(e) => setFilter(e.target.value)}
+							/>
 						</div>
 						
-						{/* Active Filters Display */}
-						{(filter || regionFilter) && (
-							<div className="flex items-center gap-2 flex-wrap">
-								<span className="text-sm text-gray-600">Active filters:</span>
-								{filter && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-										Search: "{filter}"
-										<button 
-											onClick={() => setFilter('')}
-											className="ml-1 text-blue-600 hover:text-blue-800"
-										>
-											×
-										</button>
-									</span>
-								)}
-								{regionFilter && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-										Region: {getRegionName(regionFilter)}
-										<button 
-											onClick={() => setRegionFilter('')}
-											className="ml-1 text-green-600 hover:text-green-800"
-										>
-											×
-										</button>
-									</span>
-								)}
-								<button 
-									onClick={() => { setFilter(''); setRegionFilter(''); setPage(1); }}
-									className="text-sm text-gray-500 hover:text-gray-700 underline"
+						<div className="space-y-2">
+							<Label htmlFor="region">Filter by Region</Label>
+							<Select value={regionFilter} onValueChange={setRegionFilter}>
+								<SelectTrigger>
+									<SelectValue placeholder="All regions">
+										{regionFilter === 'all' ? (
+											"All regions"
+										) : (
+											<>
+												<span className="block sm:hidden">{formatRegionName(regionFilter)}</span>
+												<span className="hidden sm:block">{regionFilter}</span>
+											</>
+										)}
+									</SelectValue>
+								</SelectTrigger>
+								<SelectContent className="z-[9999] bg-white border border-gray-200 shadow-lg max-w-[280px]">
+									<SelectItem value="all">All regions</SelectItem>
+									{regionsWithData.map(region => (
+										<SelectItem key={region} value={region} className="truncate">
+											<span className="block sm:hidden">{formatRegionName(region)}</span>
+											<span className="hidden sm:block">{region}</span>
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						<div className="space-y-2">
+							<Label>Actions</Label>
+							<div className="flex gap-2">
+								<Button 
+									onClick={onSaveAll} 
+									disabled={dirty.size === 0 || savingAll}
+									variant="outline"
+									className="flex items-center gap-2"
 								>
-									Clear all filters
-								</button>
+									<Save className="h-4 w-4" />
+									{savingAll ? 'Saving...' : `Save All (${dirty.size})`}
+								</Button>
 							</div>
-						)}
+						</div>
 					</div>
-					<div className="border rounded-md overflow-auto">
-						<table className="w-full text-sm">
-							<thead className="sticky top-0 bg-muted">
-								<tr>
-									<th className="text-left p-2">Province</th>
-									<th className="text-left p-2">Region</th>
-									<th className="text-left p-2 w-[140px]">Yield (t/ha)</th>
-									<th className="text-left p-2 w-[140px]">Color</th>
-									<th className="text-left p-2 w-[200px]">Description</th>
-									<th className="text-left p-2 w-[120px]"></th>
-								</tr>
-							</thead>
-							<tbody>
-								{paged.map((r) => (
-									<tr key={r.psgc_code} className="border-t">
-										<td className="p-2">
-											<div className="text-sm font-semibold">
-												{getProvinceName(r.psgc_code)}
-											</div>
-										</td>
-										<td className="p-2">
-											<div className="text-xs font-semibold">
-												{getRegionName(String(r.adm1_psgc || ''))}
-											</div>
-										</td>
-										<td className="p-2">
-											<Input
-												type="number"
-												step="0.01"
-												placeholder="t/ha"
-												value={r.yield_t_ha ?? ''}
-												onChange={(e) => {
-													const v = e.target.value
-													setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, yield_t_ha: v === '' ? null : Number(v) } : x))
-													setDirty(prev => new Set(prev).add(r.psgc_code))
-												}}
-											/>
-										</td>
-										<td className="p-2">
-											<div className="flex items-center gap-2">
-												<input
-													type="color"
-													className="h-8 w-10 cursor-pointer rounded border"
-													value={r.color_override ?? '#ffffff'}
-													onChange={(e) => {
-														const v = e.target.value
-														setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, color_override: v } : x))
-														setDirty(prev => new Set(prev).add(r.psgc_code))
-													}}
-												/>
-												<Input
-													placeholder="#RRGGBB (optional)"
-													value={r.color_override ?? ''}
-													onChange={(e) => {
-														const v = e.target.value
-														setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, color_override: v || null } : x))
-														setDirty(prev => new Set(prev).add(r.psgc_code))
-													}}
-												/>
-											</div>
-										</td>
-										<td className="p-2">
-											<Input
-												placeholder="Enter description..."
-												value={r.notes ?? ''}
-												onChange={(e) => {
-													const v = e.target.value
-													setRows(prev => prev.map(x => x.psgc_code === r.psgc_code ? { ...x, notes: v || null } : x))
-													setDirty(prev => new Set(prev).add(r.psgc_code))
-												}}
-											/>
-										</td>
-										<td className="p-2">
-											<Button variant="outline" onClick={() => onSave(r)} disabled={saving === r.psgc_code}>
-												{saving === r.psgc_code ? 'Saving…' : (dirty.has(r.psgc_code) ? 'Save' : 'Saved')}
-											</Button>
-										</td>
-									</tr>
-								))}
-							</tbody>
-						</table>
+				</CardContent>
+			</Card>
+
+			{/* Data Table */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<Database className="h-5 w-5" />
+						Province Data Table
+					</CardTitle>
+					<CardDescription>
+						Showing {paginated.length} of {filtered.length} provinces
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="space-y-4">
+						{paginated.map((row) => (
+							<div key={row.psgc_code} className="p-4 border rounded-lg hover:bg-gray-50">
+								{/* Header - Province Info */}
+								<div className="flex items-center gap-2 mb-3">
+									<h4 className="font-medium truncate">
+										{getProvinceName(row.psgc_code) || row.psgc_code}
+									</h4>
+									<span className="text-xs text-muted-foreground">
+										{getRegionName(row.adm1_psgc as string)}
+									</span>
+								</div>
+								
+								<div className="text-sm text-muted-foreground mb-4">
+									PSGC: {row.psgc_code}
+								</div>
+
+								{/* Controls - Responsive Grid */}
+								<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+									<div className="space-y-1">
+										<Label className="text-xs">Yield (t/ha)</Label>
+										<Input
+											type="number"
+											step="0.01"
+											value={row.yield_t_ha ?? ''}
+											onChange={(e) => updateRow(row.psgc_code, { yield_t_ha: e.target.value ? parseFloat(e.target.value) : null })}
+											className="w-full"
+											placeholder="0.00"
+										/>
+									</div>
+
+									<div className="space-y-1">
+										<Label className="text-xs">Color Override</Label>
+										<Input
+											type="color"
+											value={row.color_override || '#ffffff'}
+											onChange={(e) => updateRow(row.psgc_code, { color_override: e.target.value })}
+											className="w-16 h-8 p-1"
+										/>
+									</div>
+
+									<div className="space-y-1">
+										<Label className="text-xs">Notes</Label>
+										<Input
+											value={row.notes ?? ''}
+											onChange={(e) => updateRow(row.psgc_code, { notes: e.target.value })}
+											placeholder="Optional notes..."
+											className="w-full"
+										/>
+									</div>
+
+									<div className="space-y-1">
+										<Label className="text-xs">&nbsp;</Label>
+										<Button
+											onClick={() => onSave(row)}
+											disabled={saving === row.psgc_code}
+											size="sm"
+											variant="outline"
+											className="w-full"
+										>
+											{saving === row.psgc_code ? 'Saving...' : 'Save'}
+										</Button>
+									</div>
+								</div>
+							</div>
+						))}
 					</div>
-                    <div className="flex items-center justify-between text-sm">
-                        <div>Rows: {filtered.length} • Page {page} / {pageCount}</div>
-                        <div className="flex items-center gap-2">
-                            <Button variant="outline" onClick={() => setPage(p => Math.max(1, p-1))} disabled={page<=1}>Prev</Button>
-                            <Button variant="outline" onClick={() => setPage(p => Math.min(pageCount, p+1))} disabled={page>=pageCount}>Next</Button>
-                        </div>
-                    </div>
+
+					{/* Pagination */}
+					{totalPages > 1 && (
+						<div className="flex items-center justify-between mt-4">
+							<div className="text-sm text-muted-foreground">
+								Page {page} of {totalPages}
+							</div>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setPage(p => Math.max(1, p - 1))}
+									disabled={page === 1}
+								>
+									Previous
+								</Button>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+									disabled={page === totalPages}
+								>
+									Next
+								</Button>
+							</div>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+
+			{/* Information Panel */}
+			<Card>
+				<CardHeader>
+					<CardTitle className="flex items-center gap-2">
+						<Info className="h-5 w-5" />
+						About Map Management
+					</CardTitle>
+				</CardHeader>
+				          <CardContent>
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+						<div className="space-y-2">
+							<h4 className="font-medium text-sm">For Farmers</h4>
+							<ul className="text-sm text-muted-foreground space-y-1">
+								<li>• Interactive map shows regional yield data</li>
+								<li>• Color-coded provinces indicate yield levels</li>
+								<li>• Click provinces for detailed information</li>
+								<li>• Helps understand regional farming conditions</li>
+							</ul>
+						</div>
+						<div className="space-y-2">
+							<h4 className="font-medium text-sm">For Administrators</h4>
+							<ul className="text-sm text-muted-foreground space-y-1">
+								<li>• Set yield data for each province</li>
+								<li>• Customize map colors for better visualization</li>
+								<li>• Add notes and popup information</li>
+								<li>• Changes appear immediately on the map</li>
+							</ul>
+						</div>
+					</div>
 				</CardContent>
 			</Card>
 		</div>

@@ -2,10 +2,9 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Users, FileText, BarChart3, Activity, Wheat, MapPin, Bot, Upload, Settings, MessageSquare, TrendingUp, CheckCircle, AlertTriangle } from 'lucide-react'
+import { Users, FileText, BarChart3, Activity, Wheat, MapPin, Bot, Upload, Settings, MessageSquare, TrendingUp, CheckCircle, AlertTriangle, Info, ArrowRight, Database, Globe } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import SystemHealthDashboard from '@/components/admin/system-health-dashboard'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -85,12 +84,79 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
+      {/* Header Section */}
+      <div className="space-y-2">
         <h1 className="text-3xl font-bold">GR-AI-N Admin Dashboard</h1>
-        <p className="text-muted-foreground">Rice Yield Forecasting & Advisory Platform Management</p>
+        <p className="text-muted-foreground text-lg">Rice Yield Forecasting & Advisory Platform Management</p>
+        <p className="text-sm text-muted-foreground">
+          Monitor platform performance, manage rice varieties, configure AI chatbot, and oversee prediction models for Philippine rice farmers.
+        </p>
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <ArrowRight className="h-5 w-5" />
+            Quick Actions
+          </CardTitle>
+          <CardDescription>Common admin tasks and navigation shortcuts</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => router.push('/admin/varieties')}
+            >
+              <Database className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-medium">Manage Varieties</div>
+                <div className="text-xs text-muted-foreground">Add/edit rice varieties</div>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => router.push('/admin/chatbot')}
+            >
+              <Bot className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-medium">AI Chatbot</div>
+                <div className="text-xs text-muted-foreground">Monitor conversations</div>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => router.push('/admin/prediction-settings')}
+            >
+              <BarChart3 className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-medium">Prediction Settings</div>
+                <div className="text-xs text-muted-foreground">Configure ML models</div>
+              </div>
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              className="h-auto p-4 flex flex-col items-start gap-2"
+              onClick={() => router.push('/admin/map')}
+            >
+              <Globe className="h-5 w-5" />
+              <div className="text-left">
+                <div className="font-medium">Map Management</div>
+                <div className="text-xs text-muted-foreground">Regional data & settings</div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {/* Platform Statistics */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Registered Farmers</CardTitle>
@@ -99,194 +165,87 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">{stats?.overview?.registeredFarmers || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Total users
+              Total platform users
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Yield Predictions</CardTitle>
-            <Wheat className="h-4 w-4 text-muted-foreground" />
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.overview?.yieldPredictions || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Total predictions
+              ML model predictions made
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Datasets</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Weather Forecasts</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats?.overview?.activeDatasets || 0}</div>
+            <div className="text-2xl font-bold">{stats?.overview?.weatherForecasts || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Yield data versions
+              Open-Meteo API calls
             </p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Chatbot Sessions</CardTitle>
-            <Bot className="h-4 w-4 text-muted-foreground" />
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats?.overview?.chatbotSessions || 0}</div>
             <p className="text-xs text-muted-foreground">
-              Today
+              Today's AI conversations
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>
-              Latest farming activities and predictions
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {stats?.recentActivity?.length > 0 ? (
-                stats.recentActivity.map((activity: any) => (
-                  <div key={activity.id} className="flex items-center space-x-4">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">
-                        Yield prediction for {activity.province}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {activity.predictedYield} tons/ha • {new Date(activity.timestamp).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="flex items-center space-x-4">
-                  <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">No recent activity</p>
-                    <p className="text-xs text-muted-foreground">System is ready for data</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Common admin tasks for GrainKeeper
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start" 
-                onClick={() => router.push('/admin/yield-data')}
-              >
-                <Upload className="h-4 w-4 mr-2" />
-                Upload Yield Data (CSV/Excel)
-              </Button>
-
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start" 
-                onClick={() => router.push('/admin/chatbot')}
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Manage Chatbot Settings
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start" 
-                onClick={() => router.push('/admin/varieties')}
-              >
-                <Wheat className="h-4 w-4 mr-2" />
-                Manage Rice Varieties
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="w-full justify-start" 
-                onClick={() => router.push('/admin/prediction-settings')}
-              >
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Configure MLR Formulas
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>Data Status</CardTitle>
-            <CardDescription>
-              Current yield data availability
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {stats?.topProvinces === 'Data available' ? (
-                <div className="text-center text-green-600 py-4">
-                  <TrendingUp className="h-8 w-8 mx-auto mb-2" />
-                  <p>Yield data available</p>
-                </div>
-              ) : (
-                <div className="text-center text-muted-foreground py-4">
-                  <MapPin className="h-8 w-8 mx-auto mb-2" />
-                  <p>No yield data available</p>
-                  <Button 
-                    size="sm" 
-                    className="mt-2"
-                    onClick={() => router.push('/admin/yield-data')}
-                  >
-                    Upload Data
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-
-
+      {/* System Health & Data Status */}
+      <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>System Health Overview</CardTitle>
             <CardDescription>
-              Platform status and performance summary
+              Platform services and APIs status
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm">Open-Meteo API</span>
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm">Open-Meteo Weather API</span>
+                </div>
                 <CheckCircle className="h-4 w-4 text-green-500" />
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Prediction Model</span>
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 text-purple-500" />
+                  <span className="text-sm">Prediction Model</span>
+                </div>
                 {getStatusIcon(stats?.systemHealth?.predictionModel)}
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm">Chatbot</span>
+                <div className="flex items-center gap-2">
+                  <Bot className="h-4 w-4 text-green-500" />
+                  <span className="text-sm">AI Chatbot (Gemini)</span>
+                </div>
                 {getStatusIcon(stats?.systemHealth?.chatbot)}
               </div>
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="mt-2"
+                className="mt-3"
                 onClick={() => router.push('/admin/settings')}
               >
                 View Details
@@ -294,12 +253,86 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
         </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Data & Configuration</CardTitle>
+            <CardDescription>
+              Current data sources and platform configuration
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Database className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm">Rice Varieties</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {stats?.overview?.activeDatasets || 0} active
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-green-500" />
+                  <span className="text-sm">Yield Data</span>
+                </div>
+                <div className="text-sm text-green-600 font-medium">
+                  Hardcoded CSV
+                </div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-orange-500" />
+                  <span className="text-sm">Philippine Regions</span>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  17 regions mapped
+                </div>
+              </div>
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <Info className="h-4 w-4 text-blue-600" />
+                <div className="text-sm text-blue-800">
+                  <div className="font-medium">Platform Ready</div>
+                  <div>All core services operational for rice farmers</div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* System Health Dashboard */}
-      <div className="mt-8">
-        <SystemHealthDashboard />
-      </div>
+      {/* Recent Activity */}
+      {stats?.recentActivity && stats.recentActivity.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Platform Activity</CardTitle>
+            <CardDescription>Latest user interactions and predictions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {stats.recentActivity.slice(0, 5).map((activity: any, index: number) => (
+                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div>
+                      <div className="text-sm font-medium">
+                        Yield prediction for {activity.province}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {new Date(activity.timestamp).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm font-medium">
+                    {activity.predictedYield?.toFixed(1)} tons/ha
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }

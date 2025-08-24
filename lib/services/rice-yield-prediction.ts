@@ -44,11 +44,11 @@ import {
  * @returns Predicted yield and weather data used
  * @throws Error if year/quarter invalid or data unavailable
  */
-export function predictQuarterYield(year: HistoricalYear, quarter: Quarter): {
+export async function predictQuarterYield(year: HistoricalYear, quarter: Quarter): Promise<{
   predictedYield: number;
   weatherData: HistoricalWeatherData;
   confidence: ConfidenceLevel;
-} {
+}> {
   // Validate inputs
   if (!validateYear(year)) {
     throw new Error(`Invalid year: ${year}. Must be between 2025 and 2100.`);
@@ -59,7 +59,7 @@ export function predictQuarterYield(year: HistoricalYear, quarter: Quarter): {
   }
 
   // Get historical weather data for the quarter
-  const weatherData = getQuarterlyWeatherData(year, quarter);
+  const weatherData = await getQuarterlyWeatherData(year, quarter);
   
   // Validate weather data
   if (!validateWeatherData(weatherData)) {
@@ -91,68 +91,71 @@ export function predictQuarterYield(year: HistoricalYear, quarter: Quarter): {
  * @returns Complete quarter selection analysis with all quarters compared
  * @throws Error if year invalid or data unavailable
  */
-export function analyzeQuarterSelection(year: HistoricalYear): QuarterSelectionResult {
+export async function analyzeQuarterSelection(year: HistoricalYear): Promise<QuarterSelectionResult> {
   // Validate year
   if (!validateYear(year)) {
     throw new Error(`Invalid year: ${year}. Must be between 2025 and 2100.`);
   }
 
   // Get all quarterly weather data for the year
-  const yearlyData = getYearlyWeatherData(year);
+  const yearlyData = await getYearlyWeatherData(year);
   
-  // Predict yields for all quarters
-  const quarter1Prediction = predictQuarterYield(year, 1);
-  const quarter2Prediction = predictQuarterYield(year, 2);
-  const quarter3Prediction = predictQuarterYield(year, 3);
-  const quarter4Prediction = predictQuarterYield(year, 4);
+  // Analyze each quarter
+  const quarterResults: Array<{
+    quarter: Quarter;
+    predictedYield: number;
+    weatherData: HistoricalWeatherData;
+    confidence: ConfidenceLevel;
+  }> = [];
+
+  for (let quarter = 1; quarter <= 4; quarter++) {
+    try {
+      const result = await predictQuarterYield(year, quarter as Quarter);
+      quarterResults.push({
+        quarter: quarter as Quarter,
+        predictedYield: result.predictedYield,
+        weatherData: result.weatherData,
+        confidence: result.confidence
+      });
+    } catch (error) {
+      console.error(`Error analyzing quarter ${quarter} for year ${year}:`, error);
+      // Continue with other quarters
+    }
+  }
+
+  if (quarterResults.length === 0) {
+    throw new Error(`No valid quarter data available for year ${year}`);
+  }
 
   // Find the optimal quarter (highest predicted yield)
-  const quarterlyYields = [
-    { quarter: 1, yield: quarter1Prediction.predictedYield, confidence: quarter1Prediction.confidence, weatherData: quarter1Prediction.weatherData },
-    { quarter: 2, yield: quarter2Prediction.predictedYield, confidence: quarter2Prediction.confidence, weatherData: quarter2Prediction.weatherData },
-    { quarter: 3, yield: quarter3Prediction.predictedYield, confidence: quarter3Prediction.confidence, weatherData: quarter3Prediction.weatherData },
-    { quarter: 4, yield: quarter4Prediction.predictedYield, confidence: quarter4Prediction.confidence, weatherData: quarter4Prediction.weatherData }
-  ];
-
-  const optimalQuarter = quarterlyYields.reduce((max, current) => 
-    current.yield > max.yield ? current : max
+  const optimalQuarter = quarterResults.reduce((best, current) => 
+    current.predictedYield > best.predictedYield ? current : best
   );
 
-  // Calculate overall confidence based on data consistency
-  const overallConfidence = calculateOverallConfidence(quarterlyYields);
+  // Calculate overall confidence based on data quality
+  const overallConfidence = calculateOverallConfidence(quarterResults);
 
   return {
     year,
-    quarterlyYields: {
-      quarter1: {
-        quarter: 1,
-        predictedYield: quarter1Prediction.predictedYield,
-        confidence: quarter1Prediction.confidence,
-        weatherData: quarter1Prediction.weatherData
-      },
-      quarter2: {
-        quarter: 2,
-        predictedYield: quarter2Prediction.predictedYield,
-        confidence: quarter2Prediction.confidence,
-        weatherData: quarter2Prediction.weatherData
-      },
-      quarter3: {
-        quarter: 3,
-        predictedYield: quarter3Prediction.predictedYield,
-        confidence: quarter3Prediction.confidence,
-        weatherData: quarter3Prediction.weatherData
-      },
-      quarter4: {
-        quarter: 4,
-        predictedYield: quarter4Prediction.predictedYield,
-        confidence: quarter4Prediction.confidence,
-        weatherData: quarter4Prediction.weatherData
-      }
+    analysisDate: new Date().toISOString(),
+    quarters: quarterResults.map(result => ({
+      quarter: result.quarter,
+      predictedYield: result.predictedYield,
+      weatherData: result.weatherData,
+      confidence: result.confidence,
+      quarterName: getQuarterName(result.quarter),
+      quarterMonths: getQuarterMonths(result.quarter)
+    })),
+    optimalQuarter: {
+      quarter: optimalQuarter.quarter,
+      predictedYield: optimalQuarter.predictedYield,
+      weatherData: optimalQuarter.weatherData,
+      confidence: optimalQuarter.confidence,
+      quarterName: getQuarterName(optimalQuarter.quarter),
+      quarterMonths: getQuarterMonths(optimalQuarter.quarter)
     },
-    optimalQuarter: optimalQuarter.quarter as Quarter,
-    optimalYield: optimalQuarter.yield,
     overallConfidence,
-    analyzedAt: new Date().toISOString()
+    recommendations: generateQuarterRecommendations(quarterResults, optimalQuarter)
   };
 }
 
@@ -163,7 +166,7 @@ export function analyzeQuarterSelection(year: HistoricalYear): QuarterSelectionR
  * @returns Array of quarter selection results for each year
  * @throws Error if year range invalid
  */
-export function analyzeYearRange(startYear: HistoricalYear, endYear: HistoricalYear): QuarterSelectionResult[] {
+export async function analyzeYearRange(startYear: HistoricalYear, endYear: HistoricalYear): Promise<QuarterSelectionResult[]> {
   if (startYear > endYear) {
     throw new Error(`Invalid year range: ${startYear}-${endYear}. Start year must be <= end year.`);
   }
@@ -176,7 +179,7 @@ export function analyzeYearRange(startYear: HistoricalYear, endYear: HistoricalY
   
   for (let year = startYear; year <= endYear; year++) {
     try {
-      const result = analyzeQuarterSelection(year);
+      const result = await analyzeQuarterSelection(year);
       results.push(result);
     } catch (error) {
       console.warn(`Failed to analyze year ${year}:`, error);
@@ -232,8 +235,8 @@ function calculateConfidenceLevel(weatherData: HistoricalWeatherData, quarter: Q
  * @returns Overall confidence level (0-100)
  */
 function calculateOverallConfidence(quarterlyYields: Array<{
-  quarter: number;
-  yield: number;
+  quarter: Quarter;
+  predictedYield: number;
   confidence: number;
   weatherData: HistoricalWeatherData;
 }>): ConfidenceLevel {
@@ -245,7 +248,7 @@ function calculateOverallConfidence(quarterlyYields: Array<{
   const averageConfidence = quarterlyYields.reduce((sum, q) => sum + q.confidence, 0) / quarterlyYields.length;
 
   // Adjust based on yield spread (if yields are very close, confidence is lower)
-  const yields = quarterlyYields.map(q => q.yield);
+  const yields = quarterlyYields.map(q => q.predictedYield);
   const maxYield = Math.max(...yields);
   const minYield = Math.min(...yields);
   const yieldSpread = maxYield - minYield;
@@ -265,6 +268,57 @@ function calculateOverallConfidence(quarterlyYields: Array<{
   
   // Ensure confidence is within valid range
   return Math.max(0, Math.min(100, overallConfidence));
+}
+
+/**
+ * Generate recommendations based on quarter selection analysis
+ */
+function generateQuarterRecommendations(
+  quarterResults: Array<{
+    quarter: Quarter;
+    predictedYield: number;
+    weatherData: HistoricalWeatherData;
+    confidence: ConfidenceLevel;
+  }>,
+  optimalQuarter: {
+    quarter: Quarter;
+    predictedYield: number;
+    weatherData: HistoricalWeatherData;
+    confidence: ConfidenceLevel;
+  }
+): string[] {
+  const recommendations: string[] = [];
+  
+  // Add optimal quarter recommendation
+  recommendations.push(`Plant during Q${optimalQuarter.quarter} for optimal yield of ${optimalQuarter.predictedYield.toFixed(0)} tons/ha`);
+  
+  // Add confidence-based recommendations
+  if (optimalQuarter.confidence >= 90) {
+    recommendations.push('High confidence in this recommendation based on weather data quality');
+  } else if (optimalQuarter.confidence >= 80) {
+    recommendations.push('Good confidence in this recommendation');
+  } else {
+    recommendations.push('Moderate confidence - consider monitoring weather conditions closely');
+  }
+  
+  // Add yield comparison recommendations
+  const otherQuarters = quarterResults.filter(q => q.quarter !== optimalQuarter.quarter);
+  const secondBest = otherQuarters.reduce((best, current) => 
+    current.predictedYield > best.predictedYield ? current : best
+  );
+  
+  const yieldDifference = optimalQuarter.predictedYield - secondBest.predictedYield;
+  const yieldDifferencePercent = (yieldDifference / optimalQuarter.predictedYield) * 100;
+  
+  if (yieldDifferencePercent > 20) {
+    recommendations.push('Significant yield advantage over other quarters');
+  } else if (yieldDifferencePercent > 10) {
+    recommendations.push('Moderate yield advantage over other quarters');
+  } else {
+    recommendations.push('Close yield predictions across quarters - consider backup options');
+  }
+  
+  return recommendations;
 }
 
 // ============================================================================
@@ -314,20 +368,18 @@ export function validateQuarterSelectionRequest(request: QuarterSelectionRequest
  * @returns Formatted result for UI display
  */
 export function formatQuarterSelectionResult(result: QuarterSelectionResult) {
-  const optimalQuarter = result.quarterlyYields[`quarter${result.optimalQuarter}` as keyof typeof result.quarterlyYields];
-  
   return {
     year: result.year,
     optimalQuarter: {
-      number: result.optimalQuarter,
-      name: getQuarterName(result.optimalQuarter),
-      months: getQuarterMonths(result.optimalQuarter),
-      predictedYield: Math.round(result.optimalYield),
+      number: result.optimalQuarter.quarter,
+      name: result.optimalQuarter.quarterName,
+      months: result.optimalQuarter.quarterMonths,
+      predictedYield: Math.round(result.optimalQuarter.predictedYield),
       confidence: Math.round(result.overallConfidence)
     },
-    allQuarters: Object.entries(result.quarterlyYields).map(([key, data]) => ({
+    allQuarters: result.quarters.map(data => ({
       quarter: data.quarter,
-      name: getQuarterName(data.quarter),
+      name: data.quarterName,
       predictedYield: Math.round(data.predictedYield),
       confidence: Math.round(data.confidence),
       weatherData: {
@@ -338,7 +390,7 @@ export function formatQuarterSelectionResult(result: QuarterSelectionResult) {
         humidity: Math.round(data.weatherData.humidity)
       }
     })),
-    analyzedAt: new Date(result.analyzedAt).toLocaleString()
+    analyzedAt: new Date(result.analysisDate).toLocaleString()
   };
 }
 

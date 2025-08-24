@@ -306,3 +306,13 @@ export async function getQuarterlyHistoricalWeatherData(
   const response = await openMeteoClient.getQuarterlyHistoricalData(coordinates, year, quarter);
   return openMeteoClient.convertToWeatherDataPoints(response);
 }
+
+/**
+ * Get 16-day weather forecast for a specific location
+ * @param coordinates - Location coordinates
+ * @returns 16-day forecast with daily weather data
+ */
+export async function get16DayForecast(coordinates: LocationCoordinates): Promise<WeatherDataPoint[]> {
+  const response = await openMeteoClient.getForecast(coordinates);
+  return openMeteoClient.convertToWeatherDataPoints(response);
+}

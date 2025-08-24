@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, TestTube, AlertTriangle, CheckCircle, Calculator, Lock, Eye } from 'lucide-react';
+import { Loader2, TestTube, AlertTriangle, CheckCircle, Calculator, Lock, Eye, BarChart3, Info, Brain, Target, Database } from 'lucide-react';
 import { QUARTERLY_FORMULAS } from '@/lib/constants/quarterly-formulas';
 import AccuracyTracking from '@/components/admin/accuracy-tracking';
 
@@ -94,177 +94,237 @@ export default function PredictionSettingsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">Prediction Settings</h1>
-        <p className="text-muted-foreground">
-          View the MLR formulas used for rice yield prediction. 
-          These formulas have been tested to provide 96.01% accuracy and are locked to prevent modification.
+      {/* Header Section */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">MLR Prediction Model Settings</h1>
+        <p className="text-muted-foreground text-lg">Multiple Linear Regression (MLR) formulas for rice yield prediction</p>
+        <p className="text-sm text-muted-foreground">
+          View and test the mathematical formulas that power the yield prediction system. These formulas use weather data to predict rice yields with 96.01% accuracy.
         </p>
       </div>
 
-      {/* Read-Only Notice */}
-      <Alert>
-        <Lock className="h-4 w-4" />
-        <AlertDescription>
-          <strong>Read-Only Mode:</strong> These formulas are locked and cannot be modified to maintain system accuracy and integrity.
-        </AlertDescription>
-      </Alert>
+      {/* Model Overview */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Model Type</CardTitle>
+            <Brain className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">MLR</div>
+            <p className="text-xs text-muted-foreground">
+              Multiple Linear Regression
+            </p>
+          </CardContent>
+        </Card>
 
-      {/* Alerts */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Accuracy</CardTitle>
+            <Target className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">96.01%</div>
+            <p className="text-xs text-muted-foreground">
+              Tested accuracy rate
+            </p>
+          </CardContent>
+        </Card>
 
-      {success && (
-        <Alert>
-          <CheckCircle className="h-4 w-4" />
-          <AlertDescription>{success}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Action Buttons */}
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          <Button onClick={handleTest} disabled={isTesting}>
-            {isTesting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Testing...
-              </>
-            ) : (
-              <>
-                <TestTube className="mr-2 h-4 w-4" />
-                Test Formulas
-              </>
-            )}
-          </Button>
-        </div>
-        <Badge variant="outline" className="flex items-center gap-1">
-          <Lock className="h-3 w-3" />
-          Read-Only
-        </Badge>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Data Source</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">CSV</div>
+            <p className="text-xs text-muted-foreground">
+              yield_output.csv (2025-2100)
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Formula Configuration */}
-      <Tabs defaultValue="formulas" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="formulas">Formulas</TabsTrigger>
-          {formulas.map((formula) => (
-            <TabsTrigger key={formula.quarter} value={`quarter${formula.quarter}`}>
-              Q{formula.quarter}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="formulas">
-          <Card>
-            <CardHeader>
-              <CardTitle>Formula Overview</CardTitle>
-              <CardDescription>
-                All MLR formulas with their coefficients and accuracy ratings (read-only)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formulas.map((formula) => (
-                  <div key={formula.quarter} className="p-4 border rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">Quarter {formula.quarter}</h4>
-                      <Badge variant="secondary">
-                        {formula.accuracy}% Accuracy
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">{formula.description}</p>
-                    <div className="text-xs font-mono bg-muted p-2 rounded">
-                      Ŷ = {formula.coefficients.temperature}T + {formula.coefficients.dewPoint}D + {formula.coefficients.precipitation}P + {formula.coefficients.windSpeed}W + {formula.coefficients.humidity}H + {formula.coefficients.constant}
-                    </div>
-                  </div>
-                ))}
+      {/* Model Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            About the MLR Model
+          </CardTitle>
+          <CardDescription>How the prediction system works</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Model Components</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• <strong>4 Quarterly Formulas:</strong> Q1, Q2, Q3, Q4</li>
+                <li>• <strong>Weather Variables:</strong> Temperature, Dew Point, Precipitation, Wind, Humidity</li>
+                <li>• <strong>Data Range:</strong> 2025-2100 (76 years)</li>
+                <li>• <strong>Region:</strong> Philippines (17 regions)</li>
+              </ul>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-medium text-sm">Formula Structure</h4>
+              <div className="text-sm text-muted-foreground space-y-1">
+                <div>Yield = β₀ + β₁T + β₂D + β₃P + β₄W + β₅H</div>
+                <div className="text-xs mt-2">
+                  Where: T=Temperature, D=Dew Point, P=Precipitation, W=Wind, H=Humidity
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </div>
+          </div>
+          
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-start gap-2">
+              <Lock className="h-4 w-4 text-blue-600 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <div className="font-medium">Read-Only Configuration</div>
+                <div>These formulas are optimized and tested. Modifying them could affect prediction accuracy. Use the test function to validate current performance.</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-        {formulas.map((formula) => (
-          <TabsContent key={formula.quarter} value={`quarter${formula.quarter}`}>
-            <Card>
-              <CardHeader>
+      {/* Test Model Button */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TestTube className="h-5 w-5" />
+            Model Testing
+          </CardTitle>
+          <CardDescription>Validate the current MLR formulas with test data</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Test the current MLR formulas against historical data to verify accuracy and performance.
+            </p>
+            
+            <Button 
+              onClick={handleTest} 
+              disabled={isTesting}
+              className="flex items-center gap-2"
+            >
+              {isTesting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Testing...
+                </>
+              ) : (
+                <>
+                  <TestTube className="h-4 w-4" />
+                  Test MLR Formulas
+                </>
+              )}
+            </Button>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {success && (
+              <Alert>
+                <CheckCircle className="h-4 w-4" />
+                <AlertDescription>{success}</AlertDescription>
+              </Alert>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quarterly Formulas */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calculator className="h-5 w-5" />
+            Quarterly MLR Formulas
+          </CardTitle>
+          <CardDescription>Mathematical formulas for each quarter (2025-2100)</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="q1" className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="q1">Q1 (Jan-Mar)</TabsTrigger>
+              <TabsTrigger value="q2">Q2 (Apr-Jun)</TabsTrigger>
+              <TabsTrigger value="q3">Q3 (Jul-Sep)</TabsTrigger>
+              <TabsTrigger value="q4">Q4 (Oct-Dec)</TabsTrigger>
+            </TabsList>
+
+            {formulas.map((formula) => (
+              <TabsContent key={formula.quarter} value={`q${formula.quarter}`} className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Quarter {formula.quarter} Formula</CardTitle>
-                    <CardDescription>{formula.description}</CardDescription>
+                    <h3 className="text-lg font-semibold">{formula.description}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Quarter {formula.quarter} formula for rice yield prediction
+                    </p>
                   </div>
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <CheckCircle className="h-3 w-3" />
                     {formula.accuracy}% Accuracy
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Formula Display */}
-                <div className="p-4 bg-muted rounded-lg">
-                  <h4 className="font-medium mb-2">Current Formula:</h4>
-                  <p className="text-sm font-mono">
-                    Ŷ = {formula.coefficients.temperature}T + {formula.coefficients.dewPoint}D + {formula.coefficients.precipitation}P + {formula.coefficients.windSpeed}W + {formula.coefficients.humidity}H + {formula.coefficients.constant}
-                  </p>
+
+                <div className="p-4 bg-gray-50 border rounded-lg">
+                  <h4 className="font-medium text-sm mb-2">Formula Coefficients:</h4>
+                  <div className="grid gap-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Constant (β₀):</span>
+                      <span className="font-mono">{formula.coefficients.constant.toFixed(6)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Temperature (β₁):</span>
+                      <span className="font-mono">{formula.coefficients.temperature.toFixed(6)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Dew Point (β₂):</span>
+                      <span className="font-mono">{formula.coefficients.dewPoint.toFixed(6)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Precipitation (β₃):</span>
+                      <span className="font-mono">{formula.coefficients.precipitation.toFixed(6)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Wind Speed (β₄):</span>
+                      <span className="font-mono">{formula.coefficients.windSpeed.toFixed(6)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Humidity (β₅):</span>
+                      <span className="font-mono">{formula.coefficients.humidity.toFixed(6)}</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Coefficient Display (Read-Only) */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Temperature Coefficient</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.temperature}
-                    </div>
+                <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <div className="flex items-center gap-2 text-sm text-green-800">
+                    <Eye className="h-4 w-4" />
+                    <span className="font-medium">Formula in Use:</span>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Dew Point Coefficient</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.dewPoint}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Precipitation Coefficient</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.precipitation}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Wind Speed Coefficient</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.windSpeed}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Humidity Coefficient</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.humidity}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Constant Term</label>
-                    <div className="p-2 bg-muted rounded border font-mono text-sm">
-                      {formula.coefficients.constant}
-                    </div>
+                  <div className="mt-1 text-sm font-mono text-green-700">
+                    Yield = {formula.coefficients.constant.toFixed(6)} + {formula.coefficients.temperature.toFixed(6)}×T + {formula.coefficients.dewPoint.toFixed(6)}×D + {formula.coefficients.precipitation.toFixed(6)}×P + {formula.coefficients.windSpeed.toFixed(6)}×W + {formula.coefficients.humidity.toFixed(6)}×H
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        ))}
-      </Tabs>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </CardContent>
+      </Card>
 
       {/* Test Results */}
       {testResults && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5" />
+              <BarChart3 className="h-5 w-5" />
               Test Results
             </CardTitle>
+            <CardDescription>Latest model validation results</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -313,7 +373,18 @@ export default function PredictionSettingsPage() {
       )}
 
       {/* Accuracy Tracking */}
-      <AccuracyTracking />
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Historical Accuracy Tracking
+          </CardTitle>
+          <CardDescription>Long-term performance monitoring and trends</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AccuracyTracking />
+        </CardContent>
+      </Card>
     </div>
   );
 }

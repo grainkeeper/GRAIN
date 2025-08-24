@@ -4,10 +4,6 @@
 
 export const PSGC_TO_PROVINCE: Record<string, string> = {
   // Region I - Ilocos Region
-  '100130000': 'Ilocos Norte',
-  '100140000': 'Ilocos Sur',
-  '100150000': 'La Union',
-  '100160000': 'Pangasinan',
   '102800000': 'Ilocos Norte',
   '102900000': 'Ilocos Sur',
   '103300000': 'La Union',

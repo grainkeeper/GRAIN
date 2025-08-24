@@ -27,23 +27,17 @@ const navItems = [
     icon: LayoutDashboard
   },
   {
-    title: 'Yield Data',
-    href: '/admin/yield-data',
-    icon: Wheat
-  },
-  {
     title: 'Varieties',
     href: '/admin/varieties',
     icon: Database
   },
-
   {
     title: 'Chatbot',
     href: '/admin/chatbot',
     icon: Bot
   },
   {
-    title: 'Prediction Settings',
+    title: 'Prediction',
     href: '/admin/prediction-settings',
     icon: BarChart3
   },
@@ -53,7 +47,7 @@ const navItems = [
     icon: MapPin
   },
   {
-    title: 'Map Settings',
+    title: 'Map Popup Template',
     href: '/admin/map/settings',
     icon: Settings
   },
@@ -64,7 +58,11 @@ const navItems = [
   }
 ]
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  onClose?: () => void
+}
+
+export function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname()
   const [isCollapsed, setIsCollapsed] = useState(false)
 
@@ -75,14 +73,34 @@ export function AdminSidebar() {
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="ml-auto"
-        >
-          {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
-        </Button>
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+          <Wheat className="h-6 w-6 text-primary" />
+          {!isCollapsed && (
+            <span className="font-serif text-xl font-bold text-primary">GR-AI-N</span>
+          )}
+        </Link>
+        <div className="flex items-center gap-2">
+          {/* Mobile close button */}
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="lg:hidden"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+          {/* Desktop collapse button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden lg:flex"
+          >
+            {isCollapsed ? <Menu className="h-4 w-4" /> : <X className="h-4 w-4" />}
+          </Button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -93,6 +111,7 @@ export function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => onClose?.()}
               className={cn(
                 "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
                 isCollapsed ? "justify-center" : "justify-start",

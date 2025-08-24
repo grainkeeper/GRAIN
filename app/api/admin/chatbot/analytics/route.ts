@@ -29,32 +29,9 @@ export async function GET() {
   const botMessages = messages?.filter(m => m.message_type === 'bot').length || 0
   const userMessages = messages?.filter(m => m.message_type === 'user').length || 0
   
-  // Calculate satisfaction metrics
-  const ratedMessages = messages?.filter(m => m.user_rating) || []
-  const avgRating = ratedMessages.length > 0 
-    ? ratedMessages.reduce((sum, m) => sum + (m.user_rating || 0), 0) / ratedMessages.length 
-    : 0
-  const helpfulCount = messages?.filter(m => m.is_helpful === true).length || 0
-  const helpfulRate = messages?.length > 0 ? (helpfulCount / messages.length) * 100 : 0
-
-  // Daily activity for last 7 days
-  const dailyStats = []
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date()
-    date.setDate(date.getDate() - i)
-    const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-    const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
-    
-    const dayMessages = messages?.filter(m => {
-      const msgDate = new Date(m.created_at)
-      return msgDate >= dayStart && msgDate < dayEnd
-    }).length || 0
-
-    dailyStats.push({
-      date: dayStart.toISOString().split('T')[0],
-      messages: dayMessages
-    })
-  }
+  // Calculate basic metrics (ratings and helpful rates not implemented)
+  const avgRating = 0
+  const helpfulRate = 0
 
   return NextResponse.json({
     overview: {
@@ -63,12 +40,6 @@ export async function GET() {
       totalMessages,
       botMessages,
       userMessages
-    },
-    satisfaction: {
-      averageRating: Math.round(avgRating * 10) / 10,
-      ratedMessages: ratedMessages.length,
-      helpfulRate: Math.round(helpfulRate * 10) / 10
-    },
-    dailyActivity: dailyStats
+    }
   })
 }

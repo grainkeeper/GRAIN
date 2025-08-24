@@ -1,3 +1,6 @@
+import type { LocationCoordinates, WeatherDataPoint } from '@/lib/services/open-meteo-api';
+import type { PlantingDayAnalysis } from '@/lib/services/daily-forecast-analysis';
+
 /**
  * TypeScript interfaces for Rice Yield Prediction System
  * 
@@ -108,45 +111,34 @@ export interface QuarterSelectionResult {
   /** Year analyzed */
   year: number;
   
+  /** Analysis timestamp */
+  analysisDate: string;
+  
   /** Predicted yields for each quarter */
-  quarterlyYields: {
-    quarter1: {
-      quarter: 1;
-      predictedYield: number;
-      confidence: number; // 0-100
-      weatherData: HistoricalWeatherData;
-    };
-    quarter2: {
-      quarter: 2;
-      predictedYield: number;
-      confidence: number; // 0-100
-      weatherData: HistoricalWeatherData;
-    };
-    quarter3: {
-      quarter: 3;
-      predictedYield: number;
-      confidence: number; // 0-100
-      weatherData: HistoricalWeatherData;
-    };
-    quarter4: {
-      quarter: 4;
-      predictedYield: number;
-      confidence: number; // 0-100
-      weatherData: HistoricalWeatherData;
-    };
-  };
+  quarters: Array<{
+    quarter: Quarter;
+    predictedYield: number;
+    weatherData: HistoricalWeatherData;
+    confidence: ConfidenceLevel;
+    quarterName: string;
+    quarterMonths: { start: string; end: string };
+  }>;
   
   /** Optimal quarter for planting */
-  optimalQuarter: 1 | 2 | 3 | 4;
-  
-  /** Highest predicted yield */
-  optimalYield: number;
+  optimalQuarter: {
+    quarter: Quarter;
+    predictedYield: number;
+    weatherData: HistoricalWeatherData;
+    confidence: ConfidenceLevel;
+    quarterName: string;
+    quarterMonths: { start: string; end: string };
+  };
   
   /** Overall confidence in the prediction */
-  overallConfidence: number; // 0-100
+  overallConfidence: ConfidenceLevel;
   
-  /** Analysis timestamp */
-  analyzedAt: string;
+  /** Recommendations based on analysis */
+  recommendations: string[];
 }
 
 /**
@@ -303,3 +295,52 @@ export type ConfidenceLevel = number; // 0-100
  * Weather stability score type
  */
 export type WeatherStabilityScore = number; // 0-100
+
+export interface PlantingWindowAnalysis {
+  location: LocationCoordinates;
+  forecastPeriod: string;
+  dailyAnalysis: PlantingDayAnalysis[];
+  summary: {
+    totalDays: number;
+    plantableDays: number;
+    bestPlantingDays: PlantingDayAnalysis[];
+    overallRecommendation: string;
+    nextUpdateDate: string;
+    weatherTrends: {
+      temperatureTrend: 'stable' | 'rising' | 'falling';
+      precipitationTrend: 'dry' | 'moderate' | 'wet';
+      windTrend: 'calm' | 'moderate' | 'windy';
+    };
+  };
+}
+
+export interface SavedPlantingAnalysis {
+  id: string;
+  user_id: string;
+  location_name: string;
+  latitude: number;
+  longitude: number;
+  forecast_period: string;
+  plantable_days: number;
+  total_days: number;
+  excellent_days: number;
+  overall_recommendation: string;
+  next_update_date: string;
+  weather_trends: {
+    temperature_trend: 'stable' | 'rising' | 'falling';
+    precipitation_trend: 'dry' | 'moderate' | 'wet';
+    wind_trend: 'calm' | 'moderate' | 'windy';
+  };
+  best_planting_days: Array<{
+    date: string;
+    suitability_score: number;
+    weather_summary: {
+      temperature: string;
+      precipitation: string;
+      wind_speed: string;
+      humidity: string;
+    };
+  }>;
+  created_at: string;
+  updated_at: string;
+}

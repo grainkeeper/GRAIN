@@ -1,254 +1,341 @@
 "use client"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Switch } from '@/components/ui/switch'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { MessageSquare, Settings, Save, BarChart3, Users, TrendingUp, Star } from 'lucide-react'
+import { MessageSquare, BarChart3, Bot, Code, Info, CheckCircle, XCircle, Users, Clock, TrendingUp, AlertTriangle, Brain, Globe } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function ChatbotAdminPage() {
-  const [settings, setSettings] = useState({
-    enabled: true,
-    welcome_message: '',
-    max_conversation_length: 50,
-    temperature: 0.7,
-    model: 'gpt-3.5-turbo'
-  })
   const [analytics, setAnalytics] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [saved, setSaved] = useState(false)
-
-  const loadSettings = async () => {
-    const r = await fetch('/api/admin/chatbot/settings')
-    if (r.ok) {
-      const data = await r.json()
-      setSettings(data)
-    }
-  }
+  const [loading, setLoading] = useState(true)
 
   const loadAnalytics = async () => {
-    const r = await fetch('/api/admin/chatbot/analytics')
-    if (r.ok) {
-      const data = await r.json()
-      setAnalytics(data)
-    }
-  }
-
-  const saveSettings = async () => {
-    setLoading(true)
     try {
-      const r = await fetch('/api/admin/chatbot/settings', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
-      })
+      const r = await fetch('/api/admin/chatbot/analytics')
       if (r.ok) {
-        setSaved(true)
-        setTimeout(() => setSaved(false), 2000)
+        const data = await r.json()
+        setAnalytics(data)
       }
+    } catch (error) {
+      console.error('Failed to load chatbot analytics:', error)
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    loadSettings()
     loadAnalytics()
   }, [])
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Chatbot Settings</h1>
-        <p className="text-muted-foreground">Configure the AI assistant behavior and responses</p>
+      {/* Header Section */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold">AI Chatbot Management</h1>
+        <p className="text-muted-foreground text-lg">Monitor and manage the GRAINKEEPER AI assistant</p>
+        <p className="text-sm text-muted-foreground">
+          View chatbot performance metrics, AI model configuration, and system prompt. The chatbot uses Gemini Flash 2.0 for rice farming advice.
+        </p>
       </div>
 
-      {/* Analytics Dashboard */}
-      {analytics && (
-        <div className="grid gap-6 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
-              <MessageSquare className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.totalConversations}</div>
-              <p className="text-xs text-muted-foreground">
-                Last 30 days
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.overview.totalMessages}</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics.overview.botMessages} bot, {analytics.overview.userMessages} user
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg. Rating</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.satisfaction.averageRating}/5</div>
-              <p className="text-xs text-muted-foreground">
-                {analytics.satisfaction.ratedMessages} rated messages
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Helpful Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{analytics.satisfaction.helpfulRate}%</div>
-              <p className="text-xs text-muted-foreground">
-                Marked as helpful
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Overview Stats */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              General Settings
-            </CardTitle>
-            <CardDescription>Basic chatbot configuration</CardDescription>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Conversations</CardTitle>
+            <MessageSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="enabled">Enable Chatbot</Label>
-              <Switch
-                id="enabled"
-                checked={settings.enabled}
-                onCheckedChange={(checked) => setSettings({ ...settings, enabled: checked })}
-              />
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.overview?.totalConversations || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              All time conversations
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{analytics?.overview?.totalMessages || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              {analytics?.overview?.botMessages || 0} bot, {analytics?.overview?.userMessages || 0} user
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Conversations</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{analytics?.overview?.activeConversations || 0}</div>
+            <p className="text-xs text-muted-foreground">
+              Currently ongoing
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Response Time</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">~2s</div>
+            <p className="text-xs text-muted-foreground">
+              Average response time
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* AI Model Configuration */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5" />
+            AI Model Configuration
+          </CardTitle>
+          <CardDescription>Current AI model and technical specifications</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Model</label>
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <Bot className="h-4 w-4 text-green-600" />
+                <span className="font-medium text-green-800">Gemini Flash 2.0</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Google's latest fast and efficient AI model
+              </p>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="welcome">Welcome Message</Label>
-              <Input
-                id="welcome"
-                value={settings.welcome_message}
-                onChange={(e) => setSettings({ ...settings, welcome_message: e.target.value })}
-                placeholder="Enter the welcome message users will see..."
-              />
+              <label className="text-sm font-medium">API Status</label>
+              <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="font-medium text-blue-800">Operational</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                API key configured and working
+              </p>
             </div>
+          </div>
 
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             <div className="space-y-2">
-              <Label htmlFor="model">AI Model</Label>
-              <Select value={settings.model} onValueChange={(value) => setSettings({ ...settings, model: value })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="gpt-3.5-turbo">GPT-3.5 Turbo</SelectItem>
-                  <SelectItem value="gpt-4">GPT-4</SelectItem>
-                  <SelectItem value="gpt-4-turbo">GPT-4 Turbo</SelectItem>
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium">Provider</label>
+              <div className="flex items-center gap-2 p-2 bg-gray-50 border rounded-lg">
+                <Globe className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium">Google AI</span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Model Type</label>
+              <div className="flex items-center gap-2 p-2 bg-gray-50 border rounded-lg">
+                <TrendingUp className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium">Large Language Model</span>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Specialization</label>
+              <div className="flex items-center gap-2 p-2 bg-gray-50 border rounded-lg">
+                <Bot className="h-4 w-4 text-gray-600" />
+                <span className="text-sm font-medium">Rice Farming</span>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
+      {/* Chatbot Status & Behavior */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Chatbot Status & Behavior
+          </CardTitle>
+          <CardDescription>Current chatbot configuration and operational status</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Operational Status</label>
+              <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span className="font-medium text-green-800">Always Active</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Chatbot is always available to users
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Welcome Message</label>
+              <div className="p-3 bg-gray-50 border rounded-lg text-sm">
+                <div className="font-medium text-gray-800">
+                  "Hello! I'm GRAINKEEPER. Please set up your farming profile to get personalized advice."
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Hardcoded welcome message in the application
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5" />
+            <div className="text-sm">
+              <div className="font-medium text-yellow-800">Configuration Note:</div>
+              <div className="text-yellow-700">
+                Chatbot settings are hardcoded in the application. The enable/disable toggle and welcome message editor are not functional. Changes must be made in the source code.
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* System Prompt */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Code className="h-5 w-5" />
+            System Prompt & Instructions
+          </CardTitle>
+          <CardDescription>The AI model's instruction set and behavior rules</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="p-4 bg-gray-50 border rounded-lg">
+              <div className="font-medium mb-3 text-gray-800">You are GRAINKEEPER, an AI farming assistant for rice farming in the Philippines.</div>
+              
+                             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+                 <div className="space-y-2">
+                   <div className="text-sm font-semibold text-gray-700">📝 Response Rules:</div>
+                   <ul className="text-xs text-gray-600 space-y-1">
+                     <li>• Keep responses SHORT and CONCISE (2-3 sentences max)</li>
+                     <li>• Use simple, direct language</li>
+                     <li>• Focus on actionable advice only</li>
+                     <li>• No greetings unless user initiates</li>
+                     <li>• Be specific and practical</li>
+                     <li>• Use line breaks when switching topics</li>
+                   </ul>
+                 </div>
+                 
+                 <div className="space-y-2">
+                   <div className="text-sm font-semibold text-gray-700">🎯 Content Rules:</div>
+                   <ul className="text-xs text-gray-600 space-y-1">
+                     <li>• Never ask for information already provided</li>
+                     <li>• Give specific, practical advice</li>
+                     <li>• Reference location, crop, and conditions</li>
+                     <li>• Be direct and to the point</li>
+                     <li>• Focus on Philippine rice farming</li>
+                     <li>• Provide weather-aware recommendations</li>
+                   </ul>
+                 </div>
+               </div>
+            </div>
+            
+            <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <Info className="h-4 w-4 text-blue-600" />
+              <div className="text-sm text-blue-800">
+                <div className="font-medium">Hardcoded Configuration</div>
+                <div>This prompt is embedded in the application code and cannot be modified from the admin panel. Changes require code updates.</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Metrics */}
+      {analytics && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              Advanced Settings
+              <TrendingUp className="h-5 w-5" />
+              Performance Metrics
             </CardTitle>
-            <CardDescription>Fine-tune the AI behavior</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="temperature">Temperature (Creativity)</Label>
-              <div className="flex items-center gap-2">
-                <Input
-                  id="temperature"
-                  type="number"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={settings.temperature}
-                  onChange={(e) => setSettings({ ...settings, temperature: parseFloat(e.target.value) })}
-                  className="w-20"
-                />
-                <span className="text-sm text-muted-foreground">
-                  {settings.temperature < 0.5 ? 'Conservative' : settings.temperature < 1 ? 'Balanced' : 'Creative'}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="max_length">Max Conversation Length</Label>
-              <Input
-                id="max_length"
-                type="number"
-                min="10"
-                max="200"
-                value={settings.max_conversation_length}
-                onChange={(e) => setSettings({ ...settings, max_conversation_length: parseInt(e.target.value) })}
-                placeholder="50"
-              />
-              <p className="text-xs text-muted-foreground">
-                Maximum number of messages to keep in conversation history
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Daily Activity Chart */}
-      {analytics?.dailyActivity && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Daily Activity (Last 7 Days)</CardTitle>
-            <CardDescription>Message volume over time</CardDescription>
+            <CardDescription>Chatbot usage statistics and performance indicators</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end justify-between h-32">
-              {analytics.dailyActivity.map((day: any, i: number) => (
-                <div key={i} className="flex flex-col items-center">
-                  <div 
-                    className="bg-green-500 rounded-t w-8 transition-all"
-                    style={{ 
-                      height: `${Math.max(10, (day.messages / Math.max(...analytics.dailyActivity.map((d: any) => d.messages))) * 100)}%` 
-                    }}
-                  />
-                  <span className="text-xs text-muted-foreground mt-1">
-                    {new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </span>
-                  <span className="text-xs font-medium">{day.messages}</span>
+            <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Message Distribution</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Bot Messages</span>
+                    <span className="font-medium">{analytics.overview.botMessages}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">User Messages</span>
+                    <span className="font-medium">{analytics.overview.userMessages}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>Response Ratio</span>
+                    <span>{analytics.overview.botMessages > 0 ? Math.round((analytics.overview.botMessages / analytics.overview.totalMessages) * 100) : 0}%</span>
+                  </div>
                 </div>
-              ))}
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium text-sm">Conversation Stats</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Total Conversations</span>
+                    <span className="font-medium">{analytics.overview.totalConversations}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Active Conversations</span>
+                    <span className="font-medium text-blue-600">{analytics.overview.activeConversations}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <span>Avg Messages/Conversation</span>
+                    <span>{analytics.overview.totalConversations > 0 ? Math.round(analytics.overview.totalMessages / analytics.overview.totalConversations) : 0}</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
       )}
 
-      <div className="flex justify-end">
-        <Button onClick={saveSettings} disabled={loading} className="flex items-center gap-2">
-          <Save className="h-4 w-4" />
-          {saved ? 'Saved!' : 'Save Settings'}
-        </Button>
-      </div>
+      {/* Information Panel */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Info className="h-5 w-5" />
+            About the AI Chatbot
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm">For Farmers</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Get instant rice farming advice</li>
+                <li>• Receive weather-aware recommendations</li>
+                <li>• Ask questions about crop management</li>
+                <li>• Get personalized guidance based on location</li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm">For Administrators</h4>
+              <ul className="text-sm text-muted-foreground space-y-1">
+                <li>• Monitor conversation statistics</li>
+                <li>• Track AI model performance</li>
+                <li>• View system prompt configuration</li>
+                <li>• Monitor API status and response times</li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

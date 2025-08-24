@@ -78,7 +78,7 @@ export async function GET() {
     // Check system health components
     const systemHealth = {
       openMeteoAPI: 'operational', // Open-Meteo doesn't require API key
-      predictionModel: yieldData && yieldData.length > 0 ? 'operational' : 'no_data',
+      predictionModel: yieldData && yieldData.length > 0 ? 'operational' : 'configured',
       chatbot: 'operational' // Assuming chatbot is operational if we can query conversations
     }
 

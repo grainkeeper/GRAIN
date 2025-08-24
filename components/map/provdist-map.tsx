@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet'
 import { useEffect, useMemo, useState } from 'react'
 import type { LatLngExpression } from 'leaflet'
 import { getProvinceName } from '@/lib/constants/provinces-psgc'
+import { Globe } from 'lucide-react'
 
 type Props = {
 	height?: number
@@ -28,9 +29,11 @@ export default function ProvdistMap({ height = 520 }: Props) {
 	const center = useMemo<LatLngExpression>(() => [12.8797, 121.774], [])
 	const [data, setData] = useState<any>(null)
   const [tpl, setTpl] = useState<{ title?: string; subtitle?: string; body?: string } | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
 	useEffect(() => {
 		let cancelled = false
+		setIsLoading(true)
 		Promise.all([
 			fetch('/api/map/provdists').then(r => r.json()),
 			fetch('/api/admin/map/settings').then(r => r.json())
@@ -42,8 +45,14 @@ export default function ProvdistMap({ height = 520 }: Props) {
 					subtitle: settings?.popup_subtitle_template, 
 					body: settings?.popup_body_template 
 				})
+				setIsLoading(false)
 			}
-		}).catch(console.error)
+		}).catch((error) => {
+			console.error(error)
+			if (!cancelled) {
+				setIsLoading(false)
+			}
+		})
 		return () => {
 			cancelled = true
 		}
@@ -120,7 +129,15 @@ export default function ProvdistMap({ height = 520 }: Props) {
 	}, [height])
 
 	return (
-		<div style={{ width: '100%', height: responsiveHeight }}>
+		<div style={{ width: '100%', height: responsiveHeight, position: 'relative' }}>
+			{isLoading && (
+				<div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
+					<div className="text-center">
+						<Globe className="h-8 w-8 mx-auto mb-2 text-muted-foreground animate-pulse" />
+						<p className="text-sm text-muted-foreground">Loading map...</p>
+					</div>
+				</div>
+			)}
 			<MapContainer 
 				center={center} 
 				zoom={6} 
