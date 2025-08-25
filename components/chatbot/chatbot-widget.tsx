@@ -542,7 +542,7 @@ export function ChatbotWidget() {
 
       {/* Chat Window */}
       {isOpen && (
-        <Card className="w-80 h-[500px] py-0 shadow-xl border-0 animate-in slide-in-from-bottom-4 duration-300">
+        <Card className="w-80 h-[500px] py-0 shadow-xl border-0 bg-white animate-in slide-in-from-bottom-4 duration-300">
           {showDataCollection && (
             <div className="absolute inset-0 bg-white z-10 rounded-lg">
               <DataCollectionFlow
