@@ -552,30 +552,30 @@ export default function YieldPredictionForm() {
             </div>
 
             {/* Modal Content */}
-            <div className="flex h-[calc(90vh-120px)]">
+            <div className="flex flex-col lg:flex-row h-[calc(90vh-120px)]">
               {/* Sidebar */}
-              <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
-                <div className="space-y-2">
+              <div className="lg:w-64 w-full bg-gray-50 lg:border-r border-gray-200 p-2 lg:p-4 lg:border-b-0 border-b">
+                <div className="grid grid-cols-3 lg:grid-cols-1 gap-1 lg:gap-2">
                   {[
                     { id: 'summary', label: 'Summary', icon: '📊' },
                     { id: 'quarters', label: 'Quarters', icon: '📈' },
                     { id: 'windows', label: 'Windows', icon: '🏆' },
-                    { id: 'daily-forecast', label: '16-Day Planting', icon: '🌤️' },
+                    { id: 'daily-forecast', label: '16-Day', icon: '🌤️' },
                     { id: 'risks', label: 'Risks', icon: '⚠️' },
                     { id: 'advice', label: 'Advice', icon: '🌱' }
                 ].map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                      className={`w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                      className={`w-full text-left px-2 lg:px-4 py-1.5 lg:py-3 text-xs lg:text-sm font-medium rounded-md lg:rounded-lg transition-colors ${
                       activeTab === tab.id
                           ? 'bg-primary text-white shadow-sm'
                           : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
-                      <div className="flex items-center space-x-3">
-                        <span className="text-lg">{tab.icon}</span>
-                        <span>{tab.label}</span>
+                      <div className="flex flex-col lg:flex-row items-center lg:items-start space-y-1 lg:space-y-0 lg:space-x-3">
+                        <span className="text-sm lg:text-lg">{tab.icon}</span>
+                        <span className="truncate text-center lg:text-left">{tab.label}</span>
                       </div>
                   </button>
                 ))}
@@ -583,26 +583,26 @@ export default function YieldPredictionForm() {
             </div>
 
               {/* Content Area */}
-              <div className="flex-1 p-6 overflow-y-auto">
+              <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
 
               {/* Tab Content */}
               {activeTab === 'summary' && (
-                <div className="space-y-8">
+                <div className="space-y-6 lg:space-y-8">
                   {/* Key Metrics Dashboard */}
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
                     <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center">
-                          <span className="text-2xl mr-2">🏆</span>
+                        <CardTitle className="text-base lg:text-lg flex items-center">
+                          <span className="text-xl lg:text-2xl mr-2">🏆</span>
                           Optimal Windows
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="text-center">
-                          <div className="text-4xl font-bold text-green-600 mb-2">
+                                                    <div className="text-3xl lg:text-4xl font-bold text-green-600 mb-2">
                             {effectiveAnalysis?.windowAnalysis?.windows?.length || 0}
-              </div>
-                          <p className="text-sm text-green-700 font-medium">7-Day Planting Windows</p>
+                          </div>
+                          <p className="text-xs lg:text-sm text-green-700 font-medium">7-Day Planting Windows</p>
                           <div className="mt-2 text-xs text-green-600">
                             Best opportunities for planting
               </div>
@@ -612,17 +612,17 @@ export default function YieldPredictionForm() {
 
                     <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
                       <CardHeader className="pb-3">
-                        <CardTitle className="text-lg flex items-center">
-                          <span className="text-2xl mr-2">📊</span>
+                        <CardTitle className="text-base lg:text-lg flex items-center">
+                          <span className="text-xl lg:text-2xl mr-2">📊</span>
                           Prediction Confidence
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
                         <div className="text-center">
-                          <div className="text-4xl font-bold text-blue-600 mb-2">
+                                                    <div className="text-3xl lg:text-4xl font-bold text-blue-600 mb-2">
                             {effectiveAnalysis?.overallConfidence || 0}%
-              </div>
-                          <p className="text-sm text-blue-700 font-medium">Model Accuracy</p>
+                          </div>
+                          <p className="text-xs lg:text-sm text-blue-700 font-medium">Model Accuracy</p>
                           <div className="mt-2 text-xs text-blue-600">
                             Based on historical data analysis
             </div>
@@ -635,32 +635,32 @@ export default function YieldPredictionForm() {
                   <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                     <CardHeader>
                       <CardTitle className="flex items-center text-amber-800">
-                        <span className="text-2xl mr-2">💡</span>
+                        <span className="text-xl lg:text-2xl mr-2">💡</span>
                         Key Insights
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <div className="text-center p-4 bg-white rounded-lg border border-amber-200">
-                          <div className="text-2xl font-bold text-amber-600 mb-1">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
+                                                <div className="text-center p-3 lg:p-4 bg-white rounded-lg border border-amber-200">
+                          <div className="text-xl lg:text-2xl font-bold text-amber-600 mb-1">
                             {optimalQuarter ? `Q${optimalQuarter}` : 'N/A'}
-                      </div>
-                          <div className="text-sm text-amber-700 font-medium">Best Quarter</div>
-                    </div>
-                        <div className="text-center p-4 bg-white rounded-lg border border-amber-200">
-                          <div className="text-2xl font-bold text-amber-600 mb-1">
+                          </div>
+                          <div className="text-xs lg:text-sm text-amber-700 font-medium">Best Quarter</div>
+                        </div>
+                                                <div className="text-center p-3 lg:p-4 bg-white rounded-lg border border-amber-200">
+                          <div className="text-xl lg:text-2xl font-bold text-amber-600 mb-1">
                             {effectiveAnalysis?.quarterSelection?.optimalQuarter?.predictedYield 
                               ? `${(effectiveAnalysis.quarterSelection.optimalQuarter.predictedYield / 1000).toFixed(1)}`
                               : 'N/A'
                             }
-                      </div>
-                          <div className="text-sm text-amber-700 font-medium">Tons/ha</div>
-                    </div>
-                        <div className="text-center p-4 bg-white rounded-lg border border-amber-200">
-                          <div className="text-2xl font-bold text-amber-600 mb-1">
+                          </div>
+                          <div className="text-xs lg:text-sm text-amber-700 font-medium">Tons/ha</div>
+                        </div>
+                                                <div className="text-center p-3 lg:p-4 bg-white rounded-lg border border-amber-200">
+                          <div className="text-xl lg:text-2xl font-bold text-amber-600 mb-1">
                             {effectiveAnalysis?.overallConfidence || 0}%
-                  </div>
-                          <div className="text-sm text-amber-700 font-medium">Confidence</div>
+                          </div>
+                          <div className="text-xs lg:text-sm text-amber-700 font-medium">Confidence</div>
                         </div>
                       </div>
                     </CardContent>
@@ -1068,15 +1068,15 @@ export default function YieldPredictionForm() {
               )}
 
               {/* Other tabs would go here */}
-              {activeTab === 'quarters' && (
-                <div className="space-y-8">
+                            {activeTab === 'quarters' && (
+                <div className="space-y-6 lg:space-y-8">
                   <div className="text-center">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Quarterly Yield Analysis</h2>
-                    <p className="text-gray-600">Compare yields across all quarters</p>
-                    </div>
+                    <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">Quarterly Yield Analysis</h2>
+                    <p className="text-sm lg:text-base text-gray-600">Compare yields across all quarters</p>
+                  </div>
                   
                   {quarterCards.length > 0 ? (
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                       {quarterCards.map((quarter: any, index: number) => {
                         const yieldValue = quarter.predictedYield ? (quarter.predictedYield / 1000).toFixed(1) : 'N/A';
                         const isOptimal = optimalQuarter === quarter.quarter;
