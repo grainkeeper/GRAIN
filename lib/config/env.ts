@@ -4,11 +4,17 @@ export const env = {
   DATABASE_URL: process.env.DATABASE_URL || '',
   NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET || '',
   NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY || '',
 }
 
 // Validate required environment variables
 export function validateEnv() {
-  const required = ['GEMINI_API_KEY']
+  const required = [
+    'GEMINI_API_KEY',
+    'NEXT_PUBLIC_SUPABASE_URL',
+    'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY'
+  ]
   const missing = required.filter(key => !env[key as keyof typeof env])
   
   if (missing.length > 0) {
