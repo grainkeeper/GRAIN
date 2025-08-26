@@ -168,21 +168,21 @@ export default function HomePage() {
                   <div className="text-muted-foreground mb-2">Quarterly MLR Formulas:</div>
                   <div className="space-y-1 text-xs">
                     <div>
-                      <span className="text-primary">Q1:</span> 6878.47+2007 + 1404.95*TEMP + 3009.25*RF
+                      <span className="text-primary">Q1:</span> Ŷ = 8478.47T - 16643.35D + 36502.01P - 5998.64W - 787.36H + 420307.95
                     </div>
                     <div>
-                      <span className="text-primary">Q2:</span> -3851.03*TEMP + 1404.95*TEMP + 2003.38*RF
+                      <span className="text-primary">Q2:</span> Ŷ = -3835.95T - 6149.60D - 4483.42P - 2593.99W - 8024.42H + 1067116.38
                     </div>
                     <div>
-                      <span className="text-primary">Q3:</span> 10508.77*TEMP + 2344.95*TEMP + 1403.25*RF
+                      <span className="text-primary">Q3:</span> Ŷ = 16630.77T - 1018.25D + 403.13P + 74623.01W + 25918.43H - 2410001.76
                     </div>
                     <div>
-                      <span className="text-primary">Q4:</span> 8903.46*TEMP + 2344.95*TEMP + 3002.78*RF
+                      <span className="text-primary">Q4:</span> Ŷ = 8993.69T + 5844.06D - 30748.54P - 33023.40W - 1155.46H + 410764.65
                     </div>
                   </div>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Variables: Temperature (°C), Rainfall (mm), Humidity (%), Provincial Yield (kg/ha)
+                  Variables: T=Temperature (°C), D=Dew Point (°C), P=Precipitation (mm), W=Wind Speed (km/h), H=Humidity (%)
                 </div>
               </CardContent>
             </Card>
