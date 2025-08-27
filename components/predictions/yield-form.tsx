@@ -87,6 +87,7 @@ export default function YieldPredictionForm() {
   const [formData, setFormData] = useState({
     year: new Date().getFullYear() + 1,
     riceVariety: '',
+    hectares: '',
     includeAlternatives: true,
     useHistoricalData: true
   });
@@ -445,40 +446,56 @@ export default function YieldPredictionForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Form fields */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="year">Target Year</Label>
-                <Input
-                  id="year"
-                  type="number"
-                  value={formData.year}
-                  onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
-                  min={new Date().getFullYear()}
-                  max={2100}
-                  required
-                />
-              </div>
+                         {/* Form fields */}
+             <div className="grid md:grid-cols-3 gap-6">
+               <div className="space-y-2">
+                 <Label htmlFor="year">Target Year</Label>
+                 <Input
+                   id="year"
+                   type="number"
+                   value={formData.year}
+                   onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                   min={new Date().getFullYear()}
+                   max={2100}
+                   required
+                 />
+               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="riceVariety" className="flex items-center">
-                  Rice Variety
-                  <span className="text-red-500 ml-1">*</span>
-                </Label>
-                <Select value={formData.riceVariety} onValueChange={(value) => setFormData({ ...formData, riceVariety: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select rice variety" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border border-gray-200 shadow-lg z-[100]">
-                    {varieties.map((variety) => (
-                      <SelectItem key={variety.id} value={variety.id}>
-                        {variety.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              </div>
+               <div className="space-y-2">
+                 <Label htmlFor="riceVariety" className="flex items-center">
+                   Rice Variety
+                   <span className="text-red-500 ml-1">*</span>
+                 </Label>
+                 <Select value={formData.riceVariety} onValueChange={(value) => setFormData({ ...formData, riceVariety: value })}>
+                   <SelectTrigger>
+                     <SelectValue placeholder="Select rice variety" />
+                   </SelectTrigger>
+                   <SelectContent className="bg-white border border-gray-200 shadow-lg z-[100]">
+                     {varieties.map((variety) => (
+                       <SelectItem key={variety.id} value={variety.id}>
+                         {variety.name}
+                       </SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
+
+                               <div className="space-y-2">
+                  <Label htmlFor="hectares">
+                    Farm Size (Hectares)
+                    <span className="text-gray-500 ml-1 text-xs">(Optional)</span>
+                  </Label>
+                  <Input
+                    id="hectares"
+                    type="number"
+                    value={formData.hectares}
+                    onChange={(e) => setFormData({ ...formData, hectares: e.target.value })}
+                    placeholder="Enter farm size in hectares"
+                    min="0.1"
+                    step="0.1"
+                  />
+                </div>
+             </div>
 
             {/* Location Selection */}
             <div className="space-y-2">
@@ -640,7 +657,7 @@ export default function YieldPredictionForm() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 lg:gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
                                                 <div className="text-center p-3 lg:p-4 bg-white rounded-lg border border-amber-200">
                           <div className="text-xl lg:text-2xl font-bold text-amber-600 mb-1">
                             {optimalQuarter ? `Q${optimalQuarter}` : 'N/A'}
@@ -662,6 +679,18 @@ export default function YieldPredictionForm() {
                           </div>
                           <div className="text-xs lg:text-sm text-amber-700 font-medium">Confidence</div>
                         </div>
+                                                {formData.hectares && parseFloat(formData.hectares) > 0 && (
+                          <div className="text-center p-3 lg:p-4 bg-white rounded-lg border border-green-200">
+                            <div className="text-xl lg:text-2xl font-bold text-green-600 mb-1">
+                              {effectiveAnalysis?.quarterSelection?.optimalQuarter?.predictedYield 
+                                ? `${((effectiveAnalysis.quarterSelection.optimalQuarter.predictedYield / 1000) * parseFloat(formData.hectares)).toFixed(1)}`
+                                : 'N/A'
+                              }
+                            </div>
+                            <div className="text-xs lg:text-sm text-green-700 font-medium">Total Tons</div>
+                            <div className="text-xs text-green-600">({formData.hectares} ha)</div>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -679,6 +708,14 @@ export default function YieldPredictionForm() {
                             <span>{rec}</span>
                           </div>
                         ))}
+                        {formData.hectares && parseFloat(formData.hectares) > 0 && effectiveAnalysis?.quarterSelection?.optimalQuarter?.predictedYield && (
+                          <div className="flex items-start">
+                            <span className="text-green-600 mr-2">🌾</span>
+                            <span className="text-green-700 font-medium">
+                              Expected total yield: {((effectiveAnalysis.quarterSelection.optimalQuarter.predictedYield / 1000) * parseFloat(formData.hectares)).toFixed(1)} tons for your {formData.hectares} hectare farm
+                            </span>
+                          </div>
+                        )}
                         {(!effectiveAnalysis?.quarterSelection?.recommendations || effectiveAnalysis.quarterSelection.recommendations.length === 0) && (
                           <p className="text-gray-500 italic">No recommendations available</p>
                         )}

@@ -290,7 +290,7 @@ function generateQuarterRecommendations(
   const recommendations: string[] = [];
   
   // Add optimal quarter recommendation
-  recommendations.push(`Plant during Q${optimalQuarter.quarter} for optimal yield of ${optimalQuarter.predictedYield.toFixed(0)} tons/ha`);
+  recommendations.push(`Plant during Q${optimalQuarter.quarter} for optimal yield of ${(optimalQuarter.predictedYield / 1000).toFixed(1)} tons/ha`);
   
   // Add confidence-based recommendations
   if (optimalQuarter.confidence >= 90) {

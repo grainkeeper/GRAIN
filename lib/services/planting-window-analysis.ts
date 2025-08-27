@@ -297,7 +297,7 @@ export class PlantingWindowAnalysisService {
     
     // Base recommendation from quarter selection
     let plantingPeriod = `${quarterNames[quarter]} ${year}`;
-    let quarterReason = `MLR analysis shows Q${quarter} has the highest predicted yield (${quarterSelection.optimalQuarter.predictedYield.toFixed(0)} tons/ha)`;
+    let quarterReason = `MLR analysis shows Q${quarter} has the highest predicted yield (${(quarterSelection.optimalQuarter.predictedYield / 1000).toFixed(1)} tons/ha)`;
     let windowReason = 'No specific 7-day window analysis available';
 
          // Add window-specific details if available
