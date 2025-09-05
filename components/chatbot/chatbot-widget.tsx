@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, X, Send, Bot, User } from 'lucide-react'
+import { MessageSquare, X, Send, Bot, User, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
 import { createClient } from '@/lib/supabase/client'
@@ -564,17 +564,15 @@ export function ChatbotWidget() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                {userFarmingData && (
-                  <Button
-                    onClick={() => setShowDataCollection(true)}
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 text-white hover:bg-white/20"
-                    title="Edit Profile"
-                  >
-                    <User className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button
+                  onClick={() => setShowDataCollection(true)}
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0 text-white hover:bg-white/20"
+                  title={userFarmingData ? "Edit Profile" : "Set up Profile"}
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
                 <Button
                   onClick={() => setIsOpen(false)}
                   variant="ghost"
