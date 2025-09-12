@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const cycleId = params.id
+  const { id: cycleId } = await params
   const body = await request.json()
   const { stages } = body || {}
   if (!Array.isArray(stages) || stages.length === 0) {

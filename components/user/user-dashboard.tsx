@@ -211,8 +211,8 @@ export default function UserDashboard() {
       {
         label: 'Calculations by Quarter',
         data: Object.values(trends.quarterPerformance).map(q => q.count),
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(34, 197, 94, 0.8)', 'rgba(234, 179, 8, 0.8)', 'rgba(244, 63, 94, 0.8)'],
+        borderColor: ['rgb(59, 130, 246)', 'rgb(34, 197, 94)', 'rgb(234, 179, 8)', 'rgb(244, 63, 94)'],
         borderWidth: 1,
       },
     ],
