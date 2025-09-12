@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, X, Send, Bot, User, Settings } from 'lucide-react'
+import { X, Send, User, Settings } from 'lucide-react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { DataCollectionFlow } from './data-collection-flow'
 import { createClient } from '@/lib/supabase/client'
@@ -517,11 +518,17 @@ export function ChatbotWidget() {
     return (
       <div className="fixed bottom-4 right-4 z-40">
         <Button
-          className="h-14 w-14 rounded-full bg-green-600 hover:bg-green-700 shadow-lg"
+          className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90 shadow-lg"
           size="icon"
           disabled
         >
-          <MessageSquare className="h-6 w-6" />
+          <Image 
+            src="/Images/chatbot.png" 
+            alt="Chatbot" 
+            width={64} 
+            height={64} 
+            className="h-12 w-12"
+          />
         </Button>
       </div>
     )
@@ -533,10 +540,16 @@ export function ChatbotWidget() {
       {!isOpen && (
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-14 w-14 rounded-full bg-green-600 hover:bg-green-700 shadow-lg hover:scale-110 transition-all duration-200"
+          className="h-16 w-16 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:scale-110 transition-all duration-200"
           size="icon"
         >
-          <MessageSquare className="h-6 w-6" />
+          <Image 
+            src="/Images/chatbot.png" 
+            alt="Chatbot" 
+            width={64} 
+            height={64} 
+            className="h-12 w-12"
+          />
         </Button>
       )}
 
@@ -552,11 +565,17 @@ export function ChatbotWidget() {
               />
             </div>
           )}
-          <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-t-xl">
+          <CardHeader className="bg-gradient-to-r from-green-800 via-green-500 to-yellow-400 text-white py-3 rounded-t-xl">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-                  <Bot className="h-4 w-4" />
+                  <Image 
+                    src="/Images/chatbot.png" 
+                    alt="Chatbot" 
+                    width={24} 
+                    height={24} 
+                    className="h-6 w-6"
+                  />
                 </div>
                 <div>
                   <CardTitle className="text-lg">GRAINKEEPER</CardTitle>
@@ -597,8 +616,14 @@ export function ChatbotWidget() {
                   )}
                 >
                   {message.sender === 'bot' && (
-                    <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Bot className="h-4 w-4 text-white" />
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                      <Image 
+                        src="/Images/chatbot.png" 
+                        alt="Chatbot" 
+                        width={24} 
+                        height={24} 
+                        className="h-6 w-6"
+                      />
                     </div>
                   )}
                   
@@ -606,14 +631,14 @@ export function ChatbotWidget() {
                     className={cn(
                       "max-w-[75%] rounded-2xl px-4 py-3 text-sm shadow-sm whitespace-pre-wrap",
                       message.sender === 'user'
-                        ? "bg-green-600 text-white rounded-br-md"
-                        : "bg-gray-100 text-gray-900 rounded-bl-md"
+                        ? "bg-primary/80 text-white rounded-br-md"
+                        : "bg-gray-50 text-gray-800 border border-gray-100 rounded-bl-md"
                     )}
                   >
                     {message.text}
                     <div className={cn(
                       "text-xs mt-1 opacity-70",
-                      message.sender === 'user' ? "text-green-100" : "text-gray-500"
+                      message.sender === 'user' ? "text-white/70" : "text-gray-500"
                     )}>
                       {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
@@ -629,14 +654,20 @@ export function ChatbotWidget() {
               
               {isTyping && (
                 <div className="flex items-end space-x-2">
-                  <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Bot className="h-4 w-4 text-white" />
+                  <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                    <Image 
+                      src="/Images/chatbot.png" 
+                      alt="Chatbot" 
+                      width={24} 
+                      height={24} 
+                      className="h-6 w-6"
+                    />
                   </div>
-                  <div className="bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm shadow-sm">
+                  <div className="bg-gray-50 border border-gray-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm shadow-sm">
                     <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                      <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                     </div>
                   </div>
                 </div>

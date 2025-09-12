@@ -4,16 +4,27 @@ import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { LogoutButton } from '@/components/auth/logout-button'
-import { Wheat, BarChart3, MessageSquare, Sprout, Target, MapPin, Menu, X, User, ChevronDown, Settings, LogOut } from 'lucide-react'
+import { BarChart3, MessageSquare, Sprout, Target, MapPin, Menu, X, User, ChevronDown, Settings, LogOut, Activity } from 'lucide-react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useEffect, useState, useRef } from 'react'
 import { User as SupabaseUser } from '@supabase/supabase-js'
 
 const navItems = [
   {
+    title: 'Dashboard',
+    href: '/dashboard',
+    icon: Activity
+  },
+  {
     title: 'Yield Predictions',
     href: '/predictions',
     icon: Sprout
+  },
+  {
+    title: 'Growth Tracker',
+    href: '/predictions/growth-tracker',
+    icon: Target
   },
   {
     title: 'Map',
@@ -106,15 +117,21 @@ export function Navbar() {
 
   return (
     <nav className={cn(
-      "transition-all duration-300 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50"
+      "transition-all duration-300 bg-gradient-to-r from-green-800 via-green-500 to-yellow-400 text-white sticky top-0 z-50"
     )}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center ">
             <Link href="/" className="flex items-center space-x-2">
-              <Wheat className="h-6 w-6 text-primary" />
-              <span className="text-xl font-bold text-foreground">GR-AI-N</span>
+              <Image 
+                src="/Images/logo.png" 
+                alt="GR-AI-N Logo" 
+                width={32} 
+                height={32} 
+                className="h-8 w-8 rounded-full"
+              />
+              <span className="text-xl font-bold text-white font-arigato">GR-AI-N</span>
             </Link>
           </div>
           
@@ -127,10 +144,10 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-primary",
+                    "flex items-center space-x-2 text-sm font-medium transition-colors hover:text-yellow-200",
                     pathname === item.href
-                      ? "text-foreground"
-                      : "text-muted-foreground"
+                      ? "text-white"
+                      : "text-white/80"
                   )}
                 >
                   <Icon className="h-4 w-4" />

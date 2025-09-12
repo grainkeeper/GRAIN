@@ -21,14 +21,12 @@ export default function Page() {
 			</section>
 
 			{/* Map Section */}
-			<div className="container mx-auto px-6 -mt-6 md:-mt-8 pb-20">
-				<div className="max-w-4xl mx-auto">
-					<Card className="shadow-lg">
-						<CardContent className="p-0">
-							<ProvdistMap />
-						</CardContent>
-					</Card>
-				</div>
+			<div className="container mx-auto px-6 mt-6 md:mt-8 pb-20 max-w-5xl">
+				<Card className="shadow-lg">
+					<CardContent className="p-0">
+						<ProvdistMap />
+					</CardContent>
+				</Card>
 			</div>
 
 			{/* Information Section */}

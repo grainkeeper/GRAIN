@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, TrendingUp, Database, Map, BarChart3, Bot, Leaf, Users, Clock, Download } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import BarChart from "@/components/charts/bar-chart"
 
 export default function HomePage() {
   return (
@@ -11,13 +12,13 @@ export default function HomePage() {
 
 
       {/* Hero Section */}
-      <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <section className="relative min-h-[80vh] flex items-center justify-center bg-gradient-to-br from-green-800 via-green-500 to-yellow-400">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto space-y-8">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-foreground leading-tight animate-fade-in">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold text-white leading-tight animate-fade-in">
               Rice Yield and Optimal Planting Window Forecasting System
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed animate-fade-in-delay">
+            <p className="text-lg md:text-xl text-white/90 max-w-3xl mx-auto leading-relaxed animate-fade-in-delay">
               Revolutionize your rice farming with our ML-powered predictions. Get precise planting recommendations,
               weather insights, and yield forecasts tailored for the Philippines.
             </p>
@@ -38,6 +39,70 @@ export default function HomePage() {
               </Button>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Regional MLR Grouped Coefficients */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-2">Per-Region MLR Coefficients</h2>
+            <p className="text-muted-foreground">Grouped bars show T, D, P, W, H for each region</p>
+          </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">MLR Coefficient Comparison by Region</CardTitle>
+              <CardDescription>Positive/negative values indicate direction of influence</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BarChart
+                height={520}
+                title="Per-Region MLR Coefficients"
+                xLabel="Region"
+                yLabel="Coefficient"
+                data={{
+                  labels: ["R1","R2","R3","R4-A","R4-B","R5","R6","R7","R8","R9","R10","R11","R12","R13","CAR","BARMM"],
+                  datasets: [
+                    {
+                      label: "T",
+                      data: [44830.51,-383.61,245611.70,-2513.54,-7727.47,56816.45,28665.03,-27552.19,-9727.51,-16084.13,-1476.72,9666.20,-383.61,-4011.04,-16394.58,43919.76],
+                      backgroundColor: "rgba(34,197,94,0.6)",
+                      borderColor: "rgba(34,197,94,1)",
+                      borderWidth: 1
+                    },
+                    {
+                      label: "D",
+                      data: [21917.64,45198.12,-296632.33,-2316.11,-85345.64,-23635.04,39439.85,-16438.49,12445.77,94152.10,-2507.21,6119.26,45198.12,-1976.29,-43532.95,-1643.65],
+                      backgroundColor: "rgba(59,130,246,0.6)",
+                      borderColor: "rgba(59,130,246,1)",
+                      borderWidth: 1
+                    },
+                    {
+                      label: "P",
+                      data: [7039.91,-5770.20,-10775.58,-574.60,1319.55,-565.27,9865.76,-2461.82,756.7,4434.45,153.11,4730.31,-5770.20,4855.15,5910.99,2318.58],
+                      backgroundColor: "rgba(234,179,8,0.6)",
+                      borderColor: "rgba(234,179,8,1)",
+                      borderWidth: 1
+                    },
+                    {
+                      label: "W",
+                      data: [-18765.53,-51440.83,24416.92,1220.70,7552.72,-11163.59,14974.76,-827,2646.83,50325.79,-3460.66,8512.54,-51440.83,-3268.16,4644.37,-10601.40],
+                      backgroundColor: "rgba(16,185,129,0.6)",
+                      borderColor: "rgba(16,185,129,1)",
+                      borderWidth: 1
+                    },
+                    {
+                      label: "H",
+                      data: [-1770.70,-2384.66,37579.99,444.82,-1893.09,3078.61,10348.36,-247.73,269.26,-1586.53,-1443.86,-1767.15,-2384.66,-5434.78,6123.95,1742.90],
+                      backgroundColor: "rgba(244,63,94,0.6)",
+                      borderColor: "rgba(244,63,94,1)",
+                      borderWidth: 1
+                    }
+                  ]
+                }}
+              />
+            </CardContent>
+          </Card>
         </div>
       </section>
 
@@ -347,7 +412,7 @@ export default function HomePage() {
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Leaf className="h-6 w-6 text-primary" />
-                <span className="font-serif text-xl font-bold">GR-AI-N</span>
+                <span className="font-arigato text-xl font-bold">GR-AI-N</span>
               </div>
               <p className="text-sm text-muted-foreground">
                 Revolutionizing rice farming with AI-powered predictions for Filipino farmers.

@@ -1,5 +1,4 @@
 import { SignUpForm } from '@/components/sign-up-form'
-import { Wheat } from 'lucide-react'
 import Image from 'next/image'
 
 export default function Page() {
@@ -8,7 +7,7 @@ export default function Page() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/Rice Grain Background.jpg"
+          src="/Background.png"
           alt="Rice grain background"
           fill
           className="object-cover"
@@ -16,7 +15,7 @@ export default function Page() {
           quality={95}
         />
         {/* Overlay for better readability */}
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-green-800 via-green-500 to-yellow-400"></div>
       </div>
       
       {/* Content */}
@@ -24,8 +23,14 @@ export default function Page() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <Wheat className="h-8 w-8 text-white" />
-            <span className="text-2xl font-bold text-white">GrainKeeper</span>
+            <Image 
+              src="/Images/chatbot.png" 
+              alt="GR-AI-N Logo" 
+              width={48} 
+              height={48} 
+              className="h-12 w-12"
+            />
+            <span className="text-2xl font-bold text-white font-arigato">GR-AI-N</span>
           </div>
           <p className="text-white/90 text-sm">Smart Rice Farming Platform</p>
         </div>

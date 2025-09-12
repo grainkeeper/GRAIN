@@ -4,7 +4,7 @@ export default function PredictionsPage() {
   return (
     <div>
       {/* Hero Banner */}
-      <section className="w-full bg-gradient-to-r from-green-600 to-emerald-600 py-16 text-white text-center">
+      <section className="w-full bg-gradient-to-r from-green-800 via-green-500 to-yellow-400 py-16 text-white text-center">
         <div className="container mx-auto px-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">Rice Yield Predictions</h1>
           <p className="mt-3 text-white/90 max-w-3xl mx-auto text-base md:text-lg">
@@ -14,8 +14,8 @@ export default function PredictionsPage() {
         </div>
       </section>
 
-      {/* Form Section */}
-      <div className="container mx-auto px-6 -mt-6 md:-mt-8">
+      {/* Main Section */}
+      <div className="container mx-auto px-6 mt-6 md:mt-8 max-w-4xl">
         <YieldPredictionForm />
       </div>
     </div>

@@ -115,10 +115,14 @@ export default function YieldPredictionForm() {
   const [savedAnalyses, setSavedAnalyses] = useState<any[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<string>('');
+  const [recentCalculations, setRecentCalculations] = useState<any[]>([]);
+  const [isSavingCalculation, setIsSavingCalculation] = useState(false);
+  const [calculationSaveMessage, setCalculationSaveMessage] = useState<string>('');
 
-  // Load saved analyses on component mount
+  // Load saved analyses and recent calculations on component mount
   useEffect(() => {
     loadSavedAnalyses();
+    loadRecentCalculations();
   }, []);
 
   const loadSavedAnalyses = async () => {
@@ -130,6 +134,107 @@ export default function YieldPredictionForm() {
       }
     } catch (error) {
       console.error('Failed to load saved analyses:', error);
+    }
+  };
+
+  const loadRecentCalculations = async () => {
+    try {
+      const response = await fetch('/api/predictions/get-calculations?limit=5');
+      if (response.ok) {
+        const data = await response.json();
+        setRecentCalculations(data.calculations || []);
+      }
+    } catch (error) {
+      console.error('Failed to load recent calculations:', error);
+    }
+  };
+
+  const saveCurrentCalculation = async () => {
+    if (!results) return;
+    
+    setIsSavingCalculation(true);
+    setCalculationSaveMessage('');
+    
+    try {
+      const response = await fetch('/api/predictions/save-calculation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          calculationData: results,
+          formData,
+          selectedLocation,
+          dailyForecast
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setCalculationSaveMessage(data.message);
+        // Reload recent calculations
+        await loadRecentCalculations();
+      } else {
+        const error = await response.json();
+        setCalculationSaveMessage(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      setCalculationSaveMessage('Failed to save calculation');
+    } finally {
+      setIsSavingCalculation(false);
+    }
+  };
+
+  const loadCalculationIntoModal = (calculation: any) => {
+    try {
+      // Set the form data
+      setFormData(calculation.form_data);
+      
+      // Set the location
+      setSelectedLocation(calculation.selected_location);
+      
+      // Set the results
+      setResults(calculation.calculation_results);
+      
+      // Set the daily forecast if available
+      if (calculation.daily_forecast) {
+        setDailyForecast(calculation.daily_forecast);
+      } else {
+        setDailyForecast(null);
+      }
+      
+      // Open the modal
+      setShowResultsModal(true);
+      setActiveTab('summary');
+      
+      // Clear any error messages
+      setError('');
+      setCalculationSaveMessage('');
+    } catch (error) {
+      console.error('Error loading calculation:', error);
+      setError('Failed to load calculation data');
+    }
+  };
+
+  const deleteCalculation = async (calculationId: string) => {
+    if (!confirm('Are you sure you want to delete this calculation? This action cannot be undone.')) {
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/predictions/get-calculations', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ calculationId })
+      });
+      
+      if (response.ok) {
+        // Reload recent calculations
+        await loadRecentCalculations();
+      } else {
+        const error = await response.json();
+        console.error('Failed to delete calculation:', error);
+      }
+    } catch (error) {
+      console.error('Failed to delete calculation:', error);
     }
   };
 
@@ -434,6 +539,71 @@ export default function YieldPredictionForm() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* Recent Calculations Section */}
+      {recentCalculations.length > 0 && (
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ClockIcon className="h-5 w-5 text-primary" />
+              Recent Calculations
+            </CardTitle>
+            <CardDescription>
+              Your recent yield prediction calculations - click to view full results
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {recentCalculations.map((calc) => (
+                <div key={calc.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h4 className="font-medium text-gray-900">{calc.calculation_name}</h4>
+                      <p className="text-sm text-gray-500">
+                        {new Date(calc.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => deleteCalculation(calc.id)}
+                      className="text-gray-400 hover:text-red-500 text-sm"
+                      title="Delete calculation"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
+                    <div className="text-center p-2 bg-green-50 rounded">
+                      <div className="font-bold text-green-600">
+                        {calc.optimal_quarter ? `Q${calc.optimal_quarter}` : 'N/A'}
+                      </div>
+                      <div className="text-xs text-green-700">Best Quarter</div>
+                    </div>
+                    <div className="text-center p-2 bg-blue-50 rounded">
+                      <div className="font-bold text-blue-600">
+                        {calc.predicted_yield ? `${(calc.predicted_yield / 1000).toFixed(1)}` : 'N/A'}
+                      </div>
+                      <div className="text-xs text-blue-700">Tons/ha</div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      {calc.rice_variety} • {calc.year}
+                    </div>
+                    <button
+                      onClick={() => loadCalculationIntoModal(calc)}
+                      className="px-3 py-1 bg-primary text-white text-sm rounded hover:bg-primary/90"
+                    >
+                      View Results
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -560,13 +730,31 @@ export default function YieldPredictionForm() {
                   {selectedLocation.region?.name} • {formData.year}
                   </p>
                 </div>
-                <button
-                  onClick={() => setShowResultsModal(false)}
-                className="text-white hover:text-gray-200"
-                >
-                ✕
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={saveCurrentCalculation}
+                    disabled={isSavingCalculation}
+                    className="px-3 py-1 bg-white/20 text-white text-sm rounded hover:bg-white/30 disabled:opacity-50"
+                  >
+                    {isSavingCalculation ? 'Saving...' : '💾 Save'}
+                  </button>
+                  <button
+                    onClick={() => setShowResultsModal(false)}
+                    className="text-white hover:text-gray-200"
+                  >
+                    ✕
+                  </button>
+                </div>
             </div>
+
+            {/* Save Message */}
+            {calculationSaveMessage && (
+              <div className={`p-3 mx-4 mt-2 rounded-lg text-sm ${
+                calculationSaveMessage.includes('Error') ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'
+              }`}>
+                {calculationSaveMessage}
+              </div>
+            )}
 
             {/* Modal Content */}
             <div className="flex flex-col lg:flex-row h-[calc(90vh-120px)]">

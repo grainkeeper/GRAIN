@@ -204,6 +204,28 @@ export function DataCollectionFlow({ onComplete, onCancel, existingData }: DataC
     } else {
       logger.info('Completing profile setup with data:', data)
       onComplete(data)
+      ;(async () => {
+        try {
+          await fetch('/api/farm-profiles', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              farm_name: data.location.province?.name ? `${data.location.province.name} Farm` : 'My Farm',
+              province: data.location.province?.name || 'Unknown',
+              region: '',
+              municipality: data.location.city?.name || '',
+              barangay: data.location.barangay?.name || '',
+              preferred_rice_variety: data.crop.variety,
+              farming_method: 'direct',
+              soil_type: data.soil.type,
+              farm_size_hectares: 0,
+              rice_area_hectares: 0
+            })
+          })
+        } catch (e) {
+          logger.error('Failed to persist farm profile', e)
+        }
+      })()
     }
   }
 

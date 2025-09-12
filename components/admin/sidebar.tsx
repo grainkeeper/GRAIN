@@ -11,13 +11,13 @@ import {
   Settings, 
   FileText,
   BarChart3,
-  Wheat,
   Bot,
   MapPin,
   Database,
   Menu,
   X
 } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
 
 const navItems = [
@@ -68,15 +68,21 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
 
   return (
     <div className={cn(
-      "flex flex-col bg-white dark:bg-gray-950 border-r transition-all duration-300 h-full",
+      "flex flex-col bg-gradient-to-b from-green-800 via-green-500 to-yellow-400 text-white border-r transition-all duration-300 h-full",
       isCollapsed ? "w-16" : "w-64"
     )}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
         <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
-          <Wheat className="h-6 w-6 text-primary" />
+          <Image 
+            src="/Images/chatbot.png" 
+            alt="GR-AI-N Logo" 
+            width={32} 
+            height={32} 
+            className="h-8 w-8"
+          />
           {!isCollapsed && (
-            <span className="font-serif text-xl font-bold text-primary">GR-AI-N</span>
+            <span className="font-arigato text-xl font-bold text-white">GR-AI-N</span>
           )}
         </Link>
         <div className="flex items-center gap-2">
@@ -116,8 +122,8 @@ export function AdminSidebar({ onClose }: AdminSidebarProps) {
                 "flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors w-full",
                 isCollapsed ? "justify-center" : "justify-start",
                 pathname === item.href
-                  ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  ? "bg-white/20 text-white"
+                  : "text-white/80 hover:text-white hover:bg-white/10"
               )}
             >
               <Icon className="h-4 w-4 flex-shrink-0" />
