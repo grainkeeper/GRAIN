@@ -57,8 +57,23 @@ export default function GrowthTrackerContent({ farmData }: GrowthTrackerContentP
         )}
       </div>
 
+      {/* AI Suggestions Section - Moved under farm profile */}
+      <div className="mb-6 bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
+        <AISuggestions 
+          currentStage={currentStage}
+          progress={progress}
+          nextInDays={nextInDays}
+          farmData={{
+            region: farmData.region,
+            province: farmData.province,
+            variety: farmData.variety,
+            method: farmData.method
+          }}
+        />
+      </div>
+
       {/* Main Growth Tracker Section */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <PlantStageCard 
             name={farmData.farmName} 
@@ -109,21 +124,6 @@ export default function GrowthTrackerContent({ farmData }: GrowthTrackerContentP
             </form>
           </CardContent>
         </Card>
-      </div>
-
-      {/* AI Suggestions Section */}
-      <div className="bg-gradient-to-br from-green-50 to-blue-50 rounded-xl p-6 border border-green-200">
-        <AISuggestions 
-          currentStage={currentStage}
-          progress={progress}
-          nextInDays={nextInDays}
-          farmData={{
-            region: farmData.region,
-            province: farmData.province,
-            variety: farmData.variety,
-            method: farmData.method
-          }}
-        />
       </div>
     </div>
   );
