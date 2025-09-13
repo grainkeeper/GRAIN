@@ -152,11 +152,11 @@ export default function HomePage() {
                 <Badge variant="secondary" className="w-fit mx-auto mb-2">
                   Step 2
                 </Badge>
-                <CardTitle className="text-xl font-serif">Choose Year & Quarter</CardTitle>
+                <CardTitle className="text-xl font-serif">Enter Planting Date</CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Specify the year and planting quarter (Q1, Q2, Q3, or Q4) for your crop cycle
+                  Specify your planting date to get accurate growth stage predictions and timeline
                 </CardDescription>
               </CardContent>
             </Card>
