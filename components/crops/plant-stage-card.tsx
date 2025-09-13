@@ -18,9 +18,10 @@ type Props = {
   sowingDate: string; // ISO
   transplantDate?: string; // ISO
   farmProfileId?: string; // Optional: if provided, will fetch real data
+  onStageChange?: (stage: RiceStage, progress: number, nextInDays: number) => void; // Callback for stage updates
 };
 
-export default function PlantStageCard({ name, method, sowingDate, transplantDate, farmProfileId }: Props) {
+export default function PlantStageCard({ name, method, sowingDate, transplantDate, farmProfileId, onStageChange }: Props) {
   const [realData, setRealData] = useState<{
     performance: FarmHistoricalPerformance | null;
     profile: UserFarmProfile | null;
@@ -148,6 +149,13 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
   }, [anchorDate, boundaries]);
 
   const { stage, progress, nextInDays } = useMemo(() => computeStage(das, boundaries ?? undefined, anchorDate), [das, boundaries, anchorDate]);
+
+  // Notify parent component of stage changes
+  useEffect(() => {
+    if (onStageChange && !realData.loading && realData.userChecked) {
+      onStageChange(stage, progress, nextInDays);
+    }
+  }, [stage, progress, nextInDays, onStageChange, realData.loading, realData.userChecked]);
 
   // Show skeleton loading while farm data is being fetched or user hasn't been checked yet
   if (realData.loading || !realData.userChecked) {
