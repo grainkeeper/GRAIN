@@ -1,5 +1,6 @@
 import { LoginForm } from '@/components/login-form'
 import Image from 'next/image'
+import { Suspense } from 'react'
 
 export default function Page() {
   return (
@@ -35,7 +36,13 @@ export default function Page() {
           <p className="text-white/90 text-sm">Smart Rice Farming Platform</p>
         </div>
         
-        <LoginForm />
+        <Suspense fallback={
+          <div className="flex items-center justify-center p-8">
+            <div className="text-white">Loading...</div>
+          </div>
+        }>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
   )
