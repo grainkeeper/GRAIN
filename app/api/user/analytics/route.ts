@@ -16,7 +16,7 @@ export async function GET() {
       .select('*')
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     // Get user's recent calculations
     const { data: calculations } = await supabase

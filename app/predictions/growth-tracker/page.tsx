@@ -79,6 +79,14 @@ export default async function GrowTrackerPage() {
               <Badge className="capitalize">{ui.method}</Badge>
             </div>
           </div>
+          {!ui.farmProfileId && (
+            <div className="mt-3 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+              <p className="text-sm text-yellow-800">
+                <strong>Setup Required:</strong> You need to create a farm profile to use the growth tracker. 
+                Please fill out the form below to get started.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Bento/grid layout */}
@@ -100,6 +108,18 @@ export default async function GrowTrackerPage() {
               <form action="/api/farm-profiles" method="post" className="grid gap-3">
                 <div className="grid grid-cols-1 gap-3">
                   <div>
+                    <label className="text-sm font-medium text-muted-foreground">Farm Name</label>
+                    <Input name="farm_name" defaultValue={ui.farmName} placeholder="Your Farm Name" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Province</label>
+                    <Input name="province" defaultValue={ui.province} placeholder="Province" />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-muted-foreground">Region</label>
+                    <Input name="region" defaultValue={ui.region} placeholder="Region" />
+                  </div>
+                  <div>
                     <label className="text-sm font-medium text-muted-foreground">Planting Date</label>
                     <Input name="planting_date" defaultValue={ui.sowingDate} placeholder="YYYY-MM-DD" type="date" />
                   </div>
@@ -113,7 +133,9 @@ export default async function GrowTrackerPage() {
                   </div>
                 </div>
                 <div className="flex justify-end pt-2">
-                  <Button type="submit" className="bg-primary hover:bg-primary/90">Update</Button>
+                  <Button type="submit">
+                    {ui.farmProfileId ? 'Update Profile' : 'Create Profile'}
+                  </Button>
                 </div>
               </form>
             </CardContent>
@@ -123,5 +145,3 @@ export default async function GrowTrackerPage() {
     </div>
   );
 }
-
-

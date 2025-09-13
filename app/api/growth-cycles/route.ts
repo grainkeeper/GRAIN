@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     .from('user_farm_profiles')
     .select('id,user_id')
     .eq('id', farmProfileId)
-    .single()
+    .maybeSingle()
   if (!profile || profile.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const { data: cycle } = await supabase
@@ -45,12 +45,25 @@ export async function POST(request: Request) {
   const { farm_profile_id, variety, method, cycle_start_date, cycle_end_date } = body || {}
   if (!farm_profile_id || !cycle_start_date) return NextResponse.json({ error: 'farm_profile_id and cycle_start_date required' }, { status: 400 })
 
+  // Provide default values for optional fields
+  const varietyValue = variety || 'Unknown'
+  const methodValue = method || 'direct'
+
+  // Validate date format
+  const startDate = new Date(cycle_start_date)
+  if (isNaN(startDate.getTime())) {
+    return NextResponse.json({ error: 'Invalid cycle_start_date format' }, { status: 400 })
+  }
+
   const { data: profile } = await supabase
     .from('user_farm_profiles')
     .select('id,user_id')
     .eq('id', farm_profile_id)
-    .single()
-  if (!profile || profile.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    .maybeSingle()
+  
+  if (!profile || profile.user_id !== user.id) {
+    return NextResponse.json({ error: 'Forbidden - Profile not found or access denied' }, { status: 403 })
+  }
 
   const { data: existing } = await supabase
     .from('farm_growth_cycles')
@@ -63,18 +76,20 @@ export async function POST(request: Request) {
   if (existing) {
     ;({ data, error } = await supabase
       .from('farm_growth_cycles')
-      .update({ variety, method, cycle_end_date })
+      .update({ variety: varietyValue, method: methodValue, cycle_end_date })
       .eq('id', existing.id)
       .select('*')
-      .single())
+      .maybeSingle())
   } else {
     ;({ data, error } = await supabase
       .from('farm_growth_cycles')
-      .insert({ farm_profile_id, variety, method, cycle_start_date, cycle_end_date })
+      .insert({ farm_profile_id, variety: varietyValue, method: methodValue, cycle_start_date, cycle_end_date })
       .select('*')
-      .single())
+      .maybeSingle())
   }
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
   return NextResponse.json({ data })
 }
 

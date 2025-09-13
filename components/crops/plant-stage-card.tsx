@@ -53,7 +53,7 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
             .select('*')
             .eq('id', farmProfileId)
             .eq('user_id', user.id)
-            .single();
+            .maybeSingle();
           profile = profileData;
 
           if (profile) {

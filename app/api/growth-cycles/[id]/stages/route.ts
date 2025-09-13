@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     .from('farm_growth_cycles')
     .select('id, farm_profile_id')
     .eq('id', cycleId)
-    .single()
+    .maybeSingle()
 
   if (!cycle) return NextResponse.json({ error: 'Not found' }, { status: 404 })
 
@@ -26,7 +26,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     .from('user_farm_profiles')
     .select('id, user_id')
     .eq('id', cycle.farm_profile_id)
-    .single()
+    .maybeSingle()
 
   if (!profile || profile.user_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 

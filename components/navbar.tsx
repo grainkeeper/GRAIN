@@ -12,11 +12,6 @@ import { User as SupabaseUser } from '@supabase/supabase-js'
 
 const navItems = [
   {
-    title: 'Dashboard',
-    href: '/dashboard',
-    icon: Activity
-  },
-  {
     title: 'Yield Predictions',
     href: '/predictions',
     icon: Sprout
@@ -117,7 +112,7 @@ export function Navbar() {
 
   return (
     <nav className={cn(
-      "transition-all duration-300 bg-gradient-to-r from-green-800 via-green-500 to-yellow-400 text-white sticky top-0 z-50"
+      "transition-all duration-300 text-white absolute top-0 left-0 right-0 z-50"
     )}>
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
@@ -166,7 +161,7 @@ export function Navbar() {
                     <Button
                       variant="ghost"
                       onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                      className="flex items-center space-x-2 text-sm font-medium transition-colors text-muted-foreground hover:text-foreground"
+                      className="flex items-center space-x-2 text-sm font-medium transition-colors text-white hover:text-yellow-200"
                     >
                       <User className="h-4 w-4" />
                       <span>{user.email?.split('@')[0] || user.email}</span>
@@ -203,14 +198,14 @@ export function Navbar() {
                     <Link href="/auth/login">
                       <Button 
                         variant="ghost" 
-                        className="text-sm font-medium transition-colors text-muted-foreground hover:text-foreground"
+                        className="text-sm font-medium transition-colors text-white hover:text-yellow-200"
                       >
                         Login
                       </Button>
                     </Link>
                     <Link href="/auth/sign-up">
                       <Button 
-                        className="text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
+                        className="text-sm font-medium"
                       >
                         Sign Up
                       </Button>

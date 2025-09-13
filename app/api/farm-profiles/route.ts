@@ -73,23 +73,25 @@ export async function POST(req: Request) {
     // Only update provided fields
     const updatePayload = { ...updateFields }
     if (Object.keys(updatePayload).length > 0) {
-      ;({ data, error } = await supabase
+      const updateResult = await supabase
         .from('user_farm_profiles')
         .update(updatePayload)
         .eq('id', existing.id)
         .select('*')
-        .single())
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+        .maybeSingle()
+      
+      if (updateResult.error) return NextResponse.json({ error: updateResult.error.message }, { status: 500 })
+      data = updateResult.data
     } else {
       // No profile changes requested; fetch existing row
       const res = await supabase
         .from('user_farm_profiles')
         .select('*')
         .eq('id', existing.id)
-        .single()
+        .maybeSingle()
+      
+      if (res.error) return NextResponse.json({ error: res.error.message }, { status: 500 })
       data = res.data
-      error = res.error
-      if (error) return NextResponse.json({ error: error.message }, { status: 500 })
     }
   } else {
     // Create a new active profile with provided fields
@@ -99,21 +101,26 @@ export async function POST(req: Request) {
       soil_type: 'Unknown',
       ...updateFields
     }
-    ;({ data, error } = await supabase
+    const insertResult = await supabase
       .from('user_farm_profiles')
       .insert(insertPayload)
       .select('*')
-      .single())
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+      .maybeSingle()
+    
+    if (insertResult.error) return NextResponse.json({ error: insertResult.error.message }, { status: 500 })
+    data = insertResult.data
   }
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
   // Optionally persist planting_date into farm_historical_performance
-  if (body.planting_date) {
-    await supabase
-      .from('farm_historical_performance')
-      .insert({ farm_profile_id: data.id, planting_date: body.planting_date })
+  if (body.planting_date && data?.id) {
+    try {
+      await supabase
+        .from('farm_historical_performance')
+        .insert({ farm_profile_id: data.id, planting_date: body.planting_date })
+    } catch (perfError) {
+      console.error('Failed to insert planting date:', perfError)
+      // Don't fail the entire request if planting date insertion fails
+    }
   }
 
   return NextResponse.json({ data })
