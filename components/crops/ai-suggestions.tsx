@@ -380,19 +380,19 @@ export default function AISuggestions({ currentStage, progress, nextInDays, farm
                   {suggestion.type}
                 </Badge>
               </div>
-              <CardTitle className="text-base font-semibold">
+              <CardTitle className="text-base font-semibold text-gray-900">
                 {suggestion.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
-              <p className="text-sm mb-3">
+              <p className="text-sm mb-3 text-gray-800">
                 {suggestion.description}
               </p>
               {suggestion.action && (
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="w-full text-xs"
+                  className="w-full text-xs text-black border-gray-300 hover:bg-gray-100"
                 >
                   {suggestion.action}
                 </Button>
