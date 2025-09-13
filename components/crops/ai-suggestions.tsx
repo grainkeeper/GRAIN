@@ -359,8 +359,8 @@ export default function AISuggestions({ currentStage, progress, nextInDays, farm
 
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-foreground mb-2">AI-Powered Farming Suggestions</h2>
+      <div className="text-center space-y-2">
+        <h2 className="text-2xl font-bold text-foreground">AI-Powered Farming Suggestions</h2>
         <p className="text-muted-foreground">
           Personalized recommendations for your {prettyStage(currentStage)} stage
         </p>
@@ -368,9 +368,9 @@ export default function AISuggestions({ currentStage, progress, nextInDays, farm
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {suggestions.map((suggestion) => (
-          <Card key={suggestion.id} className={`border-2 ${getTypeColor(suggestion.type)}`}>
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
+          <Card key={suggestion.id} className={`border-2 ${getTypeColor(suggestion.type)} h-full flex flex-col`}>
+            <CardHeader className="pb-3 flex-shrink-0">
+              <div className="flex items-center gap-2 mb-2">
                 {getTypeIcon(suggestion.type)}
                 <Badge 
                   variant={suggestion.type === 'critical' ? 'destructive' : 
@@ -380,19 +380,19 @@ export default function AISuggestions({ currentStage, progress, nextInDays, farm
                   {suggestion.type}
                 </Badge>
               </div>
-              <CardTitle className="text-base font-semibold text-gray-900">
+              <CardTitle className="text-base font-semibold text-gray-900 leading-tight">
                 {suggestion.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm mb-3 text-gray-800">
+            <CardContent className="pt-0 flex-1 flex flex-col">
+              <p className="text-sm mb-4 text-gray-800 flex-1">
                 {suggestion.description}
               </p>
               {suggestion.action && (
                 <Button 
                   size="sm" 
                   variant="outline" 
-                  className="w-full text-xs text-black border-gray-300 hover:bg-gray-100"
+                  className="w-full text-xs text-black border-gray-300 hover:bg-gray-100 mt-auto"
                 >
                   {suggestion.action}
                 </Button>
@@ -402,7 +402,7 @@ export default function AISuggestions({ currentStage, progress, nextInDays, farm
         ))}
       </div>
 
-      <div className="text-center pt-4">
+      <div className="text-center pt-2">
         <p className="text-xs text-muted-foreground">
           💡 Suggestions are based on your current growth stage, location, and farming method
         </p>
