@@ -40,10 +40,16 @@ export async function updateSession(request: NextRequest) {
 
   if (
     !user &&
-    request.nextUrl.pathname.startsWith('/admin')
+    (request.nextUrl.pathname.startsWith('/admin') || 
+     request.nextUrl.pathname.startsWith('/predictions/growth-tracker'))
   ) {
     const url = request.nextUrl.clone()
-    url.pathname = '/'
+    if (request.nextUrl.pathname.startsWith('/admin')) {
+      url.pathname = '/'
+    } else {
+      url.pathname = '/auth/login'
+      url.searchParams.set('redirect', request.nextUrl.pathname)
+    }
     return NextResponse.redirect(url)
   }
 

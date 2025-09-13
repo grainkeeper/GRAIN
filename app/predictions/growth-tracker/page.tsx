@@ -5,12 +5,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
 
 type Method = 'direct' | 'transplant';
 
 export default async function GrowTrackerPage() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+
+  // Redirect to login if user is not authenticated
+  if (!user) {
+    redirect('/auth/login?redirect=/predictions/growth-tracker');
+  }
 
   let ui: { farmName: string; region: string; province: string; variety: string; method: Method; sowingDate: string; farmProfileId?: string } = {
     farmName: 'Your Farm',
