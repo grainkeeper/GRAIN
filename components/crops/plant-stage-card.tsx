@@ -6,6 +6,7 @@ import { computeStage, daysAfter, prettyStage, RiceStage, StageBoundary } from '
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Progress } from '@/components/ui/progress';
 import { createClient } from '@/lib/supabase/client';
 import { FarmHistoricalPerformance, UserFarmProfile } from '@/lib/types/database';
 
@@ -24,9 +25,11 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
     performance: FarmHistoricalPerformance | null;
     profile: UserFarmProfile | null;
     loading: boolean;
-  }>({ performance: null, profile: null, loading: false });
+    userChecked: boolean;
+  }>({ performance: null, profile: null, loading: false, userChecked: false });
   const [editing, setEditing] = useState(false)
   const [boundaries, setBoundaries] = useState<StageBoundary[] | null>(null)
+  const [timelineLoading, setTimelineLoading] = useState(false)
 
   const supabase = createClient();
 
@@ -39,7 +42,7 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
         // Get current user
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
-          setRealData({ performance: null, profile: null, loading: false });
+          setRealData({ performance: null, profile: null, loading: false, userChecked: true });
           return;
         }
 
@@ -90,10 +93,27 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
           }
         }
 
-        setRealData({ performance, profile, loading: false });
+        setRealData({ performance, profile, loading: false, userChecked: true });
+
+        // Fetch growth cycle boundaries if we have a profile (lazy loading)
+        if (profile && !boundaries) {
+          setTimelineLoading(true);
+          try {
+            const cycleRes = await fetch(`/api/growth-cycles?farm_profile_id=${profile.id}`, { cache: 'no-store' });
+            const cycleJson = await cycleRes.json();
+            if (cycleJson?.data?.overrides?.length) {
+              setBoundaries(cycleJson.data.overrides);
+            }
+          } catch (error) {
+            console.error('Error fetching growth cycle data:', error);
+            // Continue with default boundaries if fetch fails
+          } finally {
+            setTimelineLoading(false);
+          }
+        }
       } catch (error) {
         console.error('Error fetching farm data:', error);
-        setRealData({ performance: null, profile: null, loading: false });
+        setRealData({ performance: null, profile: null, loading: false, userChecked: true });
       }
     };
 
@@ -112,15 +132,116 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
 
   const [das, setDas] = useState(() => daysAfter(anchorDate));
 
+  // Update DAS when real data loads or anchor date changes
   useEffect(() => {
     const startISO = boundaries?.[0]?.start_date ?? anchorDate
     const computeDas = () => daysAfter(startISO)
     setDas(computeDas())
+  }, [anchorDate, boundaries, realData.performance]);
+
+  // Set up timer for periodic updates
+  useEffect(() => {
+    const startISO = boundaries?.[0]?.start_date ?? anchorDate
+    const computeDas = () => daysAfter(startISO)
     const timer = setInterval(() => setDas(computeDas()), 60_000)
     return () => clearInterval(timer)
   }, [anchorDate, boundaries]);
 
   const { stage, progress, nextInDays } = useMemo(() => computeStage(das, boundaries ?? undefined, anchorDate), [das, boundaries, anchorDate]);
+
+  // Show skeleton loading while farm data is being fetched or user hasn't been checked yet
+  if (realData.loading || !realData.userChecked) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="h-6 w-32 bg-muted animate-pulse rounded"></div>
+            <div className="flex items-center gap-2">
+              <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+              <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+            </div>
+          </CardTitle>
+          <CardDescription>Loading your farm data...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-5 w-20 bg-muted animate-pulse rounded"></div>
+            <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+          </div>
+
+          <div className="w-full h-2 bg-muted rounded animate-pulse"></div>
+          <div className="mt-2 h-3 w-24 bg-muted animate-pulse rounded"></div>
+
+          <Separator className="my-4" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            <div className="w-30 h-30 bg-muted animate-pulse rounded mx-auto"></div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show skeleton loading while timeline data is being fetched
+  if (realData.profile && timelineLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>{actualFarmName}</span>
+            <div className="flex items-center gap-2">
+              <button className="text-xs underline" onClick={() => setEditing(v => !v)} disabled={!realData.profile}> {editing ? 'Close' : 'Edit timeline'} </button>
+              <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+            </div>
+          </CardTitle>
+          <CardDescription>Loading timeline data...</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between mb-2">
+            <div className="h-5 w-20 bg-muted animate-pulse rounded"></div>
+            <div className="h-4 w-16 bg-muted animate-pulse rounded"></div>
+          </div>
+
+          <div className="w-full h-2 bg-muted rounded animate-pulse"></div>
+          <div className="mt-2 h-3 w-24 bg-muted animate-pulse rounded"></div>
+
+          <Separator className="my-4" />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+            <div className="w-30 h-30 bg-muted animate-pulse rounded mx-auto"></div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-20 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+              <div className="flex items-center justify-between">
+                <div className="h-4 w-24 bg-muted animate-pulse rounded"></div>
+                <div className="h-4 w-8 bg-muted animate-pulse rounded"></div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -143,10 +264,13 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
           <span className="text-sm text-muted-foreground">Next in {nextInDays} d</span>
         </div>
 
-        <div className="w-full h-2 bg-gray-200 rounded overflow-hidden">
-          <div className="h-2 bg-radiant-gradient-horizontal" style={{ width: `${progress.toFixed(1)}%` }} />
+        <Progress value={progress} className="h-2" />
+        <div className="mt-2 text-xs text-muted-foreground">
+          Progress: {progress.toFixed(1)}%
+          {realData.profile && !boundaries && !timelineLoading && (
+            <span className="ml-2 text-xs text-amber-600">(Using default timeline)</span>
+          )}
         </div>
-        <div className="mt-2 text-xs text-muted-foreground">Progress: {progress.toFixed(1)}%</div>
 
         <Separator className="my-4" />
 
