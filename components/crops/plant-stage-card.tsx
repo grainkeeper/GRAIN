@@ -311,7 +311,7 @@ export default function PlantStageCard({ name, method, sowingDate, transplantDat
 }
 
 function StageImage({ stage, className = '' }: { stage: RiceStage; className?: string }) {
-  const pool = ['/Images/2.png','/Images/3.png','/Images/4.png']
+  const pool = ['/Stages/nursery.png','/Stages/vegetative.png','/Stages/tillering.png','/Stages/pi.png','/Stages/booting.png','/Stages/heading.png','/Stages/flowering.png','/Stages/grain_fill.png','/Stages/maturity.png']
   const order: RiceStage[] = ['nursery','vegetative','tillering','pi','booting','heading','flowering','grain_fill','maturity']
   const idx = Math.max(0, order.indexOf(stage))
   const src = pool[idx % pool.length]
