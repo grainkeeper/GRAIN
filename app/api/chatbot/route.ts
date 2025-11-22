@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     // Initialize Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
     // Create a context-aware prompt
     let prompt = `You are GRAINKEEPER, an AI farming assistant for rice farming in the Philippines.
